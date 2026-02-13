@@ -1,0 +1,276 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { Search, Plus, Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { ELBadge } from "./el-badge";
+import type { Student, ELLevel } from "@/types";
+import { EL_LEVELS, GRADES } from "@/types";
+
+type SortField = "name" | "grade" | "el_level" | "primary_language";
+type SortDirection = "asc" | "desc";
+
+interface StudentsTableProps {
+  students: Student[];
+  onAdd: () => void;
+  onEdit: (student: Student) => void;
+  onDelete: (student: Student) => void;
+}
+
+export function StudentsTable({
+  students,
+  onAdd,
+  onEdit,
+  onDelete,
+}: StudentsTableProps) {
+  const [search, setSearch] = useState("");
+  const [gradeFilter, setGradeFilter] = useState<string>("all");
+  const [elFilter, setElFilter] = useState<string>("all");
+  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const filteredAndSorted = useMemo(() => {
+    let result = [...students];
+
+    // Search filter
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.name.toLowerCase().includes(lowerSearch) ||
+          s.primary_language.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    // Grade filter
+    if (gradeFilter !== "all") {
+      result = result.filter((s) => s.grade === parseInt(gradeFilter));
+    }
+
+    // EL level filter
+    if (elFilter !== "all") {
+      result = result.filter((s) => s.el_level === elFilter);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      const comparison =
+        typeof aVal === "string"
+          ? aVal.localeCompare(bVal as string)
+          : (aVal as number) - (bVal as number);
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [students, search, gradeFilter, elFilter, sortField, sortDirection]);
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }
+
+  function SortButton({
+    field,
+    children,
+  }: {
+    field: SortField;
+    children: React.ReactNode;
+  }) {
+    return (
+      <button
+        onClick={() => toggleSort(field)}
+        className="flex items-center gap-1 font-medium hover:text-foreground transition-colors"
+      >
+        {children}
+        <ArrowUpDown className="h-3 w-3" />
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-1 gap-2">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search students..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select
+            value={gradeFilter}
+            onChange={(e) => setGradeFilter(e.target.value)}
+          >
+            <option value="all">All Grades</option>
+            {GRADES.map((g) => (
+              <option key={g} value={g}>
+                Grade {g}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={elFilter}
+            onChange={(e) => setElFilter(e.target.value)}
+          >
+            <option value="all">All Levels</option>
+            {EL_LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <Button onClick={onAdd} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Student
+        </Button>
+      </div>
+
+      {/* Results count */}
+      <p className="text-sm text-muted-foreground">
+        {filteredAndSorted.length} student{filteredAndSorted.length !== 1 ? "s" : ""}
+        {(search || gradeFilter !== "all" || elFilter !== "all") && " (filtered)"}
+      </p>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-md border">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+                <SortButton field="name">Name</SortButton>
+              </th>
+              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+                <SortButton field="grade">Grade</SortButton>
+              </th>
+              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+                <SortButton field="el_level">EL Level</SortButton>
+              </th>
+              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+                <SortButton field="primary_language">Language</SortButton>
+              </th>
+              <th className="px-4 py-3 text-right text-sm text-muted-foreground">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAndSorted.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                  {students.length === 0
+                    ? "No students yet. Click \"Add Student\" to begin."
+                    : "No students match your filters."}
+                </td>
+              </tr>
+            ) : (
+              filteredAndSorted.map((student) => (
+                <tr
+                  key={student.id}
+                  className="border-b hover:bg-muted/30 transition-colors"
+                >
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/students/${student.id}`}
+                      className="font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {student.name}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-sm">{student.grade}</td>
+                  <td className="px-4 py-3">
+                    <ELBadge level={student.el_level} />
+                  </td>
+                  <td className="px-4 py-3 text-sm">{student.primary_language}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(student)}
+                        aria-label={`Edit ${student.name}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(student)}
+                        aria-label={`Delete ${student.name}`}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card Grid */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
+        {filteredAndSorted.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-sm text-muted-foreground">
+            {students.length === 0
+              ? "No students yet. Click \"Add Student\" to begin."
+              : "No students match your filters."}
+          </div>
+        ) : (
+          filteredAndSorted.map((student) => (
+            <div
+              key={student.id}
+              className="rounded-lg border bg-card p-4 space-y-2"
+            >
+              <div className="flex items-start justify-between">
+                <Link
+                  href={`/students/${student.id}`}
+                  className="font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {student.name}
+                </Link>
+                <ELBadge level={student.el_level} />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Grade {student.grade} &middot; {student.primary_language}
+              </div>
+              <div className="flex items-center gap-1 pt-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEdit(student)}
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(student)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
