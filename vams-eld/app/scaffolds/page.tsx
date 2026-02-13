@@ -7,7 +7,7 @@ import {
     Download,
     FileText,
     FileSpreadsheet,
-    FilePdf,
+    File,
     Star,
     ChevronDown,
     ChevronUp
@@ -135,7 +135,7 @@ const ScaffoldsPage = () => {
 
     const getFileIcon = (type: string) => {
         switch (type) {
-            case "PDF": return <FilePdf className="w-5 h-5 text-red-500" />;
+            case "PDF": return <File className="w-5 h-5 text-red-500" />;
             case "Google Doc": return <FileText className="w-5 h-5 text-blue-500" />;
             case "Google Sheet": return <FileSpreadsheet className="w-5 h-5 text-green-500" />;
             default: return <FileText className="w-5 h-5 text-gray-500" />;
