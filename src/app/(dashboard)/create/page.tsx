@@ -139,7 +139,7 @@ export default function CreateAssignmentPage() {
         </Card>
       )}
 
-      {/* Step 3: Selection (Phase 4) */}
+      {/* Step 3: Select Student & Scaffolds */}
       {form.currentStep === 3 && (
         <Card>
           <CardHeader>
@@ -148,21 +148,15 @@ export default function CreateAssignmentPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
-              <p className="text-sm font-medium text-foreground">
-                Student & scaffold selection coming in Phase 4
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Assignment: &quot;{form.title}&quot; ({form.content.length.toLocaleString()} chars)
-              </p>
-              <Button
-                variant="outline"
-                onClick={form.prevStep}
-                className="mt-4"
-              >
-                Back to Details
-              </Button>
-            </div>
+            <StudentScaffoldSelection
+              assignmentTitle={form.title}
+              content={form.content}
+              subject={form.subject}
+              sourceType={form.sourceType}
+              gradeLevel={form.gradeLevel}
+              contentLength={form.content.length}
+              onBack={form.prevStep}
+            />
           </CardContent>
         </Card>
       )}

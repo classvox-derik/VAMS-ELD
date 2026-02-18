@@ -126,18 +126,72 @@
 }
 
 @media print {
-
+  /* Hide all UI chrome */
   nav,
+  aside,
+  header,
+  footer,
   .export-toolbar,
   .sidebar,
   .mobile-nav,
-  button {
+  button,
+  textarea,
+  input {
     display: none !important;
   }
 
+  /* Reset body and page */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Main content area fills page */
+  main,
   .scaffolded-column {
     width: 100% !important;
     max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Cards: remove borders and shadows */
+  [class*="card"] {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  /* Scaffold preview: full width, clean */
+  .scaffold-preview {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+    color: black !important;
+  }
+
+  /* Ensure colored highlights print */
+  .scaffold-preview span[style],
+  .scaffold-preview div[style] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page breaks */
+  .scaffold-preview .chunk-header {
+    page-break-before: auto;
+    page-break-after: avoid;
+  }
+
+  .scaffold-preview .word-bank {
+    page-break-inside: avoid;
   }
 }

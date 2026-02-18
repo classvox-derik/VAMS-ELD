@@ -17,16 +17,24 @@ import { StudentSelector, type StudentSelection } from "./student-selector";
 import { ScaffoldPicker } from "./scaffold-picker";
 import { getAllStudents } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
+import { saveToLibrary } from "@/lib/local-library";
 import type { Student, ELLevel } from "@/types";
 
 interface StudentScaffoldSelectionProps {
   assignmentTitle: string;
+  content: string;
+  subject?: string;
+  sourceType?: string;
+  gradeLevel?: number;
   contentLength: number;
   onBack: () => void;
 }
 
 export function StudentScaffoldSelection({
   assignmentTitle,
+  content,
+  subject,
+  gradeLevel,
   contentLength,
   onBack,
 }: StudentScaffoldSelectionProps) {
@@ -114,13 +122,84 @@ export function StudentScaffoldSelection({
     setShowConfirm(false);
 
     try {
-      // Phase 5 will implement the actual API call
-      // For now, simulate the flow
-      toast.info("AI scaffolding engine will be connected in Phase 5.");
-      await new Promise((r) => setTimeout(r, 1500));
-      toast.success("Generation flow ready - connect /api/scaffold in Phase 5");
-    } catch {
-      toast.error("Failed to generate. Please try again.");
+      const scaffoldIndices = Array.from(selectedScaffoldIds);
+
+      const response = await fetch("/api/scaffold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          title: assignmentTitle,
+          subject: subject || undefined,
+          gradeLevel: gradeLevel || undefined,
+          elLevel: currentElLevel,
+          scaffoldIndices,
+          studentId:
+            selection.type === "individual"
+              ? selection.student.id
+              : undefined,
+          studentIds:
+            selection.type === "bulk"
+              ? selection.students.map((s) => s.id)
+              : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Generation failed");
+      }
+
+      // Store result in sessionStorage for the result page
+      const resultId = crypto.randomUUID();
+      const studentName =
+        selection.type === "individual"
+          ? selection.student.name
+          : `All ${currentElLevel} students`;
+      const generatedAt = new Date().toISOString();
+
+      sessionStorage.setItem(
+        `scaffold-result-${resultId}`,
+        JSON.stringify({
+          outputHtml: data.outputHtml,
+          isDemo: data.isDemo,
+          scaffoldsApplied: data.scaffoldsApplied,
+          assignmentTitle,
+          elLevel: currentElLevel,
+          studentName,
+          originalContent: content,
+          generatedAt,
+        })
+      );
+
+      // Persist to local library
+      saveToLibrary({
+        id: resultId,
+        assignmentTitle,
+        elLevel: currentElLevel,
+        studentName,
+        scaffoldsApplied: data.scaffoldsApplied,
+        outputHtml: data.outputHtml,
+        originalContent: content,
+        isDemo: data.isDemo,
+        teacherNotes: "",
+        createdAt: generatedAt,
+      });
+
+      toast.success(
+        data.isDemo
+          ? "Demo preview generated! Connect Gemini API key for real results."
+          : "Scaffolded assignment generated successfully!"
+      );
+
+      router.push(`/create/result?id=${resultId}`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to generate. Please try again."
+      );
     } finally {
       setIsGenerating(false);
     }
