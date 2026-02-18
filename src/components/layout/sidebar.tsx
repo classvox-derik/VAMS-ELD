@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { UsageCounter } from "./usage-counter";
 
 const navItems = [
   {
@@ -71,6 +72,9 @@ export function Sidebar() {
         </nav>
 
         <div className="mt-auto space-y-4 pt-4 border-t">
+          <div className="px-2">
+            <UsageCounter used={0} limit={1000} />
+          </div>
           <ThemeToggle />
           <div className="flex items-center gap-3 px-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted">

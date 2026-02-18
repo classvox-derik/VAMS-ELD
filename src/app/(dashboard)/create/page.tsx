@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AssignmentInputTabs } from "@/components/assignments/assignment-input-tabs";
 import { AssignmentDetailsForm } from "@/components/assignments/assignment-details-form";
+import { StudentScaffoldSelection } from "@/components/assignments/student-scaffold-selection";
 import { useAssignmentForm } from "@/lib/hooks/use-assignment-form";
 import { cn } from "@/lib/utils";
 import type { AssignmentDetailsFormValues } from "@/lib/validations";
