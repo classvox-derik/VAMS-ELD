@@ -6,7 +6,8 @@
       "Bash(xcopy:*)",
       "Bash(npm install:*)",
       "Bash(npx next build:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(node -e:*)"
     ]
   }
 }
