@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="lg:ml-[90px] sidebar-transition">
+      <div className="lg:ml-[290px]">
         <Header />
         <main className="p-4 md:p-6 pb-20 lg:pb-6">
           <div className="mx-auto max-w-screen-2xl">
