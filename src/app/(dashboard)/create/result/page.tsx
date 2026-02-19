@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ELBadge } from "@/components/students/el-badge";
 import { updateTeacherNotes } from "@/lib/local-library";
+import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
 import type { ELLevel } from "@/types";
 
 interface ScaffoldResult {
@@ -42,6 +43,11 @@ function ScaffoldResultContent() {
   const [isExporting, setIsExporting] = useState(false);
   const resultIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const {
+    isGoogleConnected,
+    isExporting: isGDocsExporting,
+    exportToGoogleDocs,
+  } = useGoogleDocsExport();
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -246,12 +252,27 @@ function ScaffoldResultContent() {
             <Button
               variant="outline"
               size="sm"
-              disabled
+              disabled={!isGoogleConnected || isGDocsExporting}
+              onClick={() =>
+                result &&
+                exportToGoogleDocs({
+                  title: result.assignmentTitle,
+                  outputHtml: result.outputHtml,
+                  elLevel: result.elLevel,
+                  scaffoldsApplied: result.scaffoldsApplied,
+                })
+              }
               className="gap-1.5"
-              title="Connect Google account in Settings"
+              title={
+                isGoogleConnected
+                  ? "Export to Google Docs"
+                  : "Connect Google account in Settings"
+              }
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Google Docs</span>
+              <span className="hidden sm:inline">
+                {isGDocsExporting ? "Exporting..." : "Google Docs"}
+              </span>
             </Button>
           </div>
         </CardHeader>

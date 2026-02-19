@@ -32,6 +32,7 @@ import {
   type LibraryEntry,
 } from "@/lib/local-library";
 import { formatDate } from "@/lib/utils";
+import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
 
 export default function LibraryDetailPage() {
   const router = useRouter();
@@ -43,6 +44,11 @@ export default function LibraryDetailPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const {
+    isGoogleConnected,
+    isExporting: isGDocsExporting,
+    exportToGoogleDocs,
+  } = useGoogleDocsExport();
 
   const id = params.id as string;
 
@@ -244,12 +250,27 @@ export default function LibraryDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              disabled
+              disabled={!isGoogleConnected || isGDocsExporting}
+              onClick={() =>
+                entry &&
+                exportToGoogleDocs({
+                  title: entry.assignmentTitle,
+                  outputHtml: entry.outputHtml,
+                  elLevel: entry.elLevel,
+                  scaffoldsApplied: entry.scaffoldsApplied,
+                })
+              }
               className="gap-1.5"
-              title="Connect Google account in Settings"
+              title={
+                isGoogleConnected
+                  ? "Export to Google Docs"
+                  : "Connect Google account in Settings"
+              }
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Google Docs</span>
+              <span className="hidden sm:inline">
+                {isGDocsExporting ? "Exporting..." : "Google Docs"}
+              </span>
             </Button>
           </div>
         </CardHeader>

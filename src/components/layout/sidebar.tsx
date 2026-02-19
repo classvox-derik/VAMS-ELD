@@ -7,7 +7,7 @@ import {
   Users,
   PenSquare,
   BookOpen,
-  User,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
@@ -33,6 +33,11 @@ const navItems = [
     title: "Library",
     href: "/library",
     icon: BookOpen,
+  },
+  {
+    title: "Settings",
+    href: "/settings",
+    icon: Settings,
   },
 ];
 
@@ -76,12 +81,6 @@ export function Sidebar() {
             <UsageCounter used={0} limit={1000} />
           </div>
           <ThemeToggle />
-          <div className="flex items-center gap-3 px-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted">
-              <User className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <span className="text-sm text-muted-foreground">Account</span>
-          </div>
         </div>
       </div>
     </aside>

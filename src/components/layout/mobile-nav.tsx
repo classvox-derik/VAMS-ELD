@@ -7,6 +7,7 @@ import {
   Users,
   PenSquare,
   BookOpen,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ const navItems = [
   { title: "Students", href: "/students", icon: Users },
   { title: "Create", href: "/create", icon: PenSquare },
   { title: "Library", href: "/library", icon: BookOpen },
+  { title: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function MobileNav() {
