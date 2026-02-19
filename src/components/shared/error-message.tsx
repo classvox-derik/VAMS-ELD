@@ -20,11 +20,11 @@ export function ErrorMessage({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-8 text-center",
+        "flex flex-col items-center justify-center gap-4 rounded-2xl border border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/10 shadow-theme-xs p-8 text-center",
         className
       )}
     >
-      <AlertCircle className="h-10 w-10 text-destructive" />
+      <AlertCircle className="h-10 w-10 text-red-500" />
       <div>
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{message}</p>

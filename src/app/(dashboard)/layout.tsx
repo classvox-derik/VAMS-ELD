@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
 export default function DashboardLayout({
@@ -9,11 +10,14 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="md:pl-60">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 pb-20 md:pb-6">
-          {children}
-        </div>
-      </main>
+      <div className="lg:ml-[90px] sidebar-transition">
+        <Header />
+        <main className="p-4 md:p-6 pb-20 lg:pb-6">
+          <div className="mx-auto max-w-screen-2xl">
+            {children}
+          </div>
+        </main>
+      </div>
       <MobileNav />
     </div>
   );

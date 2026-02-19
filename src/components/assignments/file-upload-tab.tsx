@@ -87,7 +87,7 @@ export function FileUploadTab({ content, onChange }: FileUploadTabProps) {
   if (content && fileName && !isParsing) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center justify-between rounded-md border bg-muted/50 px-3 py-2">
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-3 py-2">
           <div className="flex items-center gap-2 text-sm">
             <File className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{fileName}</span>
@@ -127,10 +127,10 @@ export function FileUploadTab({ content, onChange }: FileUploadTabProps) {
       <div
         {...getRootProps()}
         className={cn(
-          "flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center transition-colors cursor-pointer",
+          "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center transition-colors cursor-pointer",
           isDragActive
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-muted-foreground/50",
+            ? "border-eld-space-indigo bg-eld-space-indigo/5"
+            : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500",
           isParsing && "pointer-events-none opacity-60"
         )}
       >

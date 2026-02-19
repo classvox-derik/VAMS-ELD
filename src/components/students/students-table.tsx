@@ -146,23 +146,23 @@ export function StudentsTable({
       </p>
 
       {/* Desktop Table */}
-      <div className="hidden md:block rounded-md border">
+      <div className="hidden md:block rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+            <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 <SortButton field="name">Name</SortButton>
               </th>
-              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 <SortButton field="grade">Grade</SortButton>
               </th>
-              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 <SortButton field="el_level">EL Level</SortButton>
               </th>
-              <th className="px-4 py-3 text-left text-sm text-muted-foreground">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 <SortButton field="primary_language">Language</SortButton>
               </th>
-              <th className="px-4 py-3 text-right text-sm text-muted-foreground">
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Actions
               </th>
             </tr>
@@ -180,7 +180,7 @@ export function StudentsTable({
               filteredAndSorted.map((student) => (
                 <tr
                   key={student.id}
-                  className="border-b hover:bg-muted/30 transition-colors"
+                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <Link
@@ -234,7 +234,7 @@ export function StudentsTable({
           filteredAndSorted.map((student) => (
             <div
               key={student.id}
-              className="rounded-lg border bg-card p-4 space-y-2"
+              className="rounded-2xl border border-gray-200 bg-white p-4 space-y-2 dark:border-gray-800 dark:bg-white/[0.03]"
             >
               <div className="flex items-start justify-between">
                 <Link

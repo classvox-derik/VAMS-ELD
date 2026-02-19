@@ -85,11 +85,11 @@ export function StudentFormModal({
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="grade">Grade</Label>
               <Select
@@ -103,7 +103,7 @@ export function StudentFormModal({
                 ))}
               </Select>
               {errors.grade && (
-                <p className="text-sm text-destructive">{errors.grade.message}</p>
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.grade.message}</p>
               )}
             </div>
 
@@ -117,7 +117,7 @@ export function StudentFormModal({
                 ))}
               </Select>
               {errors.el_level && (
-                <p className="text-sm text-destructive">
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                   {errors.el_level.message}
                 </p>
               )}
@@ -132,7 +132,7 @@ export function StudentFormModal({
               {...register("primary_language")}
             />
             {errors.primary_language && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                 {errors.primary_language.message}
               </p>
             )}
@@ -147,7 +147,7 @@ export function StudentFormModal({
               {...register("notes")}
             />
             {errors.notes && (
-              <p className="text-sm text-destructive">{errors.notes.message}</p>
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.notes.message}</p>
             )}
           </div>
 

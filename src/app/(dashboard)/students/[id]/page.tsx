@@ -83,7 +83,7 @@ export default function StudentDetailPage() {
             <Skeleton className="h-5 w-24" />
           </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:gap-6 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
           ))}
@@ -158,14 +158,14 @@ export default function StudentDetailPage() {
         <h2 className="scaffold-subheading mb-4">
           Recommended Scaffolds for {student.el_level}
         </h2>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:gap-6 md:grid-cols-2">
           {recommendedScaffolds.map((scaffold, idx) => {
             const Icon = categoryIcons[scaffold.category] || BookOpen;
             return (
               <Card key={idx}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-eld-almond-silk/30">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <div>
@@ -186,7 +186,7 @@ export default function StudentDetailPage() {
                     {scaffold.el_level_target.map((level) => (
                       <span
                         key={level}
-                        className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+                        className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                       >
                         {level}
                       </span>

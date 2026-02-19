@@ -109,7 +109,7 @@ export default function StudentsPage() {
           <Skeleton className="h-10 w-32" />
           <Skeleton className="h-10 w-32" />
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center gap-4 border-b px-4 py-3">
               <Skeleton className="h-4 w-40" />

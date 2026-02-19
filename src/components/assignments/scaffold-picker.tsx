@@ -105,7 +105,7 @@ export function ScaffoldPicker({
           return (
             <div key={category}>
               <div className="flex items-center gap-2 mb-2">
-                <Icon className="h-4 w-4 text-muted-foreground" />
+                <Icon className="h-4 w-4 text-eld-lilac-ash" />
                 <span className="text-sm font-medium text-muted-foreground">
                   {categoryLabels[category] || category}
                 </span>
@@ -117,17 +117,17 @@ export function ScaffoldPicker({
                     <label
                       key={scaffold.originalIndex}
                       className={cn(
-                        "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                        "flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 p-3 cursor-pointer transition-colors",
                         isChecked
-                          ? "border-primary bg-primary/5"
-                          : "hover:bg-muted/50"
+                          ? "border-eld-space-indigo bg-eld-space-indigo/5"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-800/30"
                       )}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => onToggle(scaffold.originalIndex)}
-                        className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-primary"
+                        className="mt-0.5 h-4 w-4 rounded border-gray-300 text-eld-space-indigo focus:ring-eld-space-indigo/20 dark:border-gray-600"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

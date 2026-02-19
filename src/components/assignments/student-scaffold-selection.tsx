@@ -235,7 +235,7 @@ export function StudentScaffoldSelection({
 
       {/* Selection Summary */}
       {selection && (
-        <div className="rounded-lg border bg-muted/30 p-4">
+        <div className="rounded-xl bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 p-4">
           <h4 className="text-sm font-medium mb-2">Summary</h4>
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>
@@ -301,7 +301,7 @@ export function StudentScaffoldSelection({
                 : `This will generate ${generationCount} scaffolded versions of "${assignmentTitle}" (one per ${currentElLevel} student).`}
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
+          <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 p-3 text-sm text-muted-foreground">
             <p>
               This will use{" "}
               <strong>

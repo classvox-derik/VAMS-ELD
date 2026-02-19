@@ -19,13 +19,15 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Students by EL Level
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
+              <Users className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -51,14 +53,16 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">
               Today&apos;s AI Usage
             </CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
+              <Zap className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">of 1,000 daily limit</p>
-            <div className="mt-3 h-2 rounded-full bg-muted">
+            <div className="text-title-sm font-bold text-foreground">0</div>
+            <p className="text-theme-xs text-muted-foreground">of 1,000 daily limit</p>
+            <div className="mt-3 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
               <div
-                className="h-2 rounded-full bg-primary transition-all"
+                className="h-2 rounded-full bg-eld-space-indigo transition-all dark:bg-eld-dusty-grape"
                 style={{ width: "0%" }}
               />
             </div>
@@ -70,7 +74,9 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">
               Recent Assignments
             </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
+              <FileText className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center py-6 text-center">

@@ -36,7 +36,7 @@ export function TextInputTab({ content, onChange }: TextInputTabProps) {
           </Button>
         )}
       </div>
-      <div className="flex justify-between text-xs text-muted-foreground">
+      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
         <span>
           {content.length < 50 && content.length > 0
             ? `${50 - content.length} more characters needed`

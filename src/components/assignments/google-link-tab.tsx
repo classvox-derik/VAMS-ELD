@@ -11,8 +11,8 @@ interface GoogleLinkTabProps {
 export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+      <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
           <Link2 className="h-6 w-6 text-primary" />
         </div>
         <h3 className="text-sm font-semibold text-foreground">

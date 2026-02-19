@@ -107,7 +107,7 @@ function SettingsContent() {
             </div>
           ) : !googleStatus?.configured ? (
             /* Google OAuth not configured */
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
               <div className="flex gap-3">
                 <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
@@ -133,7 +133,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-auth/callback`}
           ) : googleStatus.connected ? (
             /* Connected */
             <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+              <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
                 <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-green-800 dark:text-green-300">
@@ -214,16 +214,16 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-auth/callback`}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
+          <div className="text-sm">
+            <div className="flex justify-between py-3 border-b border-gray-200 dark:border-gray-800">
               <span className="text-muted-foreground">Application</span>
               <span className="font-medium">VAMS ELD Scaffolding Platform</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between py-3 border-b border-gray-200 dark:border-gray-800">
               <span className="text-muted-foreground">Version</span>
               <span className="font-medium">1.0.0</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between py-3">
               <span className="text-muted-foreground">School</span>
               <span className="font-medium">Valor Academy Middle School</span>
             </div>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-20">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-eld-space-indigo border-t-transparent dark:border-eld-dusty-grape dark:border-t-transparent" />
         </div>
       }
     >

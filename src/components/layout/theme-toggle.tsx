@@ -3,7 +3,6 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Moon, Sun, Monitor } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,26 +20,24 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="sm" className="w-full justify-start gap-3 px-3">
-        <Sun className="h-4 w-4" />
-        <span className="text-sm">Theme</span>
-      </Button>
+      <button className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        <Sun className="h-5 w-5" />
+      </button>
     );
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="w-full justify-start gap-3 px-3">
+        <button className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
           {theme === "dark" ? (
-            <Moon className="h-4 w-4" />
+            <Moon className="h-5 w-5" />
           ) : theme === "light" ? (
-            <Sun className="h-4 w-4" />
+            <Sun className="h-5 w-5" />
           ) : (
-            <Monitor className="h-4 w-4" />
+            <Monitor className="h-5 w-5" />
           )}
-          <span className="text-sm">Theme</span>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>

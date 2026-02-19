@@ -68,10 +68,10 @@ export default function CreateAssignmentPage() {
               className={cn(
                 "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                 step.number === form.currentStep
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-eld-space-indigo text-white shadow-theme-xs"
                   : step.number < form.currentStep
-                  ? "bg-primary/10 text-primary cursor-pointer hover:bg-primary/20"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-eld-space-indigo/10 text-eld-space-indigo cursor-pointer hover:bg-eld-space-indigo/20 dark:bg-eld-dusty-grape/20 dark:text-eld-seashell"
+                  : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
               )}
             >
               {step.number < form.currentStep ? (
@@ -84,8 +84,8 @@ export default function CreateAssignmentPage() {
             {idx < steps.length - 1 && (
               <div
                 className={cn(
-                  "h-px w-8 sm:w-12",
-                  step.number < form.currentStep ? "bg-primary" : "bg-muted"
+                  "h-0.5 w-8 sm:w-12",
+                  step.number < form.currentStep ? "bg-eld-space-indigo dark:bg-eld-dusty-grape" : "bg-gray-200 dark:bg-gray-700"
                 )}
               />
             )}

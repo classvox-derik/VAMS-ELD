@@ -66,7 +66,7 @@ export function StudentSelector({
     return (
       <div className="space-y-2">
         <label className="text-sm font-medium">Selected Student(s)</label>
-        <div className="flex items-center justify-between rounded-lg border bg-card p-3">
+        <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-3">
           <div className="flex items-center gap-2">
             {selection.type === "individual" ? (
               <>
@@ -117,9 +117,9 @@ export function StudentSelector({
               onClick={() => handleSelectBulk(level)}
               disabled={count === 0}
               className={cn(
-                "flex items-center justify-between rounded-lg border p-3 text-left transition-colors",
+                "flex items-center justify-between rounded-2xl border border-gray-200 dark:border-gray-800 p-3 text-left transition-colors",
                 count > 0
-                  ? "hover:border-primary hover:bg-primary/5 cursor-pointer"
+                  ? "hover:border-eld-space-indigo hover:bg-eld-space-indigo/5 cursor-pointer"
                   : "opacity-50 cursor-not-allowed"
               )}
             >
@@ -155,7 +155,7 @@ export function StudentSelector({
       </div>
 
       {/* Student list */}
-      <div className="max-h-48 overflow-y-auto rounded-md border scrollbar-thin">
+      <div className="max-h-48 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-800 scrollbar-thin">
         {filtered.length === 0 ? (
           <div className="px-4 py-6 text-center text-sm text-muted-foreground">
             {students.length === 0
@@ -167,7 +167,7 @@ export function StudentSelector({
             <button
               key={student.id}
               onClick={() => handleSelectStudent(student)}
-              className="flex w-full items-center justify-between border-b px-4 py-2.5 text-left transition-colors last:border-b-0 hover:bg-muted/50"
+              className="flex w-full items-center justify-between border-b border-gray-100 px-4 py-2.5 text-left transition-colors last:border-b-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/30"
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{student.name}</span>

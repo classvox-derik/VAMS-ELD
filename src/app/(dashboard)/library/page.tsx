@@ -133,8 +133,8 @@ export default function LibraryPage() {
               onClick={() => setFilterLevel("all")}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 filterLevel === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-eld-space-indigo text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
               All
@@ -145,8 +145,8 @@ export default function LibraryPage() {
                 onClick={() => setFilterLevel(level)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   filterLevel === level
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    ? "bg-eld-space-indigo text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 }`}
               >
                 {level}
@@ -158,7 +158,7 @@ export default function LibraryPage() {
 
       {/* Empty State */}
       {entries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-16 text-center">
           <BookOpen className="h-10 w-10 text-muted-foreground mb-3" />
           <p className="text-sm font-medium text-foreground">
             No saved assignments yet
@@ -175,7 +175,7 @@ export default function LibraryPage() {
           </Button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-12 text-center">
           <Search className="h-8 w-8 text-muted-foreground mb-3" />
           <p className="text-sm font-medium text-foreground">
             No matching assignments
@@ -185,11 +185,11 @@ export default function LibraryPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((entry) => (
             <Card
               key={entry.id}
-              className="group relative hover:shadow-md transition-shadow"
+              className="group relative hover:shadow-theme-md transition-shadow"
             >
               <CardContent className="pt-5">
                 <div className="space-y-3">
@@ -218,13 +218,13 @@ export default function LibraryPage() {
                     {entry.scaffoldsApplied.slice(0, 3).map((name) => (
                       <span
                         key={name}
-                        className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                        className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                       >
                         {name.split(":")[0]}
                       </span>
                     ))}
                     {entry.scaffoldsApplied.length > 3 && (
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                         +{entry.scaffoldsApplied.length - 3}
                       </span>
                     )}

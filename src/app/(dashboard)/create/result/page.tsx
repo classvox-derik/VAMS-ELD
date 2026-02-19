@@ -119,7 +119,7 @@ function ScaffoldResultContent() {
   if (!result) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-eld-space-indigo border-t-transparent dark:border-eld-dusty-grape dark:border-t-transparent" />
       </div>
     );
   }
@@ -190,7 +190,7 @@ function ScaffoldResultContent() {
             {result.scaffoldsApplied.map((name) => (
               <span
                 key={name}
-                className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                className="inline-flex items-center rounded-full bg-eld-almond-silk/20 px-2.5 py-0.5 text-xs font-medium text-eld-space-indigo"
               >
                 {name}
               </span>
@@ -217,7 +217,7 @@ function ScaffoldResultContent() {
           </CardHeader>
           {showOriginal && (
             <CardContent className="pt-3">
-              <div className="rounded-lg border bg-muted/30 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
                 {result.originalContent}
               </div>
             </CardContent>
@@ -295,7 +295,7 @@ function ScaffoldResultContent() {
             value={notes}
             onChange={(e) => handleNotesChange(e.target.value)}
             placeholder="Add notes about this scaffolded assignment..."
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-y"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-eld-space-indigo focus:outline-none focus:ring-3 focus:ring-eld-space-indigo/10 min-h-[80px] resize-y dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
             Notes are auto-saved to your local library.
@@ -327,7 +327,7 @@ export default function ScaffoldResultPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-20">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-eld-space-indigo border-t-transparent dark:border-eld-dusty-grape dark:border-t-transparent" />
         </div>
       }
     >
