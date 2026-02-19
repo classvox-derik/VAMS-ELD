@@ -49,18 +49,23 @@ export function Sidebar() {
       {/* Logo */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-3 px-5 py-8 shrink-0"
+        className="flex items-center gap-3 px-5 py-6 shrink-0"
       >
         <Image
           src="/eldlogo.png"
-          alt="VAMS ELD"
-          width={40}
-          height={40}
+          alt="Valor Academy Middle School"
+          width={56}
+          height={56}
           className="rounded-lg shrink-0"
         />
-        <span className="text-lg font-bold text-eld-seashell whitespace-nowrap">
-          VAMS ELD
-        </span>
+        <div className="flex flex-col leading-tight">
+          <span className="text-sm font-bold text-eld-seashell">
+            Valor Academy Middle School
+          </span>
+          <span className="text-xs text-eld-seashell/70">
+            English Language Development
+          </span>
+        </div>
       </Link>
 
       {/* Navigation */}
