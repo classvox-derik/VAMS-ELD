@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase-browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 
 // Only @brightstarschools.org emails are allowed
 const ALLOWED_DOMAIN = "@brightstarschools.org";
@@ -17,20 +17,16 @@ function isAllowedEmail(email: string): boolean {
 }
 
 export default function SignUpPage() {
-  const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Verification step (Clerk sends a code to the email)
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,52 +38,39 @@ export default function SignUpPage() {
       return;
     }
 
-    if (!isLoaded || !signUp) return;
-
-    setLoading(true);
-    try {
-      // Create the Clerk sign-up with email + password
-      await signUp.create({
-        emailAddress: email.trim(),
-        password,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-      });
-
-      // Send email verification code
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setPendingVerification(true);
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: { message: string }[] };
-      setError(
-        clerkError.errors?.[0]?.message ??
-          "Something went wrong. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    // Server-side double-check via API
+    const validateRes = await fetch("/api/validate-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim() }),
+    });
+    if (!validateRes.ok) {
+      const data = await validateRes.json();
+      setError(data.message ?? "Email not allowed.");
+      return;
     }
-  };
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isLoaded || !signUp) return;
 
     setLoading(true);
-    setError("");
     try {
-      const result = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
+      const { error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          },
+        },
       });
 
-      if (result.status === "complete" && result.createdSessionId) {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
+      if (authError) {
+        setError(authError.message);
+        return;
       }
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: { message: string }[] };
-      setError(
-        clerkError.errors?.[0]?.message ?? "Invalid verification code."
-      );
+
+      // Supabase sends a confirmation email automatically
+      setConfirmationSent(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -109,7 +92,7 @@ export default function SignUpPage() {
 
         {/* Card */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-          {!pendingVerification ? (
+          {!confirmationSent ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error message */}
               {error && (
@@ -125,28 +108,17 @@ export default function SignUpPage() {
                 register.
               </div>
 
-              {/* Name fields */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="firstName">First name</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Jane"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="lastName">Last name</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Doe"
-                    required
-                  />
-                </div>
+              {/* Full name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName">Full name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Jane Doe"
+                  required
+                  autoComplete="name"
+                />
               </div>
 
               {/* Email */}
@@ -162,6 +134,7 @@ export default function SignUpPage() {
                   }}
                   placeholder="you@brightstarschools.org"
                   required
+                  autoComplete="email"
                 />
               </div>
 
@@ -174,9 +147,10 @@ export default function SignUpPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 8 characters"
-                    minLength={8}
+                    placeholder="At least 6 characters"
+                    minLength={6}
                     required
+                    autoComplete="new-password"
                     className="pr-10"
                   />
                   <button
@@ -209,41 +183,25 @@ export default function SignUpPage() {
               </p>
             </form>
           ) : (
-            /* Verification step */
-            <form onSubmit={handleVerify} className="space-y-4">
-              {error && (
-                <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <div className="text-center">
-                <h2 className="text-lg font-semibold text-foreground">
-                  Check your email
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  We sent a verification code to{" "}
-                  <strong className="text-foreground">{email}</strong>
-                </p>
+            /* Confirmation sent */
+            <div className="space-y-4 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="code">Verification code</Label>
-                <Input
-                  id="code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter 6-digit code"
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Verify email
-              </Button>
-            </form>
+              <h2 className="text-lg font-semibold text-foreground">
+                Check your email
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                We sent a confirmation link to{" "}
+                <strong className="text-foreground">{email}</strong>.
+                Click the link to activate your account.
+              </p>
+              <Link href="/sign-in">
+                <Button variant="outline" className="mt-2 w-full">
+                  Back to sign in
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
