@@ -60,7 +60,10 @@ export function Sidebar() {
         />
         <div className="flex flex-col leading-tight">
           <span className="text-sm font-bold text-eld-seashell">
-            Valor Academy Middle School
+            Valor Academy
+          </span>
+          <span className="text-sm font-bold text-eld-seashell">
+            Middle School
           </span>
           <span className="text-xs text-eld-seashell/70">
             English Language Development
