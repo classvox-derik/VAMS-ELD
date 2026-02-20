@@ -45,7 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-lilac-ash dark:bg-eld-space-indigo overflow-hidden">
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-almond-silk dark:bg-eld-space-indigo overflow-hidden">
       {/* Logo */}
       <Link
         href="/dashboard"
@@ -73,7 +73,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar">
-        <div className="space-y-1 rounded-xl bg-eld-almond-silk p-2 dark:bg-eld-dusty-grape/30">
+        <div className="space-y-1 rounded-xl bg-eld-lilac-ash p-2 dark:bg-eld-dusty-grape/30">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname?.startsWith(item.href + "/");
@@ -85,7 +85,7 @@ export function Sidebar() {
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
                   isActive
                     ? "bg-eld-dusty-grape/20 text-eld-space-indigo dark:bg-eld-dusty-grape dark:text-white"
-                    : "text-eld-space-indigo hover:bg-eld-lilac-ash/50 hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
+                    : "text-eld-space-indigo hover:bg-eld-almond-silk hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
                 )}
               >
                 <item.icon className="h-5 w-5 shrink-0" />
