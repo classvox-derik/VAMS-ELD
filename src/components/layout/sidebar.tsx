@@ -72,26 +72,28 @@ export function Sidebar() {
       </Link>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 overflow-y-auto custom-scrollbar">
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname?.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-eld-dusty-grape text-white dark:bg-eld-dusty-grape dark:text-white"
-                  : "text-eld-space-indigo hover:bg-eld-almond-silk hover:text-eld-space-indigo dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
-              )}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              <span>{item.title}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar">
+        <div className="space-y-1 rounded-xl bg-eld-almond-silk p-2 dark:bg-eld-dusty-grape/30">
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || pathname?.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
+                  isActive
+                    ? "bg-eld-dusty-grape/20 text-eld-space-indigo dark:bg-eld-dusty-grape dark:text-white"
+                    : "text-eld-space-indigo hover:bg-eld-lilac-ash/50 hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
+                )}
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                <span>{item.title}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Bottom Section */}
