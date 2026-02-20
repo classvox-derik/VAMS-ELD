@@ -52,10 +52,12 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
+      const siteUrl = window.location.origin;
       const { error: authError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
+          emailRedirectTo: `${siteUrl}/auth/callback`,
           data: {
             full_name: fullName.trim(),
           },

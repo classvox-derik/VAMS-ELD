@@ -17,10 +17,13 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const errorParam = searchParams.get("error");
   const [error, setError] = useState(
-    searchParams.get("error") === "unauthorized_domain"
+    errorParam === "unauthorized_domain"
       ? "Only Bright Star Schools email addresses are allowed."
-      : ""
+      : errorParam === "confirmation_failed"
+        ? "Email confirmation failed. Please try signing up again."
+        : ""
   );
   const [loading, setLoading] = useState(false);
 

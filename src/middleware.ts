@@ -2,7 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-middleware";
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ["/sign-in", "/sign-up", "/api/webhooks", "/api/google-auth"];
+const PUBLIC_ROUTES = [
+  "/sign-in",
+  "/sign-up",
+  "/auth/callback",
+  "/api/validate-email",
+  "/api/webhooks",
+  "/api/google-auth",
+];
 
 // Only @brightstarschools.org emails can access the app
 const ALLOWED_DOMAIN =
