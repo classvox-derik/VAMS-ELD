@@ -37,7 +37,7 @@ export function UsageCounter({
               ? "bg-red-500/20 text-red-400"
               : isWarning
               ? "bg-amber-500/20 text-amber-400"
-              : "bg-eld-dusty-grape/30 text-eld-lilac-ash"
+              : "bg-eld-dusty-grape/30 text-eld-space-indigo dark:text-eld-lilac-ash"
           )}
         >
           <Zap className="h-4 w-4" />
@@ -66,10 +66,10 @@ export function UsageCounter({
               ? "text-red-400"
               : isWarning
               ? "text-amber-400"
-              : "text-eld-lilac-ash"
+              : "text-eld-space-indigo dark:text-eld-lilac-ash"
           )}
         />
-        <span className="text-theme-xs font-medium text-eld-seashell/80">
+        <span className="text-theme-xs font-medium text-eld-space-indigo dark:text-eld-seashell/80">
           {used} / {limit.toLocaleString()}
         </span>
       </div>
@@ -81,7 +81,7 @@ export function UsageCounter({
               ? "bg-red-400"
               : isWarning
               ? "bg-amber-400"
-              : "bg-eld-lilac-ash"
+              : "bg-eld-space-indigo dark:bg-eld-lilac-ash"
           )}
           style={{ width: `${percentage}%` }}
         />
