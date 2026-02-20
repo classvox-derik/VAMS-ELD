@@ -217,7 +217,7 @@ function ScaffoldResultContent() {
           </CardHeader>
           {showOriginal && (
             <CardContent className="pt-3">
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
+              <div className="rounded-xl border border-eld-almond-silk/40 bg-eld-seashell/50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
                 {result.originalContent}
               </div>
             </CardContent>
@@ -295,7 +295,7 @@ function ScaffoldResultContent() {
             value={notes}
             onChange={(e) => handleNotesChange(e.target.value)}
             placeholder="Add notes about this scaffolded assignment..."
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-theme-xs placeholder:text-gray-400 focus:border-eld-space-indigo focus:outline-none focus:ring-3 focus:ring-eld-space-indigo/10 min-h-[80px] resize-y dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+            className="w-full rounded-lg border border-eld-almond-silk/60 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-theme-xs placeholder:text-gray-400 focus:border-eld-space-indigo focus:outline-none focus:ring-3 focus:ring-eld-space-indigo/10 min-h-[80px] resize-y dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
             Notes are auto-saved to your local library.

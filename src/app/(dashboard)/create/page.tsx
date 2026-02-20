@@ -71,7 +71,7 @@ export default function CreateAssignmentPage() {
                   ? "bg-eld-space-indigo text-white shadow-theme-xs"
                   : step.number < form.currentStep
                   ? "bg-eld-space-indigo/10 text-eld-space-indigo cursor-pointer hover:bg-eld-space-indigo/20 dark:bg-eld-dusty-grape/20 dark:text-eld-seashell"
-                  : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
+                  : "bg-eld-almond-silk/20 text-eld-lilac-ash dark:bg-gray-800 dark:text-gray-500"
               )}
             >
               {step.number < form.currentStep ? (
@@ -85,7 +85,7 @@ export default function CreateAssignmentPage() {
               <div
                 className={cn(
                   "h-0.5 w-8 sm:w-12",
-                  step.number < form.currentStep ? "bg-eld-space-indigo dark:bg-eld-dusty-grape" : "bg-gray-200 dark:bg-gray-700"
+                  step.number < form.currentStep ? "bg-eld-space-indigo dark:bg-eld-dusty-grape" : "bg-eld-almond-silk/40 dark:bg-gray-700"
                 )}
               />
             )}

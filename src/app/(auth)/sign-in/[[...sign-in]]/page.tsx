@@ -67,7 +67,7 @@ export default function SignInPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-eld-almond-silk/40 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
@@ -105,7 +105,7 @@ export default function SignInPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-eld-lilac-ash hover:text-eld-space-indigo dark:text-gray-400 dark:hover:text-gray-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />

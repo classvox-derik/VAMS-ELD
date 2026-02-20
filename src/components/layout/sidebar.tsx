@@ -45,7 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-space-indigo text-eld-seashell overflow-hidden">
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-lilac-ash dark:bg-eld-space-indigo overflow-hidden">
       {/* Logo */}
       <Link
         href="/dashboard"
@@ -59,13 +59,13 @@ export function Sidebar() {
           className="rounded-lg shrink-0"
         />
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-bold text-eld-seashell">
+          <span className="text-sm font-bold text-white dark:text-eld-seashell">
             Valor Academy
           </span>
-          <span className="text-sm font-bold text-eld-seashell">
+          <span className="text-sm font-bold text-white dark:text-eld-seashell">
             Middle School
           </span>
-          <span className="text-xs text-eld-seashell/70">
+          <span className="text-xs text-white/70 dark:text-eld-seashell/70">
             English Language Development
           </span>
         </div>
@@ -84,7 +84,7 @@ export function Sidebar() {
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-eld-dusty-grape text-white"
-                  : "text-eld-seashell/80 hover:bg-eld-dusty-grape/50 hover:text-white"
+                  : "text-white/90 hover:bg-eld-almond-silk hover:text-eld-space-indigo dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
@@ -95,7 +95,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="mt-auto shrink-0 border-t border-eld-lilac-ash/20 px-3 py-4">
+      <div className="mt-auto shrink-0 border-t border-white/20 dark:border-eld-lilac-ash/20 px-3 py-4">
         <UsageCounter used={0} limit={1000} isCollapsed={false} />
       </div>
     </aside>

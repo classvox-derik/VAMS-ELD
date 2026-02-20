@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-eld-seashell text-eld-space-indigo hover:bg-eld-almond-silk/50 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700",
         ghost:
-          "hover:bg-gray-100 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800",
+          "text-eld-space-indigo hover:bg-eld-almond-silk/30 dark:text-gray-300 dark:hover:bg-gray-800",
         link: "text-eld-space-indigo underline-offset-4 hover:underline dark:text-eld-almond-silk",
       },
       size: {

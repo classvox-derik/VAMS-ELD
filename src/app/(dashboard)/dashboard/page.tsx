@@ -60,7 +60,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-title-sm font-bold text-foreground">0</div>
             <p className="text-theme-xs text-muted-foreground">of 1,000 daily limit</p>
-            <div className="mt-3 h-2 rounded-full bg-gray-200 dark:bg-gray-700">
+            <div className="mt-3 h-2 rounded-full bg-eld-almond-silk/30 dark:bg-gray-700">
               <div
                 className="h-2 rounded-full bg-eld-space-indigo transition-all dark:bg-eld-dusty-grape"
                 style={{ width: "0%" }}

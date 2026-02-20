@@ -215,11 +215,11 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-auth/callback`}
         </CardHeader>
         <CardContent>
           <div className="text-sm">
-            <div className="flex justify-between py-3 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex justify-between py-3 border-b border-eld-almond-silk/40 dark:border-gray-800">
               <span className="text-muted-foreground">Application</span>
               <span className="font-medium">VAMS ELD Scaffolding Platform</span>
             </div>
-            <div className="flex justify-between py-3 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex justify-between py-3 border-b border-eld-almond-silk/40 dark:border-gray-800">
               <span className="text-muted-foreground">Version</span>
               <span className="font-medium">1.0.0</span>
             </div>

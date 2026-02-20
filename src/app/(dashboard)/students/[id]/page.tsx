@@ -186,7 +186,7 @@ export default function StudentDetailPage() {
                     {scaffold.el_level_target.map((level) => (
                       <span
                         key={level}
-                        className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                        className="rounded-full bg-eld-almond-silk/20 px-2 py-0.5 text-xs text-eld-dusty-grape dark:bg-gray-800 dark:text-gray-400"
                       >
                         {level}
                       </span>
