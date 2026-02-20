@@ -32,7 +32,7 @@ export function getAuthUrl(): string {
   return client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
-    prompt: "consent",
+    prompt: "consent select_account",
   });
 }
 
