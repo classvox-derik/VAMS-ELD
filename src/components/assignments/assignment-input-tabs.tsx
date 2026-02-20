@@ -59,8 +59,8 @@ export function AssignmentInputTabs({
 
       <TabsContent value="google_doc">
         <GoogleLinkTab
-          content=""
-          onChange={(url) => onContentChange(url, "google_doc")}
+          content={activeTab === "google_doc" ? content : ""}
+          onChange={(text) => onContentChange(text, "google_doc")}
         />
       </TabsContent>
     </Tabs>
