@@ -24,7 +24,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-[68px] items-center justify-between border-b border-eld-dusty-grape/20 bg-eld-dusty-grape px-4 py-3 dark:border-gray-800 dark:bg-gray-900 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-[68px] items-center justify-between border-b border-[#4a4e69]/20 bg-[#4a4e69] px-4 py-3 dark:border-gray-800 dark:bg-gray-900 lg:px-6">
       {/* Left side - mobile menu button */}
       <div className="flex items-center gap-3">
         <button

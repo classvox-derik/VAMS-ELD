@@ -73,7 +73,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar">
-        <div className="space-y-1 rounded-xl bg-eld-lilac-ash p-2 dark:bg-eld-dusty-grape/30">
+        <div className="space-y-1 rounded-xl bg-[#9a8c98] p-2 dark:bg-eld-dusty-grape/30">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname?.startsWith(item.href + "/");
