@@ -45,7 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-almond-silk dark:bg-eld-space-indigo overflow-hidden">
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-dusty-grape dark:bg-eld-space-indigo overflow-hidden">
       {/* Logo */}
       <Link
         href="/dashboard"
@@ -59,13 +59,13 @@ export function Sidebar() {
           className="rounded-lg shrink-0"
         />
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-bold text-eld-space-indigo dark:text-eld-seashell">
+          <span className="text-sm font-bold text-white dark:text-eld-seashell">
             Valor Academy
           </span>
-          <span className="text-sm font-bold text-eld-space-indigo dark:text-eld-seashell">
+          <span className="text-sm font-bold text-white dark:text-eld-seashell">
             Middle School
           </span>
-          <span className="text-xs text-eld-dusty-grape dark:text-eld-seashell/70">
+          <span className="text-xs text-white/70 dark:text-eld-seashell/70">
             English Language Development
           </span>
         </div>
@@ -73,7 +73,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar">
-        <div className="space-y-1 rounded-xl bg-[#9a8c98] p-2 dark:bg-transparent dark:p-0">
+        <div className="space-y-1 dark:space-y-1">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname?.startsWith(item.href + "/");
@@ -84,8 +84,8 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-eld-dusty-grape/20 text-eld-space-indigo dark:bg-eld-dusty-grape dark:text-white"
-                    : "text-eld-space-indigo hover:bg-eld-almond-silk hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
+                    ? "bg-white/15 text-white dark:bg-eld-dusty-grape dark:text-white"
+                    : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
                 )}
               >
                 <item.icon className="h-5 w-5 shrink-0" />
@@ -97,7 +97,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="mt-auto shrink-0 border-t border-eld-space-indigo/20 dark:border-eld-lilac-ash/20 px-3 py-4">
+      <div className="mt-auto shrink-0 border-t border-white/20 dark:border-eld-lilac-ash/20 px-3 py-4">
         <UsageCounter used={0} limit={1000} isCollapsed={false} />
       </div>
     </aside>
