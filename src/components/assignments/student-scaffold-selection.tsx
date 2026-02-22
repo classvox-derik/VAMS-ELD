@@ -41,7 +41,7 @@ export function StudentScaffoldSelection({
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [selection, setSelection] = useState<StudentSelection | null>(null);
-  const [selectedScaffoldIds, setSelectedScaffoldIds] = useState<Set<number>>(
+  const [selectedScaffoldNames, setSelectedScaffoldNames] = useState<Set<string>>(
     new Set()
   );
   const [isLoading, setIsLoading] = useState(true);
@@ -70,28 +70,28 @@ export function StudentScaffoldSelection({
     return selection.level;
   }, [selection]);
 
-  // Auto-select recommended scaffolds when EL level changes
+  // Auto-select recommended scaffolds when EL level changes (by name, not index)
   useEffect(() => {
     if (!currentElLevel) {
-      setSelectedScaffoldIds(new Set());
+      setSelectedScaffoldNames(new Set());
       return;
     }
-    const recommended = new Set<number>();
-    defaultScaffolds.forEach((s, i) => {
+    const recommended = new Set<string>();
+    defaultScaffolds.forEach((s) => {
       if (s.el_level_target.includes(currentElLevel)) {
-        recommended.add(i);
+        recommended.add(s.name);
       }
     });
-    setSelectedScaffoldIds(recommended);
+    setSelectedScaffoldNames(recommended);
   }, [currentElLevel]);
 
-  const handleToggleScaffold = useCallback((index: number) => {
-    setSelectedScaffoldIds((prev) => {
+  const handleToggleScaffold = useCallback((name: string) => {
+    setSelectedScaffoldNames((prev) => {
       const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
+      if (next.has(name)) {
+        next.delete(name);
       } else {
-        next.add(index);
+        next.add(name);
       }
       return next;
     });
@@ -99,22 +99,34 @@ export function StudentScaffoldSelection({
 
   const handleSelectAll = useCallback(() => {
     if (!currentElLevel) return;
-    const all = new Set<number>();
-    defaultScaffolds.forEach((s, i) => {
+    const all = new Set<string>();
+    defaultScaffolds.forEach((s) => {
       if (s.el_level_target.includes(currentElLevel)) {
-        all.add(i);
+        all.add(s.name);
       }
     });
-    setSelectedScaffoldIds(all);
+    setSelectedScaffoldNames(all);
   }, [currentElLevel]);
 
   const handleClearAll = useCallback(() => {
-    setSelectedScaffoldIds(new Set());
+    setSelectedScaffoldNames(new Set());
   }, []);
 
-  const canGenerate = selection !== null && selectedScaffoldIds.size > 0;
-  const generationCount =
-    selection?.type === "bulk" ? selection.students.length : 1;
+  const canGenerate = selection !== null && selectedScaffoldNames.size > 0;
+
+  // Batch-by-level: group students by EL level so we make at most 3 Gemini calls
+  const batchLevels = useMemo(() => {
+    if (!selection || selection.type === "individual") return null;
+    const levelMap = new Map<ELLevel, Student[]>();
+    selection.students.forEach((s) => {
+      const arr = levelMap.get(s.el_level) ?? [];
+      arr.push(s);
+      levelMap.set(s.el_level, arr);
+    });
+    return levelMap;
+  }, [selection]);
+
+  const generationCount = batchLevels ? batchLevels.size : 1;
 
   async function handleGenerate() {
     if (!canGenerate || !currentElLevel) return;
@@ -122,78 +134,97 @@ export function StudentScaffoldSelection({
     setShowConfirm(false);
 
     try {
-      const scaffoldIndices = Array.from(selectedScaffoldIds);
+      const scaffoldNames = Array.from(selectedScaffoldNames);
 
-      const response = await fetch("/api/scaffold", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      if (selection.type === "individual" || !batchLevels) {
+        // Single student or single-level bulk — one Gemini call
+        const result = await callScaffoldAPI({
           content,
           title: assignmentTitle,
-          subject: subject || undefined,
-          gradeLevel: gradeLevel || undefined,
+          subject,
+          gradeLevel,
           elLevel: currentElLevel,
-          scaffoldIndices,
+          scaffoldNames,
           studentId:
             selection.type === "individual"
               ? selection.student.id
               : undefined,
-          studentIds:
-            selection.type === "bulk"
-              ? selection.students.map((s) => s.id)
-              : undefined,
-        }),
-      });
+        });
 
-      const data = await response.json();
+        const resultId = crypto.randomUUID();
+        const studentName =
+          selection.type === "individual"
+            ? selection.student.name
+            : `All ${currentElLevel} students`;
 
-      if (!response.ok) {
-        throw new Error(data.error || "Generation failed");
-      }
+        storeAndNavigate(resultId, result, studentName, currentElLevel);
+      } else {
+        // Batch mode: generate per-level (max 3 calls, not per-student)
+        const levels = Array.from(batchLevels.entries());
+        const results = await Promise.all(
+          levels.map(([level]) =>
+            callScaffoldAPI({
+              content,
+              title: assignmentTitle,
+              subject,
+              gradeLevel,
+              elLevel: level,
+              scaffoldNames,
+            })
+          )
+        );
 
-      // Store result in sessionStorage for the result page
-      const resultId = crypto.randomUUID();
-      const studentName =
-        selection.type === "individual"
-          ? selection.student.name
-          : `All ${currentElLevel} students`;
-      const generatedAt = new Date().toISOString();
+        // Store a combined result with all levels
+        const resultId = crypto.randomUUID();
+        const generatedAt = new Date().toISOString();
+        const totalStudents = selection.students.length;
 
-      sessionStorage.setItem(
-        `scaffold-result-${resultId}`,
-        JSON.stringify({
-          outputHtml: data.outputHtml,
-          isDemo: data.isDemo,
-          scaffoldsApplied: data.scaffoldsApplied,
+        const batchResult = {
+          isBatch: true,
+          levels: levels.map(([level, students], i) => ({
+            level,
+            studentCount: students.length,
+            studentNames: students.map((s) => s.name),
+            outputHtml: results[i].outputHtml,
+            parentNote: results[i].parentNote,
+            wordBank: results[i].wordBank,
+            scaffoldsUsed: results[i].scaffoldsUsed,
+            teacherInstructions: results[i].teacherInstructions,
+            scaffoldsApplied: results[i].scaffoldsApplied,
+            isDemo: results[i].isDemo,
+          })),
           assignmentTitle,
-          elLevel: currentElLevel,
-          studentName,
           originalContent: content,
           generatedAt,
-        })
-      );
+        };
 
-      // Persist to local library
-      saveToLibrary({
-        id: resultId,
-        assignmentTitle,
-        elLevel: currentElLevel,
-        studentName,
-        scaffoldsApplied: data.scaffoldsApplied,
-        outputHtml: data.outputHtml,
-        originalContent: content,
-        isDemo: data.isDemo,
-        teacherNotes: "",
-        createdAt: generatedAt,
-      });
+        sessionStorage.setItem(
+          `scaffold-result-${resultId}`,
+          JSON.stringify(batchResult)
+        );
 
-      toast.success(
-        data.isDemo
-          ? "Demo preview generated! Connect Gemini API key for real results."
-          : "Scaffolded assignment generated successfully!"
-      );
+        // Save primary level to library
+        const primaryLevel = levels[0];
+        const primaryResult = results[0];
+        saveToLibrary({
+          id: resultId,
+          assignmentTitle,
+          elLevel: primaryLevel[0],
+          studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
+          scaffoldsApplied: primaryResult.scaffoldsApplied,
+          outputHtml: primaryResult.outputHtml,
+          originalContent: content,
+          isDemo: primaryResult.isDemo,
+          teacherNotes: "",
+          createdAt: generatedAt,
+        });
 
-      router.push(`/create/result?id=${resultId}`);
+        toast.success(
+          `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
+        );
+
+        router.push(`/create/result?id=${resultId}`);
+      }
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -203,6 +234,78 @@ export function StudentScaffoldSelection({
     } finally {
       setIsGenerating(false);
     }
+  }
+
+  async function callScaffoldAPI(params: {
+    content: string;
+    title: string;
+    subject?: string;
+    gradeLevel?: number;
+    elLevel: ELLevel;
+    scaffoldNames: string[];
+    studentId?: string;
+  }) {
+    const response = await fetch("/api/scaffold", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Generation failed");
+    }
+
+    return data;
+  }
+
+  function storeAndNavigate(
+    resultId: string,
+    data: Record<string, unknown>,
+    studentName: string,
+    elLevel: ELLevel
+  ) {
+    const generatedAt = new Date().toISOString();
+
+    sessionStorage.setItem(
+      `scaffold-result-${resultId}`,
+      JSON.stringify({
+        outputHtml: data.outputHtml,
+        parentNote: data.parentNote,
+        wordBank: data.wordBank,
+        scaffoldsUsed: data.scaffoldsUsed,
+        teacherInstructions: data.teacherInstructions,
+        isDemo: data.isDemo,
+        scaffoldsApplied: data.scaffoldsApplied,
+        assignmentTitle,
+        elLevel,
+        studentName,
+        originalContent: content,
+        generatedAt,
+      })
+    );
+
+    saveToLibrary({
+      id: resultId,
+      assignmentTitle,
+      elLevel,
+      studentName,
+      scaffoldsApplied: data.scaffoldsApplied as string[],
+      outputHtml: data.outputHtml as string,
+      originalContent: content,
+      isDemo: data.isDemo as boolean,
+      teacherNotes: "",
+      createdAt: generatedAt,
+    });
+
+    toast.success(
+      data.isDemo
+        ? "Demo preview generated! Connect Gemini API key for real results."
+        : "Scaffolded assignment generated successfully!"
+    );
+
+    router.push(`/create/result?id=${resultId}`);
   }
 
   if (isLoading) {
@@ -226,7 +329,7 @@ export function StudentScaffoldSelection({
       {currentElLevel && (
         <ScaffoldPicker
           elLevel={currentElLevel}
-          selectedIds={selectedScaffoldIds}
+          selectedNames={selectedScaffoldNames}
           onToggle={handleToggleScaffold}
           onSelectAll={handleSelectAll}
           onClearAll={handleClearAll}
@@ -249,11 +352,15 @@ export function StudentScaffoldSelection({
                 : `All ${selection.level} students (${selection.students.length})`}
             </p>
             <p>
-              <strong>Scaffolds:</strong> {selectedScaffoldIds.size} selected
+              <strong>Scaffolds:</strong> {selectedScaffoldNames.size} selected
             </p>
-            {generationCount > 1 && (
+            {batchLevels && batchLevels.size > 1 && (
               <p>
-                <strong>Generations:</strong> {generationCount} (one per student)
+                <strong>AI Calls:</strong> {batchLevels.size} (grouped by level:{" "}
+                {Array.from(batchLevels.entries())
+                  .map(([level, students]) => `${level}: ${students.length}`)
+                  .join(", ")}
+                )
               </p>
             )}
           </div>
@@ -297,19 +404,24 @@ export function StudentScaffoldSelection({
             <DialogTitle>Generate Scaffolded Assignment?</DialogTitle>
             <DialogDescription>
               {generationCount === 1
-                ? `This will generate a scaffolded version of "${assignmentTitle}" with ${selectedScaffoldIds.size} scaffold(s) applied.`
-                : `This will generate ${generationCount} scaffolded versions of "${assignmentTitle}" (one per ${currentElLevel} student).`}
+                ? `This will generate a scaffolded version of "${assignmentTitle}" with ${selectedScaffoldNames.size} scaffold(s) applied.`
+                : `This will generate ${generationCount} scaffolded version(s) of "${assignmentTitle}" grouped by EL level.`}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 p-3 text-sm text-muted-foreground">
             <p>
               This will use{" "}
               <strong>
-                {generationCount} of your 1,000 daily AI generations
+                {generationCount} of your daily AI generations
               </strong>
               .
             </p>
-            <p className="mt-1">Estimated time: ~10-15 seconds</p>
+            {batchLevels && batchLevels.size > 1 && (
+              <p className="mt-1">
+                Students grouped by level — same level students share one scaffold output.
+              </p>
+            )}
+            <p className="mt-1">Estimated time: ~{generationCount * 10}-{generationCount * 15} seconds</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirm(false)}>

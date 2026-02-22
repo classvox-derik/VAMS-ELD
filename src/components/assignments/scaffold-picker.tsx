@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Palette,
   Layers,
@@ -21,7 +21,6 @@ import { ELBadge } from "@/components/students/el-badge";
 import { cn } from "@/lib/utils";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
 import type { ELLevel } from "@/types";
-import { useState } from "react";
 
 const categoryIcons: Record<string, React.ElementType> = {
   color_coding: Palette,
@@ -41,26 +40,23 @@ const categoryLabels: Record<string, string> = {
 
 interface ScaffoldPickerProps {
   elLevel: ELLevel;
-  selectedIds: Set<number>;
-  onToggle: (index: number) => void;
+  selectedNames: Set<string>;
+  onToggle: (name: string) => void;
   onSelectAll: () => void;
   onClearAll: () => void;
 }
 
 export function ScaffoldPicker({
   elLevel,
-  selectedIds,
+  selectedNames,
   onToggle,
   onSelectAll,
   onClearAll,
 }: ScaffoldPickerProps) {
-  const [detailIndex, setDetailIndex] = useState<number | null>(null);
+  const [detailName, setDetailName] = useState<string | null>(null);
 
   const filteredScaffolds = useMemo(
-    () =>
-      defaultScaffolds
-        .map((s, i) => ({ ...s, originalIndex: i }))
-        .filter((s) => s.el_level_target.includes(elLevel)),
+    () => defaultScaffolds.filter((s) => s.el_level_target.includes(elLevel)),
     [elLevel]
   );
 
@@ -75,8 +71,9 @@ export function ScaffoldPicker({
     return map;
   }, [filteredScaffolds]);
 
-  const detailScaffold =
-    detailIndex !== null ? defaultScaffolds[detailIndex] : null;
+  const detailScaffold = detailName
+    ? defaultScaffolds.find((s) => s.name === detailName) ?? null
+    : null;
 
   return (
     <div className="space-y-4">
@@ -96,7 +93,7 @@ export function ScaffoldPicker({
 
       <p className="text-xs text-muted-foreground">
         Showing scaffolds recommended for <strong>{elLevel}</strong> level.
-        {selectedIds.size === 0 && " Select at least one scaffold."}
+        {selectedNames.size === 0 && " Select at least one scaffold."}
       </p>
 
       <div className="space-y-4">
@@ -112,10 +109,10 @@ export function ScaffoldPicker({
               </div>
               <div className="space-y-2">
                 {scaffolds.map((scaffold) => {
-                  const isChecked = selectedIds.has(scaffold.originalIndex);
+                  const isChecked = selectedNames.has(scaffold.name);
                   return (
                     <label
-                      key={scaffold.originalIndex}
+                      key={scaffold.name}
                       className={cn(
                         "flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 p-3 cursor-pointer transition-colors",
                         isChecked
@@ -126,7 +123,7 @@ export function ScaffoldPicker({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={() => onToggle(scaffold.originalIndex)}
+                        onChange={() => onToggle(scaffold.name)}
                         className="mt-0.5 h-4 w-4 rounded border-gray-300 text-eld-space-indigo focus:ring-eld-space-indigo/20 dark:border-gray-600"
                       />
                       <div className="flex-1 min-w-0">
@@ -138,7 +135,7 @@ export function ScaffoldPicker({
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
-                              setDetailIndex(scaffold.originalIndex);
+                              setDetailName(scaffold.name);
                             }}
                             className="text-muted-foreground hover:text-foreground"
                             aria-label={`Details for ${scaffold.name}`}
@@ -161,9 +158,9 @@ export function ScaffoldPicker({
 
       {/* Scaffold Detail Modal */}
       <Dialog
-        open={detailIndex !== null}
+        open={detailName !== null}
         onOpenChange={(open) => {
-          if (!open) setDetailIndex(null);
+          if (!open) setDetailName(null);
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -196,18 +193,18 @@ export function ScaffoldPicker({
                 <div className="flex justify-end">
                   <Button
                     variant={
-                      detailIndex !== null && selectedIds.has(detailIndex)
+                      detailName !== null && selectedNames.has(detailName)
                         ? "outline"
                         : "default"
                     }
                     size="sm"
                     onClick={() => {
-                      if (detailIndex !== null) {
-                        onToggle(detailIndex);
+                      if (detailName !== null) {
+                        onToggle(detailName);
                       }
                     }}
                   >
-                    {detailIndex !== null && selectedIds.has(detailIndex)
+                    {detailName !== null && selectedNames.has(detailName)
                       ? "Remove from Selection"
                       : "Add to Selection"}
                   </Button>

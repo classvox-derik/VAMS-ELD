@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { ELLevel } from "@/types";
+import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
+import { getELDPromptContext } from "@/lib/eld-standards";
+import type { ELLevel, ScaffoldGenerationResult } from "@/types";
 
 const apiKey = process.env.GEMINI_API_KEY ?? "";
 
@@ -7,18 +8,69 @@ function isPlaceholder(): boolean {
   return !apiKey || apiKey === "placeholder_gemini_key" || apiKey.length < 10;
 }
 
-export function getGeminiModel() {
+/** JSON schema for structured Gemini output */
+const scaffoldResponseSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    scaffolded_html: {
+      type: SchemaType.STRING,
+      description:
+        "The full scaffolded assignment as clean HTML with inline CSS styles. Wrap in a single <div>.",
+    },
+    scaffolds_used: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description:
+        "List of scaffold technique names that were actually applied.",
+    },
+    word_bank: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          term: { type: SchemaType.STRING },
+          definition: { type: SchemaType.STRING },
+        },
+        required: ["term", "definition"],
+      },
+      description:
+        "Key vocabulary terms with simple definitions appropriate for the EL level. 6-12 terms.",
+    },
+    teacher_instructions: {
+      type: SchemaType.STRING,
+      description:
+        "Brief instructions for the teacher on how to use this scaffolded assignment (2-3 sentences).",
+    },
+    parent_note: {
+      type: SchemaType.STRING,
+      description:
+        "A brief parent communication (2-3 sentences, 5th grade reading level) explaining what scaffolds were used and why, written in a warm and supportive tone.",
+    },
+  },
+  required: [
+    "scaffolded_html",
+    "scaffolds_used",
+    "word_bank",
+    "teacher_instructions",
+    "parent_note",
+  ],
+};
+
+function getGeminiModel() {
   if (isPlaceholder()) {
-    console.warn(
-      "[Gemini] Using placeholder API key. AI generation will return mock results."
-    );
     return null;
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  return genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: scaffoldResponseSchema,
+    },
+  });
 }
 
-interface GenerateParams {
+export interface GenerateParams {
   originalContent: string;
   elLevel: ELLevel;
   scaffoldPrompts: string[];
@@ -30,23 +82,52 @@ interface GenerateParams {
 
 export async function generateScaffoldedAssignment(
   params: GenerateParams
-): Promise<{ html: string; isDemo: boolean }> {
+): Promise<ScaffoldGenerationResult> {
   const model = getGeminiModel();
 
   if (!model) {
-    return { html: buildMockHtml(params), isDemo: true };
+    return buildMockResult(params);
   }
 
   const prompt = buildPrompt(params);
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  let html = response.text();
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = JSON.parse(text);
 
-  // Strip markdown code fences if Gemini wraps the output
-  html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+    return {
+      html: parsed.scaffolded_html,
+      parentNote: parsed.parent_note || null,
+      wordBank: parsed.word_bank || null,
+      scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
+      teacherInstructions: parsed.teacher_instructions || null,
+      isDemo: false,
+    };
+  } catch (error) {
+    // If JSON parsing fails, try extracting HTML from raw text
+    console.error("[Gemini] Structured output parsing failed, falling back:", error);
 
-  return { html, isDemo: false };
+    const result = await getGeminiModelFallback()!.generateContent(prompt);
+    let html = result.response.text();
+    html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    return {
+      html,
+      parentNote: null,
+      wordBank: null,
+      scaffoldsUsed: params.scaffoldNames,
+      teacherInstructions: null,
+      isDemo: false,
+    };
+  }
+}
+
+/** Fallback model without JSON schema constraints */
+function getGeminiModelFallback() {
+  if (isPlaceholder()) return null;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 }
 
 function buildPrompt(params: GenerateParams): string {
@@ -73,38 +154,60 @@ function buildPrompt(params: GenerateParams): string {
     .filter(Boolean)
     .join("\n");
 
-  return `You are an expert ELD (English Language Development) scaffolding specialist for middle school teachers. Your job is to take an assignment and apply specific scaffolding modifications to make it more accessible for English Language Learners.
+  // Pull CA ELD Framework context for this level
+  const eldContext = getELDPromptContext(elLevel);
+
+  return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
 ## Context
 ${metaContext}
 
+## CA ELD Framework Guidance for ${elLevel} Level
+${eldContext}
+
 ## Instructions
-Apply the following scaffold modifications to the assignment below. Follow each scaffold's instructions precisely. Return ONLY the scaffolded HTML — no explanations, no markdown, no code fences.
+Apply the following scaffold modifications to the assignment below. Follow each scaffold's instructions precisely.
 
 ### Scaffolds to Apply:
 ${scaffoldInstructions}
 
-## Rules
+## Rules for scaffolded_html
 - Preserve ALL original assignment content — do not remove, summarize, or rewrite the text
 - Apply scaffolds by ADDING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the original content
 - Use inline CSS styles only (no class names that require external stylesheets)
 - Wrap the entire output in a single <div> element
-- Make the output clean, readable, and well-structured
+- Make the output clean, readable, and well-structured for printing
 - Target the scaffolding complexity for ${elLevel}-level ELL students
 - If a scaffold instruction says to add something "before" or "after" content, place it logically relative to the relevant section
+
+## Rules for word_bank
+- Select 6-12 academic or challenging vocabulary words from the assignment
+- Definitions should be appropriate for the ${elLevel} EL level
+- For Emerging: use simple, everyday language definitions
+- For Expanding: use clear academic definitions
+- For Bridging: focus on nuanced/domain-specific terms
+
+## Rules for parent_note
+- Write 2-3 sentences at a 5th grade reading level
+- Warm, supportive tone
+- Mention the assignment title and what types of support were added
+- Do NOT include student names (the teacher will personalize it)
+
+## Rules for teacher_instructions
+- Brief (2-3 sentences) guidance on implementing the scaffolded assignment
+- Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 
 ## Original Assignment:
 ${originalContent}`;
 }
 
-function buildMockHtml(params: GenerateParams): string {
+function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
   const { originalContent, elLevel, scaffoldNames, title } = params;
 
   const scaffoldList = scaffoldNames
     .map((name) => `<li>${name}</li>`)
     .join("\n          ");
 
-  // Wrap original content paragraphs
   const paragraphs = originalContent
     .split(/\n\n+/)
     .map(
@@ -113,7 +216,7 @@ function buildMockHtml(params: GenerateParams): string {
     )
     .join("\n      ");
 
-  return `<div style="font-family: system-ui, sans-serif; max-width: 800px;">
+  const html = `<div style="font-family: system-ui, sans-serif; max-width: 800px;">
     <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
       <strong style="color: #92400e;">Demo Preview</strong>
       <p style="margin: 0.5rem 0 0 0; color: #78350f; font-size: 0.875rem;">
@@ -146,4 +249,19 @@ function buildMockHtml(params: GenerateParams): string {
       </div>
     </div>
   </div>`;
+
+  return {
+    html,
+    parentNote:
+      `Your child's assignment "${title}" has been adapted with extra learning support including ${scaffoldNames.join(", ")}. These tools help your child understand and complete the assignment at their current English proficiency level. Please encourage your child to use the sentence starters and word bank provided.`,
+    wordBank: [
+      { term: "scaffold", definition: "A support structure to help with learning" },
+      { term: "differentiate", definition: "To make different versions for different needs" },
+      { term: "assignment", definition: "A task or piece of work given to a student" },
+    ],
+    scaffoldsUsed: scaffoldNames,
+    teacherInstructions:
+      "This is a demo preview. Connect your Gemini API key for real scaffolding with teacher-specific instructions.",
+    isDemo: true,
+  };
 }

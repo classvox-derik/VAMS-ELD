@@ -1,61 +1,62 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { generateScaffoldedAssignment } from "@/lib/gemini";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
-import type { ELLevel } from "@/types";
+import { scaffoldRequestSchema } from "@/lib/validations";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-const VALID_EL_LEVELS: ELLevel[] = ["Emerging", "Expanding", "Bridging"];
+async function getAuthUser(request: NextRequest) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll() {},
+      },
+    }
+  );
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+}
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Auth check — only authenticated teachers can generate
+  const user = await getAuthUser(request);
+  if (!user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limit — protect Gemini free tier (10 requests/min per user)
+  if (!checkRateLimit(user.id, 10)) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please wait a moment before generating again." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const {
-      content,
-      title,
-      subject,
-      gradeLevel,
-      elLevel,
-      scaffoldIndices,
-    } = body;
 
-    // Validate required fields
-    if (!content || typeof content !== "string") {
+    // Zod validation
+    const parsed = scaffoldRequestSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Assignment content is required" },
+        { error: "Validation failed", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
-    if (!title || typeof title !== "string") {
-      return NextResponse.json(
-        { error: "Assignment title is required" },
-        { status: 400 }
-      );
-    }
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames } = parsed.data;
 
-    if (!elLevel || !VALID_EL_LEVELS.includes(elLevel)) {
-      return NextResponse.json(
-        { error: "Valid EL level is required (Emerging, Expanding, or Bridging)" },
-        { status: 400 }
-      );
-    }
-
-    if (
-      !Array.isArray(scaffoldIndices) ||
-      scaffoldIndices.length === 0
-    ) {
-      return NextResponse.json(
-        { error: "At least one scaffold must be selected" },
-        { status: 400 }
-      );
-    }
-
-    // Look up scaffold templates
-    const selectedScaffolds = scaffoldIndices
-      .filter(
-        (i: number) =>
-          typeof i === "number" && i >= 0 && i < defaultScaffolds.length
-      )
-      .map((i: number) => defaultScaffolds[i]);
+    // Look up scaffolds by name instead of fragile indices
+    const selectedScaffolds = defaultScaffolds.filter((s) =>
+      requestedNames.includes(s.name)
+    );
 
     if (selectedScaffolds.length === 0) {
       return NextResponse.json(
@@ -69,10 +70,10 @@ export async function POST(request: Request) {
     );
     const scaffoldNames = selectedScaffolds.map((s) => s.name);
 
-    // Generate scaffolded assignment
-    const { html, isDemo } = await generateScaffoldedAssignment({
+    // Generate scaffolded assignment (returns structured JSON from Gemini)
+    const result = await generateScaffoldedAssignment({
       originalContent: content,
-      elLevel: elLevel as ELLevel,
+      elLevel,
       scaffoldPrompts,
       scaffoldNames,
       title,
@@ -89,26 +90,27 @@ export async function POST(request: Request) {
       const stored = await createDifferentiatedAssignment({
         assignment_id: body.assignmentId || "draft",
         student_id: body.studentId || undefined,
-        el_level: elLevel as ELLevel,
+        el_level: elLevel,
         scaffolds_applied: scaffoldNames,
-        output_html: html,
+        output_html: result.html,
+        parent_note: result.parentNote || undefined,
       });
       storedId = stored.id;
     } catch {
       // Database not configured — continue without storing
     }
 
-    // Attempt to log usage analytic (graceful failure)
+    // Log usage analytic with real teacher ID (graceful failure)
     try {
       const { logUsageAnalytic } = await import(
         "@/lib/queries/differentiated-assignments"
       );
-      await logUsageAnalytic("anonymous", "scaffold_generated", {
+      await logUsageAnalytic(user.id, "scaffold_generated", {
         title,
         elLevel,
         scaffoldCount: selectedScaffolds.length,
         contentLength: content.length,
-        isDemo,
+        isDemo: result.isDemo,
       });
     } catch {
       // Database not configured — continue
@@ -116,8 +118,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      outputHtml: html,
-      isDemo,
+      outputHtml: result.html,
+      parentNote: result.parentNote,
+      wordBank: result.wordBank,
+      scaffoldsUsed: result.scaffoldsUsed,
+      teacherInstructions: result.teacherInstructions,
+      isDemo: result.isDemo,
       scaffoldsApplied: scaffoldNames,
       storedId,
     });

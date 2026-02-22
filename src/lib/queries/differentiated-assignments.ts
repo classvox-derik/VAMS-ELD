@@ -7,6 +7,7 @@ export async function createDifferentiatedAssignment(data: {
   el_level?: ELLevel;
   scaffolds_applied: string[];
   output_html: string;
+  parent_note?: string;
   teacher_notes?: string;
 }): Promise<DifferentiatedAssignment> {
   const supabase = createClient();

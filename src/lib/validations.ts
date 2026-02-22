@@ -26,6 +26,24 @@ export const assignmentContentSchema = z.object({
   source_type: z.enum(["text", "upload", "google_doc", "google_slides"]),
 });
 
+/** Validates the POST /api/scaffold request body */
+export const scaffoldRequestSchema = z.object({
+  content: z.string().min(50, "Assignment must be at least 50 characters").max(50000),
+  title: z.string().min(3).max(200),
+  subject: z.string().optional(),
+  gradeLevel: z.number().int().min(5).max(8).optional(),
+  elLevel: elLevelSchema,
+  // Scaffold names instead of fragile array indices
+  scaffoldNames: z
+    .array(z.string().min(1))
+    .min(1, "At least one scaffold must be selected"),
+  // Optional: link to specific student or assignment
+  studentId: z.string().uuid().optional(),
+  studentIds: z.array(z.string().uuid()).optional(),
+  assignmentId: z.string().optional(),
+});
+
 export type StudentFormValues = z.infer<typeof studentSchema>;
 export type AssignmentDetailsFormValues = z.infer<typeof assignmentDetailsSchema>;
 export type AssignmentContentFormValues = z.infer<typeof assignmentContentSchema>;
+export type ScaffoldRequestValues = z.infer<typeof scaffoldRequestSchema>;
