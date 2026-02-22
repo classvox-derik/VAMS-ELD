@@ -25,21 +25,20 @@ async function getAuthUser(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // Auth check — only authenticated teachers can generate
-  const user = await getAuthUser(request);
-  if (!user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Rate limit — protect Gemini free tier (10 requests/min per user)
-  if (!checkRateLimit(user.id, 10)) {
-    return NextResponse.json(
-      { error: "Rate limit exceeded. Please wait a moment before generating again." },
-      { status: 429 }
-    );
-  }
-
   try {
+    // Auth check — only authenticated teachers can generate
+    const user = await getAuthUser(request);
+    if (!user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limit — protect Gemini free tier (10 requests/min per user)
+    if (!checkRateLimit(user.id, 10)) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Please wait a moment before generating again." },
+        { status: 429 }
+      );
+    }
     const body = await request.json();
 
     // Zod validation
@@ -128,9 +127,14 @@ export async function POST(request: NextRequest) {
       storedId,
     });
   } catch (error) {
-    console.error("Scaffold generation error:", error);
+    const message =
+      error instanceof Error ? error.message : String(error);
+    console.error("Scaffold generation error:", message, error);
     return NextResponse.json(
-      { error: "Failed to generate scaffolded assignment. Please try again." },
+      {
+        error: "Failed to generate scaffolded assignment. Please try again.",
+        ...(process.env.NODE_ENV === "development" && { detail: message }),
+      },
       { status: 500 }
     );
   }
