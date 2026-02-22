@@ -20,7 +20,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white/70 dark:border-gray-700 dark:text-gray-400">
+      <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white/70">
         <Sun className="h-5 w-5" />
       </button>
     );
@@ -29,7 +29,7 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+        <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white">
           {theme === "dark" ? (
             <Moon className="h-5 w-5" />
           ) : theme === "light" ? (

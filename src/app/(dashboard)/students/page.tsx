@@ -2,20 +2,26 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { Upload } from "lucide-react";
 import { StudentsTable } from "@/components/students/students-table";
 import { StudentFormModal } from "@/components/students/student-form-modal";
 import { DeleteStudentDialog } from "@/components/students/delete-student-dialog";
+import { BulkImportModal } from "@/components/students/bulk-import-modal";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsAdmin } from "@/lib/hooks/use-admin";
 import {
   getAllStudents,
   createStudent,
   updateStudent,
   deleteStudent,
+  bulkImportStudents,
 } from "@/lib/queries/students";
 import type { Student } from "@/types";
 import type { StudentFormValues } from "@/lib/validations";
 
 export default function StudentsPage() {
+  const { isAdmin, isLoading: isAdminLoading } = useIsAdmin();
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +30,7 @@ export default function StudentsPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const fetchStudents = useCallback(async () => {
@@ -31,7 +38,6 @@ export default function StudentsPage() {
       const data = await getAllStudents();
       setStudents(data);
     } catch {
-      // Supabase not configured - show empty state
       setStudents([]);
     } finally {
       setIsLoading(false);
@@ -46,9 +52,14 @@ export default function StudentsPage() {
     setIsSubmitting(true);
     try {
       const newStudent = await createStudent({
+        ssid: data.ssid ?? "",
         name: data.name,
         grade: data.grade,
+        homeroom: data.homeroom ?? "",
         el_level: data.el_level,
+        overall_level: data.overall_level ?? 0,
+        oral_language_level: data.oral_language_level ?? 0,
+        written_language_level: data.written_language_level ?? 0,
         primary_language: data.primary_language,
         notes: data.notes,
         created_by: "",
@@ -57,7 +68,7 @@ export default function StudentsPage() {
       setAddModalOpen(false);
       toast.success(`${data.name} added successfully`);
     } catch {
-      toast.error("Failed to add student. Check your Supabase connection.");
+      toast.error("Failed to add student.");
     } finally {
       setIsSubmitting(false);
     }
@@ -97,7 +108,24 @@ export default function StudentsPage() {
     }
   }
 
-  if (isLoading) {
+  async function handleBulkImport(
+    studentData: Array<{
+      name: string;
+      grade: number;
+      el_level: string;
+      primary_language: string;
+      notes?: string;
+    }>
+  ) {
+    const result = await bulkImportStudents(studentData);
+    if (result.imported > 0) {
+      await fetchStudents();
+      toast.success(`${result.imported} student${result.imported !== 1 ? "s" : ""} imported`);
+    }
+    return result;
+  }
+
+  if (isLoading || isAdminLoading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -125,15 +153,30 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="scaffold-heading">Students</h1>
-        <p className="scaffold-description mt-1">
-          Manage your student roster and view EL proficiency levels.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="scaffold-heading">Students</h1>
+          <p className="scaffold-description mt-1">
+            {isAdmin
+              ? "Manage the school-wide student roster and EL proficiency levels."
+              : "View the school-wide student roster and EL proficiency levels."}
+          </p>
+        </div>
+        {isAdmin && (
+          <Button
+            variant="outline"
+            onClick={() => setBulkImportOpen(true)}
+            className="gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Bulk Import
+          </Button>
+        )}
       </div>
 
       <StudentsTable
         students={students}
+        isAdmin={isAdmin}
         onAdd={() => setAddModalOpen(true)}
         onEdit={(student) => {
           setSelectedStudent(student);
@@ -145,35 +188,45 @@ export default function StudentsPage() {
         }}
       />
 
-      <StudentFormModal
-        open={addModalOpen}
-        onOpenChange={setAddModalOpen}
-        onSubmit={handleAddStudent}
-        isLoading={isSubmitting}
-      />
+      {isAdmin && (
+        <>
+          <StudentFormModal
+            open={addModalOpen}
+            onOpenChange={setAddModalOpen}
+            onSubmit={handleAddStudent}
+            isLoading={isSubmitting}
+          />
 
-      <StudentFormModal
-        key={selectedStudent?.id ?? "new"}
-        open={editModalOpen}
-        onOpenChange={(open) => {
-          setEditModalOpen(open);
-          if (!open) setSelectedStudent(null);
-        }}
-        onSubmit={handleEditStudent}
-        student={selectedStudent}
-        isLoading={isSubmitting}
-      />
+          <StudentFormModal
+            key={selectedStudent?.id ?? "new"}
+            open={editModalOpen}
+            onOpenChange={(open) => {
+              setEditModalOpen(open);
+              if (!open) setSelectedStudent(null);
+            }}
+            onSubmit={handleEditStudent}
+            student={selectedStudent}
+            isLoading={isSubmitting}
+          />
 
-      <DeleteStudentDialog
-        open={deleteDialogOpen}
-        onOpenChange={(open) => {
-          setDeleteDialogOpen(open);
-          if (!open) setSelectedStudent(null);
-        }}
-        student={selectedStudent}
-        onConfirm={handleDeleteStudent}
-        isLoading={isSubmitting}
-      />
+          <DeleteStudentDialog
+            open={deleteDialogOpen}
+            onOpenChange={(open) => {
+              setDeleteDialogOpen(open);
+              if (!open) setSelectedStudent(null);
+            }}
+            student={selectedStudent}
+            onConfirm={handleDeleteStudent}
+            isLoading={isSubmitting}
+          />
+
+          <BulkImportModal
+            open={bulkImportOpen}
+            onOpenChange={setBulkImportOpen}
+            onImport={handleBulkImport}
+          />
+        </>
+      )}
     </div>
   );
 }

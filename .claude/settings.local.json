@@ -15,7 +15,10 @@
       "Bash(git push:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0k-48-sheets.googleusercontent.com)",
+      "Bash(curl:*)"
     ]
   }
 }

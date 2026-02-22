@@ -10,9 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-eld-space-indigo text-white shadow-theme-xs hover:bg-eld-dusty-grape",
+          "bg-eld-space-indigo/10 text-eld-space-indigo shadow-theme-xs hover:bg-eld-space-indigo/20 dark:bg-eld-space-indigo dark:text-white dark:hover:bg-eld-dusty-grape",
         destructive:
-          "bg-red-500 text-white shadow-theme-xs hover:bg-red-600",
+          "bg-red-100 text-red-700 shadow-theme-xs hover:bg-red-200 dark:bg-red-500 dark:text-white dark:hover:bg-red-600",
         outline:
           "ring-1 ring-inset ring-eld-almond-silk bg-white text-eld-space-indigo hover:bg-eld-seashell dark:bg-transparent dark:text-eld-seashell dark:ring-gray-700 dark:hover:bg-gray-800",
         secondary:

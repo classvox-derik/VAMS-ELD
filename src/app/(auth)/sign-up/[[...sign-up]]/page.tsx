@@ -210,6 +210,11 @@ export default function SignUpPage() {
             </div>
           )}
         </div>
+
+        {/* Footer */}
+        <p className="mt-8 text-center text-theme-xs text-eld-lilac-ash dark:text-gray-500">
+          &copy; {new Date().getFullYear()} Valor Academy Middle School &mdash; ELD Scaffolding Platform
+        </p>
       </div>
     </div>
   );

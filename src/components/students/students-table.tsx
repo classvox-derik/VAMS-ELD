@@ -10,18 +10,20 @@ import { ELBadge } from "./el-badge";
 import type { Student, ELLevel } from "@/types";
 import { EL_LEVELS, GRADES } from "@/types";
 
-type SortField = "name" | "grade" | "el_level" | "primary_language";
+type SortField = "name" | "grade" | "el_level" | "homeroom" | "overall_level";
 type SortDirection = "asc" | "desc";
 
 interface StudentsTableProps {
   students: Student[];
-  onAdd: () => void;
-  onEdit: (student: Student) => void;
-  onDelete: (student: Student) => void;
+  isAdmin?: boolean;
+  onAdd?: () => void;
+  onEdit?: (student: Student) => void;
+  onDelete?: (student: Student) => void;
 }
 
 export function StudentsTable({
   students,
+  isAdmin = false,
   onAdd,
   onEdit,
   onDelete,
@@ -41,6 +43,8 @@ export function StudentsTable({
       result = result.filter(
         (s) =>
           s.name.toLowerCase().includes(lowerSearch) ||
+          s.ssid?.toLowerCase().includes(lowerSearch) ||
+          s.homeroom?.toLowerCase().includes(lowerSearch) ||
           s.primary_language.toLowerCase().includes(lowerSearch)
       );
     }
@@ -133,10 +137,12 @@ export function StudentsTable({
             ))}
           </Select>
         </div>
-        <Button onClick={onAdd} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Student
-        </Button>
+        {isAdmin && onAdd && (
+          <Button onClick={onAdd} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Student
+          </Button>
+        )}
       </div>
 
       {/* Results count */}
@@ -157,22 +163,35 @@ export function StudentsTable({
                 <SortButton field="grade">Grade</SortButton>
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="el_level">EL Level</SortButton>
+                <SortButton field="homeroom">Homeroom</SortButton>
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="primary_language">Language</SortButton>
+                <SortButton field="el_level">EL Level</SortButton>
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                Actions
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                <SortButton field="overall_level">Overall</SortButton>
               </th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                Oral
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                Written
+              </th>
+              {isAdmin && (
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
             {filteredAndSorted.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                <td colSpan={isAdmin ? 8 : 7} className="px-4 py-12 text-center text-sm text-muted-foreground">
                   {students.length === 0
-                    ? "No students yet. Click \"Add Student\" to begin."
+                    ? isAdmin
+                      ? "No students yet. Click \"Add Student\" to begin."
+                      : "No students have been added yet. Contact an admin to add students."
                     : "No students match your filters."}
                 </td>
               </tr>
@@ -189,32 +208,40 @@ export function StudentsTable({
                     >
                       {student.name}
                     </Link>
+                    {student.ssid && (
+                      <span className="block text-xs text-muted-foreground">{student.ssid}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-sm">{student.grade}</td>
+                  <td className="px-4 py-3 text-sm">{student.homeroom}</td>
                   <td className="px-4 py-3">
                     <ELBadge level={student.el_level} />
                   </td>
-                  <td className="px-4 py-3 text-sm">{student.primary_language}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(student)}
-                        aria-label={`Edit ${student.name}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(student)}
-                        aria-label={`Delete ${student.name}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3 text-center text-sm font-medium">{student.overall_level || "-"}</td>
+                  <td className="px-4 py-3 text-center text-sm">{student.oral_language_level || "-"}</td>
+                  <td className="px-4 py-3 text-center text-sm">{student.written_language_level || "-"}</td>
+                  {isAdmin && (
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEdit?.(student)}
+                          aria-label={`Edit ${student.name}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete?.(student)}
+                          aria-label={`Delete ${student.name}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
@@ -227,7 +254,9 @@ export function StudentsTable({
         {filteredAndSorted.length === 0 ? (
           <div className="col-span-full py-12 text-center text-sm text-muted-foreground">
             {students.length === 0
-              ? "No students yet. Click \"Add Student\" to begin."
+              ? isAdmin
+                ? "No students yet. Click \"Add Student\" to begin."
+                : "No students have been added yet. Contact an admin to add students."
               : "No students match your filters."}
           </div>
         ) : (
@@ -246,27 +275,34 @@ export function StudentsTable({
                 <ELBadge level={student.el_level} />
               </div>
               <div className="text-sm text-muted-foreground">
-                Grade {student.grade} &middot; {student.primary_language}
+                Grade {student.grade} &middot; {student.homeroom}
               </div>
-              <div className="flex items-center gap-1 pt-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(student)}
-                >
-                  <Pencil className="h-3 w-3 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(student)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  Delete
-                </Button>
+              <div className="flex gap-3 text-xs text-muted-foreground">
+                <span>Overall: {student.overall_level || "-"}</span>
+                <span>Oral: {student.oral_language_level || "-"}</span>
+                <span>Written: {student.written_language_level || "-"}</span>
               </div>
+              {isAdmin && (
+                <div className="flex items-center gap-1 pt-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit?.(student)}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete?.(student)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              )}
             </div>
           ))
         )}

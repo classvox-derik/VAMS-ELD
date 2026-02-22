@@ -133,7 +133,7 @@ export default function LibraryPage() {
               onClick={() => setFilterLevel("all")}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 filterLevel === "all"
-                  ? "bg-eld-space-indigo text-white"
+                  ? "bg-eld-space-indigo/15 text-eld-space-indigo font-bold dark:bg-eld-dusty-grape dark:text-white"
                   : "bg-eld-almond-silk/20 text-eld-dusty-grape hover:bg-eld-almond-silk/40 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
@@ -145,7 +145,7 @@ export default function LibraryPage() {
                 onClick={() => setFilterLevel(level)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   filterLevel === level
-                    ? "bg-eld-space-indigo text-white"
+                    ? "bg-eld-space-indigo/15 text-eld-space-indigo font-bold dark:bg-eld-dusty-grape dark:text-white"
                     : "bg-eld-almond-silk/20 text-eld-dusty-grape hover:bg-eld-almond-silk/40 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 }`}
               >
@@ -168,6 +168,7 @@ export default function LibraryPage() {
           </p>
           <Button
             onClick={() => router.push("/create")}
+            variant="secondary"
             className="mt-4 gap-2"
           >
             <PenSquare className="h-4 w-4" />

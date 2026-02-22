@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ELLevel } from "@/types";
 
 const levelStyles: Record<ELLevel, string> = {
-  Emerging: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  Emerging: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
   Expanding: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
   Bridging: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
 };

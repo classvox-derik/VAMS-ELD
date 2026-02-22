@@ -45,7 +45,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-eld-dusty-grape dark:bg-eld-space-indigo overflow-hidden">
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-[#4a4e69] dark:bg-eld-space-indigo overflow-hidden">
       {/* Logo */}
       <Link
         href="/dashboard"

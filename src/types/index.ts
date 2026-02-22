@@ -15,9 +15,14 @@ export interface User {
 
 export interface Student {
   id: string;
+  ssid: string;
   name: string;
   grade: number;
+  homeroom: string;
   el_level: ELLevel;
+  overall_level: number;
+  oral_language_level: number;
+  written_language_level: number;
   primary_language: string;
   custom_scaffolds: string[];
   notes?: string;

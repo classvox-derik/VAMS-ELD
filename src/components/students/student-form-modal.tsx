@@ -44,15 +44,22 @@ export function StudentFormModal({
     resolver: zodResolver(studentSchema),
     defaultValues: student
       ? {
+          ssid: student.ssid ?? "",
           name: student.name,
           grade: student.grade,
+          homeroom: student.homeroom ?? "",
           el_level: student.el_level,
+          overall_level: student.overall_level ?? undefined,
+          oral_language_level: student.oral_language_level ?? undefined,
+          written_language_level: student.written_language_level ?? undefined,
           primary_language: student.primary_language,
           notes: student.notes ?? "",
         }
       : {
+          ssid: "",
           name: "",
           grade: 5,
+          homeroom: "",
           el_level: "Emerging",
           primary_language: "",
           notes: "",
@@ -77,11 +84,34 @@ export function StudentFormModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ssid">Student SSID</Label>
+              <Input
+                id="ssid"
+                placeholder="e.g., 7726495983"
+                {...register("ssid")}
+              />
+              {errors.ssid && (
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">{errors.ssid.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="homeroom">Homeroom</Label>
+              <Input
+                id="homeroom"
+                placeholder="e.g., USC, UCLA, LMU, CSUN"
+                {...register("homeroom")}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Full Name</Label>
             <Input
               id="name"
-              placeholder="Student's full name"
+              placeholder="Student's full name (First Last)"
               {...register("name")}
             />
             {errors.name && (
@@ -121,6 +151,47 @@ export function StudentFormModal({
                   {errors.el_level.message}
                 </p>
               )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="overall_level">Overall Level</Label>
+              <Select
+                id="overall_level"
+                {...register("overall_level", { valueAsNumber: true })}
+              >
+                <option value="">-</option>
+                {[1, 2, 3, 4].map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="oral_language_level">Oral Level</Label>
+              <Select
+                id="oral_language_level"
+                {...register("oral_language_level", { valueAsNumber: true })}
+              >
+                <option value="">-</option>
+                {[1, 2, 3, 4].map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="written_language_level">Written Level</Label>
+              <Select
+                id="written_language_level"
+                {...register("written_language_level", { valueAsNumber: true })}
+              >
+                <option value="">-</option>
+                {[1, 2, 3, 4].map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </Select>
             </div>
           </div>
 

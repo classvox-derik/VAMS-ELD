@@ -68,10 +68,10 @@ export default function CreateAssignmentPage() {
               className={cn(
                 "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                 step.number === form.currentStep
-                  ? "bg-eld-space-indigo text-white shadow-theme-xs"
+                  ? "bg-eld-space-indigo/15 text-eld-space-indigo shadow-theme-xs font-bold dark:bg-eld-dusty-grape dark:text-white"
                   : step.number < form.currentStep
                   ? "bg-eld-space-indigo/10 text-eld-space-indigo cursor-pointer hover:bg-eld-space-indigo/20 dark:bg-eld-dusty-grape/20 dark:text-eld-seashell"
-                  : "bg-eld-almond-silk/20 text-eld-lilac-ash dark:bg-gray-800 dark:text-gray-500"
+                  : "bg-eld-almond-silk/20 text-eld-space-indigo/50 dark:bg-gray-800 dark:text-gray-500"
               )}
             >
               {step.number < form.currentStep ? (
