@@ -39,7 +39,8 @@ const categoryLabels: Record<string, string> = {
 };
 
 interface ScaffoldPickerProps {
-  elLevel: ELLevel;
+  elLevel?: ELLevel;
+  elLevels?: ELLevel[];
   selectedNames: Set<string>;
   onToggle: (name: string) => void;
   onSelectAll: () => void;
@@ -48,6 +49,7 @@ interface ScaffoldPickerProps {
 
 export function ScaffoldPicker({
   elLevel,
+  elLevels,
   selectedNames,
   onToggle,
   onSelectAll,
@@ -55,9 +57,12 @@ export function ScaffoldPicker({
 }: ScaffoldPickerProps) {
   const [detailName, setDetailName] = useState<string | null>(null);
 
+  const levels = elLevels ?? (elLevel ? [elLevel] : []);
+
   const filteredScaffolds = useMemo(
-    () => defaultScaffolds.filter((s) => s.el_level_target.includes(elLevel)),
-    [elLevel]
+    () => defaultScaffolds.filter((s) => levels.some((l) => s.el_level_target.includes(l))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [levels.join(",")]
   );
 
   // Group by category
@@ -92,7 +97,8 @@ export function ScaffoldPicker({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Showing scaffolds recommended for <strong>{elLevel}</strong> level.
+        Showing scaffolds recommended for{" "}
+        <strong>{levels.join(", ")}</strong> level{levels.length !== 1 ? "s" : ""}.
         {selectedNames.size === 0 && " Select at least one scaffold."}
       </p>
 

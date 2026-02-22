@@ -115,7 +115,7 @@ export const SCAFFOLD_CATEGORIES: ScaffoldCategory[] = [
 export const GRADES = [5, 6, 7, 8] as const;
 export type Grade = (typeof GRADES)[number];
 
-export const SUBJECTS = ["ELA", "Math", "Science", "Social Studies", "Other"] as const;
+export const SUBJECTS = ["ELA", "ELD", "IST", "Math", "Science", "Social Studies", "Other"] as const;
 export type Subject = (typeof SUBJECTS)[number];
 
 // Navigation types

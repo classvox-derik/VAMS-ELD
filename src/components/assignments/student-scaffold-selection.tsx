@@ -63,27 +63,32 @@ export function StudentScaffoldSelection({
     load();
   }, []);
 
-  // Get current EL level from selection
-  const currentElLevel: ELLevel | null = useMemo(() => {
-    if (!selection) return null;
-    if (selection.type === "individual") return selection.student.el_level;
-    return selection.level;
+  // Get all unique EL levels from selection
+  const selectedElLevels: ELLevel[] = useMemo(() => {
+    if (!selection) return [];
+    const levels = new Set<ELLevel>();
+    selection.students.forEach((s) => levels.add(s.el_level));
+    return Array.from(levels);
   }, [selection]);
 
-  // Auto-select recommended scaffolds when EL level changes (by name, not index)
+  // Stable key for tracking level changes
+  const elLevelsKey = selectedElLevels.join(",");
+
+  // Auto-select recommended scaffolds when EL levels change
   useEffect(() => {
-    if (!currentElLevel) {
+    if (selectedElLevels.length === 0) {
       setSelectedScaffoldNames(new Set());
       return;
     }
     const recommended = new Set<string>();
     defaultScaffolds.forEach((s) => {
-      if (s.el_level_target.includes(currentElLevel)) {
+      if (selectedElLevels.some((level) => s.el_level_target.includes(level))) {
         recommended.add(s.name);
       }
     });
     setSelectedScaffoldNames(recommended);
-  }, [currentElLevel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elLevelsKey]);
 
   const handleToggleScaffold = useCallback((name: string) => {
     setSelectedScaffoldNames((prev) => {
@@ -97,26 +102,30 @@ export function StudentScaffoldSelection({
     });
   }, []);
 
-  const handleSelectAll = useCallback(() => {
-    if (!currentElLevel) return;
+  const handleSelectAllScaffolds = useCallback(() => {
+    if (selectedElLevels.length === 0) return;
     const all = new Set<string>();
     defaultScaffolds.forEach((s) => {
-      if (s.el_level_target.includes(currentElLevel)) {
+      if (selectedElLevels.some((level) => s.el_level_target.includes(level))) {
         all.add(s.name);
       }
     });
     setSelectedScaffoldNames(all);
-  }, [currentElLevel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elLevelsKey]);
 
-  const handleClearAll = useCallback(() => {
+  const handleClearAllScaffolds = useCallback(() => {
     setSelectedScaffoldNames(new Set());
   }, []);
 
-  const canGenerate = selection !== null && selectedScaffoldNames.size > 0;
+  const canGenerate =
+    selection !== null &&
+    selection.students.length > 0 &&
+    selectedScaffoldNames.size > 0;
 
   // Batch-by-level: group students by EL level so we make at most 3 Gemini calls
   const batchLevels = useMemo(() => {
-    if (!selection || selection.type === "individual") return null;
+    if (!selection) return null;
     const levelMap = new Map<ELLevel, Student[]>();
     selection.students.forEach((s) => {
       const arr = levelMap.get(s.el_level) ?? [];
@@ -126,43 +135,43 @@ export function StudentScaffoldSelection({
     return levelMap;
   }, [selection]);
 
-  const generationCount = batchLevels ? batchLevels.size : 1;
+  const generationCount = batchLevels ? batchLevels.size : 0;
 
   async function handleGenerate() {
-    if (!canGenerate || !currentElLevel) return;
+    if (!canGenerate || !batchLevels) return;
     setIsGenerating(true);
     setShowConfirm(false);
 
     try {
       const scaffoldNames = Array.from(selectedScaffoldNames);
+      const levels = Array.from(batchLevels.entries());
 
-      if (selection.type === "individual" || !batchLevels) {
-        // Single student or single-level bulk — one Gemini call
+      if (levels.length === 1) {
+        const [level, levelStudents] = levels[0];
+        const isSingle = levelStudents.length === 1;
+
+        // Single level — one Gemini call
         const result = await callScaffoldAPI({
           content,
           title: assignmentTitle,
           subject,
           gradeLevel,
-          elLevel: currentElLevel,
+          elLevel: level,
           scaffoldNames,
-          studentId:
-            selection.type === "individual"
-              ? selection.student.id
-              : undefined,
+          studentId: isSingle ? levelStudents[0].id : undefined,
+          studentIds: !isSingle ? levelStudents.map((s) => s.id) : undefined,
         });
 
         const resultId = crypto.randomUUID();
-        const studentName =
-          selection.type === "individual"
-            ? selection.student.name
-            : `All ${currentElLevel} students`;
+        const studentName = isSingle
+          ? levelStudents[0].name
+          : `${levelStudents.length} ${level} students`;
 
-        storeAndNavigate(resultId, result, studentName, currentElLevel);
+        storeAndNavigate(resultId, result, studentName, level);
       } else {
-        // Batch mode: generate per-level (max 3 calls, not per-student)
-        const levels = Array.from(batchLevels.entries());
+        // Batch mode: generate per-level (max 3 calls)
         const results = await Promise.all(
-          levels.map(([level]) =>
+          levels.map(([level, levelStudents]) =>
             callScaffoldAPI({
               content,
               title: assignmentTitle,
@@ -170,6 +179,7 @@ export function StudentScaffoldSelection({
               gradeLevel,
               elLevel: level,
               scaffoldNames,
+              studentIds: levelStudents.map((s) => s.id),
             })
           )
         );
@@ -181,10 +191,10 @@ export function StudentScaffoldSelection({
 
         const batchResult = {
           isBatch: true,
-          levels: levels.map(([level, students], i) => ({
+          levels: levels.map(([level, levelStudents], i) => ({
             level,
-            studentCount: students.length,
-            studentNames: students.map((s) => s.name),
+            studentCount: levelStudents.length,
+            studentNames: levelStudents.map((s) => s.name),
             outputHtml: results[i].outputHtml,
             parentNote: results[i].parentNote,
             wordBank: results[i].wordBank,
@@ -244,6 +254,7 @@ export function StudentScaffoldSelection({
     elLevel: ELLevel;
     scaffoldNames: string[];
     studentId?: string;
+    studentIds?: string[];
   }) {
     const response = await fetch("/api/scaffold", {
       method: "POST",
@@ -326,21 +337,22 @@ export function StudentScaffoldSelection({
         students={students}
         selection={selection}
         onSelect={setSelection}
+        gradeLevel={gradeLevel}
       />
 
       {/* Scaffold Picker */}
-      {currentElLevel && (
+      {selectedElLevels.length > 0 && (
         <ScaffoldPicker
-          elLevel={currentElLevel}
+          elLevels={selectedElLevels}
           selectedNames={selectedScaffoldNames}
           onToggle={handleToggleScaffold}
-          onSelectAll={handleSelectAll}
-          onClearAll={handleClearAll}
+          onSelectAll={handleSelectAllScaffolds}
+          onClearAll={handleClearAllScaffolds}
         />
       )}
 
       {/* Selection Summary */}
-      {selection && (
+      {selection && selection.students.length > 0 && (
         <div className="rounded-xl bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 p-4">
           <h4 className="text-sm font-medium mb-2">Summary</h4>
           <div className="space-y-1 text-sm text-muted-foreground">
@@ -350,9 +362,9 @@ export function StudentScaffoldSelection({
             </p>
             <p>
               <strong>For:</strong>{" "}
-              {selection.type === "individual"
-                ? `${selection.student.name} (${selection.student.el_level})`
-                : `All ${selection.level} students (${selection.students.length})`}
+              {selection.students.length === 1
+                ? `${selection.students[0].name} (${selection.students[0].el_level})`
+                : `${selection.students.length} students`}
             </p>
             <p>
               <strong>Scaffolds:</strong> {selectedScaffoldNames.size} selected
@@ -361,7 +373,7 @@ export function StudentScaffoldSelection({
               <p>
                 <strong>AI Calls:</strong> {batchLevels.size} (grouped by level:{" "}
                 {Array.from(batchLevels.entries())
-                  .map(([level, students]) => `${level}: ${students.length}`)
+                  .map(([level, levelStudents]) => `${level}: ${levelStudents.length}`)
                   .join(", ")}
                 )
               </p>

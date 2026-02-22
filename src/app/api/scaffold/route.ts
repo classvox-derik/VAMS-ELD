@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
       );
       const stored = await createDifferentiatedAssignment({
         assignment_id: body.assignmentId || "draft",
+        teacher_id: user.id,
         student_id: body.studentId || undefined,
         el_level: elLevel,
         scaffolds_applied: scaffoldNames,

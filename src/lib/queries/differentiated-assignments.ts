@@ -3,6 +3,7 @@ import type { DifferentiatedAssignment, ELLevel } from "@/types";
 
 export async function createDifferentiatedAssignment(data: {
   assignment_id: string;
+  teacher_id?: string;
   student_id?: string;
   el_level?: ELLevel;
   scaffolds_applied: string[];
@@ -43,6 +44,20 @@ export async function getDifferentiatedAssignmentsByAssignment(
     .from("differentiated_assignments")
     .select("*")
     .eq("assignment_id", assignmentId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data as DifferentiatedAssignment[]) ?? [];
+}
+
+export async function getDifferentiatedAssignmentsByTeacher(
+  teacherId: string
+): Promise<DifferentiatedAssignment[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("differentiated_assignments")
+    .select("*")
+    .eq("teacher_id", teacherId)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
