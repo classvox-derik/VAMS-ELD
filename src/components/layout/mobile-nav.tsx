@@ -9,6 +9,7 @@ import {
   BookOpen,
   Settings,
   GraduationCap,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ const navItems = [
   { title: "Create", href: "/create", icon: PenSquare },
   { title: "Library", href: "/library", icon: BookOpen },
   { title: "ELD Guide", href: "/eld-guide", icon: GraduationCap },
+  { title: "Scaffolds", href: "/eld-guide/scaffolds", icon: Layers },
   { title: "Settings", href: "/settings", icon: Settings },
 ];
 

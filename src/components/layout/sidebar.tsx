@@ -10,6 +10,7 @@ import {
   BookOpen,
   Settings,
   GraduationCap,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UsageCounter } from "./usage-counter";
@@ -39,6 +40,11 @@ const navItems = [
     title: "ELD Guide",
     href: "/eld-guide",
     icon: GraduationCap,
+  },
+  {
+    title: "Scaffolds",
+    href: "/eld-guide/scaffolds",
+    icon: Layers,
   },
   {
     title: "Settings",

@@ -21,7 +21,8 @@
       "Bash(curl:*)",
       "Bash(npx next info:*)",
       "Bash(npx next dev:*)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(wc:*)"
     ]
   }
 }
