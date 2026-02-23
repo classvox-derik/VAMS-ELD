@@ -37,14 +37,14 @@ const navItems = [
     icon: BookOpen,
   },
   {
-    title: "ELD Guide",
-    href: "/eld-guide",
-    icon: GraduationCap,
-  },
-  {
     title: "Scaffolds",
     href: "/eld-guide/scaffolds",
     icon: Layers,
+  },
+  {
+    title: "ELD Guide",
+    href: "/eld-guide",
+    icon: GraduationCap,
   },
   {
     title: "Settings",

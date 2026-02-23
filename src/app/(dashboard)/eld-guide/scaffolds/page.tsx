@@ -192,8 +192,10 @@ function ExamplePreview({
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
         {title}
       </p>
+      {/* Force light background so inline-styled HTML always renders correctly */}
       <div
-        className="rounded-xl border border-eld-almond-silk/30 bg-white p-4 text-sm leading-relaxed text-foreground dark:border-gray-700/40 dark:bg-white/[0.02]"
+        className="rounded-xl border border-eld-almond-silk/30 bg-white p-4 text-sm leading-relaxed text-gray-900 dark:border-gray-600"
+        style={{ colorScheme: "light" }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

@@ -18,8 +18,8 @@ const navItems = [
   { title: "Students", href: "/students", icon: Users },
   { title: "Create", href: "/create", icon: PenSquare },
   { title: "Library", href: "/library", icon: BookOpen },
-  { title: "ELD Guide", href: "/eld-guide", icon: GraduationCap },
   { title: "Scaffolds", href: "/eld-guide/scaffolds", icon: Layers },
+  { title: "ELD Guide", href: "/eld-guide", icon: GraduationCap },
   { title: "Settings", href: "/settings", icon: Settings },
 ];
 
