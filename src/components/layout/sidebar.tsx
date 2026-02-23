@@ -9,6 +9,7 @@ import {
   PenSquare,
   BookOpen,
   Settings,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UsageCounter } from "./usage-counter";
@@ -33,6 +34,11 @@ const navItems = [
     title: "Library",
     href: "/library",
     icon: BookOpen,
+  },
+  {
+    title: "ELD Guide",
+    href: "/eld-guide",
+    icon: GraduationCap,
   },
   {
     title: "Settings",

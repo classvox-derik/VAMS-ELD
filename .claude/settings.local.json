@@ -19,7 +19,9 @@
       "WebFetch(domain:docs.google.com)",
       "WebFetch(domain:doc-0k-48-sheets.googleusercontent.com)",
       "Bash(curl:*)",
-      "Bash(npx next info:*)"
+      "Bash(npx next info:*)",
+      "Bash(npx next dev:*)",
+      "Bash(start:*)"
     ]
   }
 }
