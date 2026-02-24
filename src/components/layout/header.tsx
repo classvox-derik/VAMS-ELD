@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, LogOut, Shield } from "lucide-react";
+import Link from "next/link";
+import { Menu, LogOut, Shield, MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import { useIsAdmin } from "@/lib/hooks/use-admin";
 import { ThemeToggle } from "./theme-toggle";
@@ -26,7 +27,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-[68px] items-center justify-between border-b border-[#4a4e69]/20 bg-[#4a4e69] px-4 py-3 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-[68px] items-center justify-between border-b border-white/10 bg-[#22223b] px-4 py-3 lg:px-6">
       {/* Left side - mobile menu button */}
       <div className="flex items-center gap-3">
         <button
@@ -50,6 +51,13 @@ export function Header() {
             {email}
           </span>
         )}
+        <Link
+          href="/contact"
+          title="Message the ELD Teacher"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white"
+        >
+          <MessageSquare className="h-5 w-5" />
+        </Link>
         <ThemeToggle />
         <button
           onClick={handleSignOut}

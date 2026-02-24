@@ -117,6 +117,7 @@ export function StudentsTable({
           <Select
             value={gradeFilter}
             onChange={(e) => setGradeFilter(e.target.value)}
+            className="w-36 flex-none"
           >
             <option value="all">All Grades</option>
             {GRADES.map((g) => (
@@ -128,6 +129,7 @@ export function StudentsTable({
           <Select
             value={elFilter}
             onChange={(e) => setElFilter(e.target.value)}
+            className="w-36 flex-none"
           >
             <option value="all">All Levels</option>
             {EL_LEVELS.map((l) => (

@@ -22,7 +22,8 @@
       "Bash(npx next info:*)",
       "Bash(npx next dev:*)",
       "Bash(start:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(\"/c/Program Files/nodejs/npm\" install nodemailer @types/nodemailer --prefix \"c:/VAMS-ELD\")"
     ]
   }
 }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Users, Zap, FileText, PenSquare, GraduationCap } from "lucide-react";
 import { createClient } from "@/lib/supabase-server";
 import type { ELLevel } from "@/types";
+import { DashboardGreeting } from "@/components/dashboard/greeting";
 
 const levelStyles: Record<ELLevel, string> = {
   Emerging: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
@@ -65,7 +66,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="scaffold-heading">Welcome back!</h1>
+        <h1 className="scaffold-heading"><DashboardGreeting /></h1>
         <p className="scaffold-description mt-1">
           Here&apos;s an overview of your ELD scaffolding workspace.
         </p>

@@ -12,10 +12,13 @@ import {
   CheckCircle2,
   Palette,
   Info,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { useUserProfile } from "@/lib/hooks/use-user-profile";
 
 interface GoogleStatus {
   configured: boolean;
@@ -28,6 +31,21 @@ function SettingsContent() {
   const [googleStatus, setGoogleStatus] = useState<GoogleStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const { profile, saveProfile, isLoaded } = useUserProfile();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  useEffect(() => {
+    if (isLoaded) {
+      setFirstName(profile.firstName);
+      setLastName(profile.lastName);
+    }
+  }, [isLoaded, profile.firstName, profile.lastName]);
+
+  function handleSaveProfile() {
+    saveProfile({ firstName: firstName.trim(), lastName: lastName.trim() });
+    toast.success("Profile saved!");
+  }
 
   useEffect(() => {
     async function checkStatus() {
@@ -90,6 +108,50 @@ function SettingsContent() {
           Manage your account and application preferences.
         </p>
       </div>
+
+      {/* Profile */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <User className="h-4 w-4" />
+            Profile
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your name is used for personalized greetings on the dashboard.
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="firstName" className="text-sm font-medium">
+                  First Name
+                </label>
+                <Input
+                  id="firstName"
+                  placeholder="e.g. Maria"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="lastName" className="text-sm font-medium">
+                  Last Name
+                </label>
+                <Input
+                  id="lastName"
+                  placeholder="e.g. Garcia"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+            </div>
+            <Button onClick={handleSaveProfile} size="sm">
+              Save Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Google Account Connection */}
       <Card>

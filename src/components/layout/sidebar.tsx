@@ -25,6 +25,7 @@ const navItems = [
     title: "Students",
     href: "/students",
     icon: Users,
+    divider: true,
   },
   {
     title: "Create Assignment",
@@ -40,6 +41,7 @@ const navItems = [
     title: "Scaffolds",
     href: "/eld-guide/scaffolds",
     icon: Layers,
+    divider: true,
   },
   {
     title: "ELD Guide",
@@ -50,6 +52,7 @@ const navItems = [
     title: "Settings",
     href: "/settings",
     icon: Settings,
+    divider: true,
   },
 ];
 
@@ -57,7 +60,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-[#4a4e69] dark:bg-eld-space-indigo overflow-hidden">
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-[#4a4e69] dark:bg-eld-space-indigo overflow-hidden shadow-[6px_0_24px_rgba(0,0,0,0.35)]">
       {/* Logo */}
       <Link
         href="/dashboard"
@@ -94,19 +97,23 @@ export function Sidebar() {
                   (other) => other.href !== item.href && pathname === other.href
                 ));
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-white/15 text-white dark:bg-eld-dusty-grape dark:text-white"
-                    : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
+              <div key={item.href}>
+                {item.divider && (
+                  <hr className="my-2 border-white/15 dark:border-eld-lilac-ash/15" />
                 )}
-              >
-                <item.icon className="h-5 w-5 shrink-0" />
-                <span>{item.title}</span>
-              </Link>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-white/15 text-white dark:bg-eld-dusty-grape dark:text-white"
+                      : "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1 dark:text-eld-seashell/80 dark:hover:bg-eld-dusty-grape/50 dark:hover:text-white"
+                  )}
+                >
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span>{item.title}</span>
+                </Link>
+              </div>
             );
           })}
         </div>
