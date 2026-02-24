@@ -88,7 +88,11 @@ export function Sidebar() {
         <div className="space-y-1 dark:space-y-1">
           {navItems.map((item) => {
             const isActive =
-              pathname === item.href || pathname?.startsWith(item.href + "/");
+              pathname === item.href ||
+              (pathname?.startsWith(item.href + "/") &&
+                !navItems.some(
+                  (other) => other.href !== item.href && pathname === other.href
+                ));
             return (
               <Link
                 key={item.href}

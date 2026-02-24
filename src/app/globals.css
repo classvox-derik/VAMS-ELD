@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Light Mode - ELD Brand Palette
-       Page bg:  #f2e9e4  Sidebar: #9a8c98  Text: #22223b
+       Page bg:  #f2e9e4  Sidebar: #4a4e69  Text: #22223b
        Hover:    #c9ada7  Header:  #4a4e69
     */
     --background: 22 35% 92%;

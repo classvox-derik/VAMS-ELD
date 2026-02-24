@@ -31,7 +31,11 @@ export function MobileNav() {
       <div className="flex items-center justify-around py-2">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href || pathname?.startsWith(item.href + "/");
+            pathname === item.href ||
+            (pathname?.startsWith(item.href + "/") &&
+              !navItems.some(
+                (other) => other.href !== item.href && pathname === other.href
+              ));
           return (
             <Link
               key={item.href}
