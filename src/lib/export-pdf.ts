@@ -32,8 +32,9 @@ export async function downloadPdf(
         orientation: "portrait" as const,
       },
       // Prevent text and elements from being cut across page boundaries.
+      // Cast needed because html2pdf.js types omit the pagebreak option.
       pagebreak: { mode: ["avoid-all", "css"] },
-    })
+    } as Parameters<ReturnType<typeof html2pdf>["set"]>[0])
     .from(element)
     .save();
 }
