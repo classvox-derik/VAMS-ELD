@@ -24,7 +24,9 @@
       "Bash(start:*)",
       "Bash(wc:*)",
       "Bash(\"/c/Program Files/nodejs/npm\" install nodemailer @types/nodemailer --prefix \"c:/VAMS-ELD\")",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(identify:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }

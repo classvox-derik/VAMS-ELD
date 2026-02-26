@@ -9,6 +9,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://vamseld.com"),
   title: "VAMS ELD - Scaffolding Platform",
   description:
     "AI-powered scaffolding tools for English Language Development teachers at Valor Academy Middle School",
