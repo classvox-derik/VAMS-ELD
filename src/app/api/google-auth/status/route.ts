@@ -1,12 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
   isGoogleConfigured,
   getUserEmail,
+  loadGoogleToken,
   GOOGLE_TOKEN_COOKIE,
 } from "@/lib/google-oauth";
+import { getAuthUser } from "@/lib/get-auth-user";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const configured = isGoogleConfigured();
 
   if (!configured) {
@@ -19,8 +21,20 @@ export async function GET() {
 
   const cookieStore = await cookies();
   const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE);
+  let refreshToken = tokenCookie?.value ?? null;
 
-  if (!tokenCookie?.value) {
+  // If the cookie is missing, try to restore from the database
+  if (!refreshToken) {
+    const user = await getAuthUser(request);
+    if (user) {
+      const stored = await loadGoogleToken(user.id);
+      if (stored) {
+        refreshToken = stored.refreshToken;
+      }
+    }
+  }
+
+  if (!refreshToken) {
     return NextResponse.json({
       configured: true,
       connected: false,
@@ -28,8 +42,8 @@ export async function GET() {
     });
   }
 
-  // Try to get the user's email to verify the token is still valid
-  const email = await getUserEmail(tokenCookie.value);
+  // Verify the token is still valid by fetching the user's email
+  const email = await getUserEmail(refreshToken);
 
   if (!email) {
     // Token is invalid or expired beyond refresh
@@ -40,9 +54,19 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({
-    configured: true,
-    connected: true,
-    email,
-  });
+  // Build response — restore the cookie if it was missing
+  const body = { configured: true, connected: true, email };
+  const response = NextResponse.json(body);
+
+  if (!tokenCookie?.value) {
+    response.cookies.set(GOOGLE_TOKEN_COOKIE, refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+    });
+  }
+
+  return response;
 }

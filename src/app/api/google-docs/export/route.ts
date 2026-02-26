@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { google } from "googleapis";
 import {
   isGoogleConfigured,
   getAuthenticatedClient,
+  loadGoogleToken,
   GOOGLE_TOKEN_COOKIE,
 } from "@/lib/google-oauth";
+import { getAuthUser } from "@/lib/get-auth-user";
 
 // Simple HTML tag stripper that preserves text and basic structure
 function htmlToPlainSections(html: string): { text: string; bold: boolean }[] {
@@ -62,7 +64,7 @@ function stripTags(html: string): string {
     .trim();
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     if (!isGoogleConfigured()) {
       return NextResponse.json(
@@ -77,8 +79,18 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     const tokenCookie = cookieStore.get(GOOGLE_TOKEN_COOKIE);
+    let refreshToken = tokenCookie?.value ?? null;
 
-    if (!tokenCookie?.value) {
+    // Fall back to database if cookie is missing
+    if (!refreshToken) {
+      const user = await getAuthUser(request);
+      if (user) {
+        const stored = await loadGoogleToken(user.id);
+        if (stored) refreshToken = stored.refreshToken;
+      }
+    }
+
+    if (!refreshToken) {
       return NextResponse.json(
         {
           error: "Not connected",
@@ -98,7 +110,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const auth = await getAuthenticatedClient(tokenCookie.value);
+    const auth = await getAuthenticatedClient(refreshToken);
     const docs = google.docs({ version: "v1", auth });
 
     // 1. Create a new Google Doc

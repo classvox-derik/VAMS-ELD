@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   isGoogleConfigured,
   exchangeCodeForTokens,
+  getUserEmail,
+  saveGoogleToken,
   GOOGLE_TOKEN_COOKIE,
 } from "@/lib/google-oauth";
+import { getAuthUser } from "@/lib/get-auth-user";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   if (!isGoogleConfigured()) {
     return NextResponse.json(
       { error: "Google OAuth not configured" },
@@ -53,6 +56,13 @@ export async function GET(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
+
+    // Persist to database so the connection survives cookie clears
+    const user = await getAuthUser(request);
+    if (user) {
+      const email = await getUserEmail(tokens.refresh_token);
+      await saveGoogleToken(user.id, tokens.refresh_token, email);
+    }
 
     return response;
   } catch (err) {

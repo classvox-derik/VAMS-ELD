@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { createClient as createServiceClient } from "@/lib/supabase-server";
 
 const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET ?? "";
@@ -63,3 +64,51 @@ export async function getUserEmail(refreshToken: string): Promise<string | null>
 
 // Cookie name for storing the refresh token
 export const GOOGLE_TOKEN_COOKIE = "vams-google-token";
+
+// ---------------------------------------------------------------------------
+// Database persistence helpers  (google_tokens table)
+// ---------------------------------------------------------------------------
+
+/** Save (or update) the Google refresh token for a user. */
+export async function saveGoogleToken(
+  userId: string,
+  refreshToken: string,
+  googleEmail: string | null
+) {
+  const supabase = createServiceClient();
+  const { error } = await supabase.from("google_tokens").upsert(
+    {
+      user_id: userId,
+      refresh_token: refreshToken,
+      google_email: googleEmail,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+  if (error) console.error("Failed to save Google token:", error.message);
+}
+
+/** Load the stored Google refresh token for a user (returns null if none). */
+export async function loadGoogleToken(
+  userId: string
+): Promise<{ refreshToken: string; googleEmail: string | null } | null> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("google_tokens")
+    .select("refresh_token, google_email")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) return null;
+  return { refreshToken: data.refresh_token, googleEmail: data.google_email };
+}
+
+/** Delete the stored Google token when a user disconnects. */
+export async function deleteGoogleToken(userId: string) {
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("google_tokens")
+    .delete()
+    .eq("user_id", userId);
+  if (error) console.error("Failed to delete Google token:", error.message);
+}
