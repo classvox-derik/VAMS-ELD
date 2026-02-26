@@ -95,53 +95,6 @@ function ParentNoteCard({ note }: { note: string }) {
   );
 }
 
-function WordBankCard({
-  wordBank,
-}: {
-  wordBank: { term: string; definition: string }[];
-}) {
-  const text = wordBank
-    .map((w) => `${w.term}: ${w.definition}`)
-    .join("\n");
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-eld-lilac-ash" />
-          <CardTitle className="text-sm">Word Bank</CardTitle>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => copyToClipboard(text, "Word bank")}
-          className="gap-1.5"
-        >
-          <Copy className="h-3.5 w-3.5" />
-          Copy
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-2">
-          {wordBank.map((entry) => (
-            <div
-              key={entry.term}
-              className="flex gap-2 rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-2 dark:border-gray-800 dark:bg-gray-800/30"
-            >
-              <span className="font-semibold text-sm text-eld-space-indigo dark:text-eld-lilac-ash">
-                {entry.term}:
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {entry.definition}
-              </span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function TeacherInstructionsCard({ instructions }: { instructions: string }) {
   return (
     <Card>
@@ -357,10 +310,6 @@ function ScaffoldResultContent() {
                 />
               )}
 
-              {/* Word bank */}
-              {lvl.wordBank && lvl.wordBank.length > 0 && (
-                <WordBankCard wordBank={lvl.wordBank} />
-              )}
 
               {/* Parent note */}
               {lvl.parentNote && <ParentNoteCard note={lvl.parentNote} />}
@@ -554,10 +503,6 @@ function ScaffoldResultContent() {
         </CardContent>
       </Card>
 
-      {/* Word Bank (structured, separate from HTML preview) */}
-      {result.wordBank && result.wordBank.length > 0 && (
-        <WordBankCard wordBank={result.wordBank} />
-      )}
 
       {/* Parent Communication */}
       {result.parentNote && <ParentNoteCard note={result.parentNote} />}
