@@ -66,28 +66,16 @@ export default function LibraryPage() {
   async function handleDownloadPdf(entry: LibraryEntry) {
     setIsExporting(entry.id);
     try {
-      // Create a temporary hidden element with the HTML content
-      const container = document.createElement("div");
-      container.id = "pdf-export-temp";
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.top = "0";
-      container.style.width = "800px";
-      container.style.padding = "24px";
-      container.style.background = "white";
-      container.innerHTML = entry.outputHtml;
-      document.body.appendChild(container);
-
-      const { downloadPdf } = await import("@/lib/export-pdf");
-      const filename = `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`;
-      await downloadPdf("pdf-export-temp", filename);
+      const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
+      await downloadScaffoldPdf({
+        html: entry.outputHtml,
+        title: entry.assignmentTitle,
+        elLevel: entry.elLevel,
+        filename: `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`,
+      });
       toast.success("PDF downloaded!");
-
-      document.body.removeChild(container);
     } catch {
       toast.error("Failed to generate PDF.");
-      const el = document.getElementById("pdf-export-temp");
-      if (el) document.body.removeChild(el);
     } finally {
       setIsExporting(null);
     }

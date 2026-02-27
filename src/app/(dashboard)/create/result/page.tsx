@@ -129,29 +129,20 @@ function ScaffoldResultContent() {
   async function handleDownloadPdf() {
     if (!result) return;
     setIsExporting(true);
-
-    // Create an off-screen container at a fixed 800px width so html2canvas
-    // renders at a consistent size that matches the PDF content area.
-    // This prevents text overlap caused by capturing the live on-page element
-    // at an unpredictable viewport-dependent width.
-    const tempId = "pdf-export-result-temp";
-    const container = document.createElement("div");
-    container.id = tempId;
-    container.style.cssText =
-      "position:absolute;left:-9999px;top:0;width:800px;padding:24px;background:white;font-family:system-ui,sans-serif;color:#111;";
-    container.innerHTML = result.outputHtml;
-    document.body.appendChild(container);
-
     try {
-      const { downloadPdf } = await import("@/lib/export-pdf");
-      const filename = `${result.assignmentTitle}-${result.elLevel ?? "batch"}-scaffolded.pdf`;
-      await downloadPdf(tempId, filename);
+      const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
+      await downloadScaffoldPdf({
+        html: result.outputHtml,
+        title: result.assignmentTitle,
+        elLevel: result.elLevel,
+        wordBank: result.wordBank,
+        teacherInstructions: result.teacherInstructions,
+        filename: `${result.assignmentTitle}-${result.elLevel ?? "batch"}-scaffolded.pdf`,
+      });
       toast.success("PDF downloaded successfully!");
     } catch {
       toast.error("Failed to generate PDF. Please try again.");
     } finally {
-      const el = document.getElementById(tempId);
-      if (el) document.body.removeChild(el);
       setIsExporting(false);
     }
   }

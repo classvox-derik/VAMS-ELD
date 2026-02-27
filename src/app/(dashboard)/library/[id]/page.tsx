@@ -83,9 +83,13 @@ export default function LibraryDetailPage() {
     if (!entry) return;
     setIsExporting(true);
     try {
-      const { downloadPdf } = await import("@/lib/export-pdf");
-      const filename = `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`;
-      await downloadPdf("scaffold-preview-content", filename);
+      const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
+      await downloadScaffoldPdf({
+        html: entry.outputHtml,
+        title: entry.assignmentTitle,
+        elLevel: entry.elLevel,
+        filename: `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`,
+      });
       toast.success("PDF downloaded successfully!");
     } catch {
       toast.error("Failed to generate PDF. Please try again.");
