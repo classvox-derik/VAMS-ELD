@@ -646,63 +646,16 @@ own sentences.
           ]}
         />
 
-        {/* Visual Organizers */}
-        <ScaffoldSection
-          icon={Network}
-          title="Visual Organizer: Venn Diagram"
-          description="A text-based Venn diagram template for comparing and contrasting two items. For Emerging students, include clear labels, simple instructions, and pre-written category headers. This graphic organizer helps students organize their thinking before writing a compare/contrast response."
-          whenToUse={[
-            "Any assignment asking students to compare or contrast two things",
-            "Reading two related texts and finding similarities/differences",
-            "Science comparisons (e.g., plant vs. animal cells)",
-            "Social studies comparisons (e.g., two historical figures, two civilizations)",
-          ]}
-          exampleBefore={`<p><strong>Prompt:</strong> Compare and contrast the American Revolution and the French Revolution. How were they similar? How were they different?</p>`}
-          exampleAfter={`<p><strong>Prompt:</strong> Compare and contrast the American Revolution and the French Revolution. How were they similar? How were they different?</p><div style="border: 2px dashed #6b7280; padding: 1.5rem; margin: 1rem 0; background: #f9fafb; border-radius: 8px;"><strong>Compare &amp; Contrast Organizer:</strong><br/><br/><strong>Only the American Revolution:</strong><br/>- _____<br/>- _____<br/>- _____<br/><br/><strong>Only the French Revolution:</strong><br/>- _____<br/>- _____<br/>- _____<br/><br/><strong>Both Revolutions:</strong><br/>- _____<br/>- _____<br/>- _____</div>`}
-          template={`VENN DIAGRAM / COMPARE & CONTRAST — Emerging Level
-===================================================
-
-Topic: ________________ vs. ____________________
-
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│  Only [Item A]: _______________                 │
-│                                                 │
-│  1. ________________________________________    │
-│  2. ________________________________________    │
-│  3. ________________________________________    │
-│                                                 │
-├─────────────────────────────────────────────────┤
-│                                                 │
-│  BOTH (Similar):                                │
-│                                                 │
-│  1. ________________________________________    │
-│  2. ________________________________________    │
-│  3. ________________________________________    │
-│                                                 │
-├─────────────────────────────────────────────────┤
-│                                                 │
-│  Only [Item B]: _______________                 │
-│                                                 │
-│  1. ________________________________________    │
-│  2. ________________________________________    │
-│  3. ________________________________________    │
-│                                                 │
-└─────────────────────────────────────────────────┘
-
-Now write a sentence using this frame:
-"_______ and _______ are similar because _______,
- but they are different because _______________."
-
-_________________________________________________
-_________________________________________________`}
-          tips={[
-            "Model filling in one section together as a class before independent work",
-            "Pair this organizer with sentence frames for writing the compare/contrast paragraph",
-            "Allow students to draw pictures in addition to writing words",
-            "For newcomers, allow native language notes in the organizer first, then translate to English",
-          ]}
-        />
+        {/* Visual Organizers — Venn Diagram (Coming Soon) */}
+        <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-8 text-center">
+          <Network className="mx-auto h-10 w-10 text-muted-foreground/50" />
+          <h3 className="mt-3 text-lg font-semibold text-muted-foreground">
+            Visual Organizer: Venn Diagram
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground/70">
+            Coming soon
+          </p>
+        </div>
 
         {/* Visual Organizer: Main Idea Map */}
         <ScaffoldSection

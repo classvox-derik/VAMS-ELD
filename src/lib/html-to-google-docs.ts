@@ -695,8 +695,8 @@ export function buildDocumentRequests(params: ExportDocumentParams): DocsRequest
   const contentBlocks = parseHtmlToBlocks(outputHtml);
 
   // -- Optional sections --
-  const wordBankBlocks =
-    wordBank && wordBank.length > 0 ? buildWordBankBlocks(wordBank) : [];
+  // NOTE: Word bank is already embedded in the scaffolded HTML by Gemini,
+  // so we only append teacher instructions (which are NOT in the HTML).
   const instructionBlocks = teacherInstructions
     ? buildTeacherInstructionsBlocks(teacherInstructions)
     : [];
@@ -704,7 +704,6 @@ export function buildDocumentRequests(params: ExportDocumentParams): DocsRequest
   const allBlocks = [
     ...headerBlocks,
     ...contentBlocks,
-    ...wordBankBlocks,
     ...instructionBlocks,
   ];
 
