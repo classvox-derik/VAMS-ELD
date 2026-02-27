@@ -435,6 +435,8 @@ function ScaffoldResultContent() {
                   outputHtml: result.outputHtml,
                   elLevel: result.elLevel,
                   scaffoldsApplied: result.scaffoldsApplied,
+                  wordBank: result.wordBank,
+                  teacherInstructions: result.teacherInstructions,
                 })
               }
               className="gap-1.5"

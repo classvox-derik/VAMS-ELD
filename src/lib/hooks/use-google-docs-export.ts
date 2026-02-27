@@ -14,6 +14,8 @@ interface ExportParams {
   outputHtml: string;
   elLevel: string;
   scaffoldsApplied: string[];
+  wordBank?: { term: string; definition: string }[] | null;
+  teacherInstructions?: string | null;
 }
 
 export function useGoogleDocsExport() {
