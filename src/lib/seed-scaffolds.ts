@@ -70,6 +70,16 @@ const defaultScaffolds = [
       'If the assignment asks students to compare two things, insert after the prompt: <div style="border: 2px dashed #6b7280; padding: 1.5rem; margin: 1rem 0; background: #f9fafb;"><strong>Compare & Contrast:</strong><br/><br/><strong>Only in [Item A]:</strong><br/>- _____<br/>- _____<br/><br/><strong>Only in [Item B]:</strong><br/>- _____<br/>- _____<br/><br/><strong>Both have:</strong><br/>- _____<br/>- _____</div>',
     is_default: true,
   },
+  {
+    name: "Bilingual Support: Spanish Translation",
+    description:
+      "Translates all assignment text to Spanish while preserving formatting and structure",
+    category: "bilingual_support",
+    el_level_target: ["Emerging", "Expanding", "Bridging"],
+    ai_prompt_template:
+      "Translate ALL text content in the assignment to Spanish. Preserve all HTML structure, inline styles, and formatting. Replace English text with its Spanish equivalent. Keep proper nouns, names, and numbers unchanged. The entire document should read naturally in Spanish.",
+    is_default: true,
+  },
 ];
 
 export async function seedScaffoldTemplates(): Promise<{

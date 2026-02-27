@@ -7,6 +7,7 @@ import {
   Type,
   BookOpen,
   LayoutGrid,
+  Languages,
   Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   sentence_frames: Type,
   word_banks: BookOpen,
   visual_organizers: LayoutGrid,
+  bilingual_support: Languages,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -36,6 +38,7 @@ const categoryLabels: Record<string, string> = {
   sentence_frames: "Sentence Frames",
   word_banks: "Word Banks",
   visual_organizers: "Visual Organizers",
+  bilingual_support: "Bilingual Support",
 };
 
 interface ScaffoldPickerProps {
