@@ -69,15 +69,16 @@ const defaultScaffolds = [
     ai_prompt_template:
       'If the assignment asks students to compare two things, insert after the prompt: <div style="border: 2px dashed #6b7280; padding: 1.5rem; margin: 1rem 0; background: #f9fafb;"><strong>Compare & Contrast:</strong><br/><br/><strong>Only in [Item A]:</strong><br/>- _____<br/>- _____<br/><br/><strong>Only in [Item B]:</strong><br/>- _____<br/>- _____<br/><br/><strong>Both have:</strong><br/>- _____<br/>- _____</div>',
     is_default: true,
+    comingSoon: true,
   },
   {
     name: "Bilingual Support: Spanish Translation",
     description:
-      "Translates all assignment text to Spanish while preserving formatting and structure",
+      "Translates assignment content to Spanish while keeping scaffold labels in English",
     category: "bilingual_support",
     el_level_target: ["Emerging", "Expanding", "Bridging"],
     ai_prompt_template:
-      "Translate ALL text content in the assignment to Spanish. Preserve all HTML structure, inline styles, and formatting. Replace English text with its Spanish equivalent. Keep proper nouns, names, and numbers unchanged. The entire document should read naturally in Spanish.",
+      "Translate ONLY the actual assignment content text to Spanish. DO NOT translate scaffold labels, headers, or structural elements — keep these in English: 'Word Bank', 'Sentence Frames:', 'Section X of Y', 'Pause here and re-read before continuing', and any other scaffold/instructional labels. Preserve all HTML structure, inline styles, and formatting. Keep proper nouns, names, and numbers unchanged. The translated content should read naturally in Spanish. If a Word Bank section exists in the HTML, keep the original English word bank intact and add a second word bank directly below it with the heading 'Banco de Palabras' containing the same terms translated to Spanish with Spanish definitions.",
     is_default: true,
   },
 ];

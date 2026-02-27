@@ -119,19 +119,26 @@ export function ScaffoldPicker({
               <div className="space-y-2">
                 {scaffolds.map((scaffold) => {
                   const isChecked = selectedNames.has(scaffold.name);
+                  const isComingSoon = "comingSoon" in scaffold && scaffold.comingSoon;
                   return (
                     <label
                       key={scaffold.name}
                       className={cn(
-                        "flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 p-3 cursor-pointer transition-colors",
-                        isChecked
+                        "flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 p-3 transition-colors",
+                        isComingSoon
+                          ? "opacity-60 cursor-not-allowed"
+                          : "cursor-pointer",
+                        !isComingSoon && isChecked
                           ? "border-eld-space-indigo bg-eld-space-indigo/5"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-800/30"
+                          : !isComingSoon
+                            ? "hover:bg-gray-50 dark:hover:bg-gray-800/30"
+                            : ""
                       )}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
+                        disabled={isComingSoon}
                         onChange={() => onToggle(scaffold.name)}
                         className="mt-0.5 h-4 w-4 rounded border-gray-300 text-eld-space-indigo focus:ring-eld-space-indigo/20 dark:border-gray-600"
                       />
@@ -140,17 +147,24 @@ export function ScaffoldPicker({
                           <span className="text-sm font-medium">
                             {scaffold.name}
                           </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setDetailName(scaffold.name);
-                            }}
-                            className="text-muted-foreground hover:text-foreground"
-                            aria-label={`Details for ${scaffold.name}`}
-                          >
-                            <Info className="h-3.5 w-3.5" />
-                          </button>
+                          {isComingSoon && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
+                              Coming soon
+                            </span>
+                          )}
+                          {!isComingSoon && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setDetailName(scaffold.name);
+                              }}
+                              className="text-muted-foreground hover:text-foreground"
+                              aria-label={`Details for ${scaffold.name}`}
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {scaffold.description}

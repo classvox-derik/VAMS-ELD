@@ -169,7 +169,6 @@ function ScaffoldResultContent() {
         html: result.outputHtml,
         title: result.assignmentTitle,
         elLevel: result.elLevel,
-        wordBank: result.wordBank,
         teacherInstructions: result.teacherInstructions,
         filename: `${result.assignmentTitle}-${result.elLevel ?? "batch"}-scaffolded.pdf`,
       });

@@ -174,6 +174,7 @@ ${scaffoldInstructions}
 
 ## Rules for word_bank
 - Select 6-12 academic or challenging vocabulary words from the assignment
+- The word_bank field must ALWAYS be in English (terms and definitions), even when a bilingual translation scaffold is applied
 - Definitions should be appropriate for the ${elLevel} EL level
 - For Emerging: use simple, everyday language definitions
 - For Expanding: use clear academic definitions

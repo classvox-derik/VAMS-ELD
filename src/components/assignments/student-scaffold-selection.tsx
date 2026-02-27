@@ -81,6 +81,7 @@ export function StudentScaffoldSelection({
     }
     const recommended = new Set<string>();
     defaultScaffolds.forEach((s) => {
+      if ("comingSoon" in s && s.comingSoon) return;
       if (selectedElLevels.some((level) => s.el_level_target.includes(level))) {
         recommended.add(s.name);
       }
@@ -90,6 +91,8 @@ export function StudentScaffoldSelection({
   }, [elLevelsKey]);
 
   const handleToggleScaffold = useCallback((name: string) => {
+    const scaffold = defaultScaffolds.find((s) => s.name === name);
+    if (scaffold && "comingSoon" in scaffold && scaffold.comingSoon) return;
     setSelectedScaffoldNames((prev) => {
       const next = new Set(prev);
       if (next.has(name)) {
@@ -105,6 +108,7 @@ export function StudentScaffoldSelection({
     if (selectedElLevels.length === 0) return;
     const all = new Set<string>();
     defaultScaffolds.forEach((s) => {
+      if ("comingSoon" in s && s.comingSoon) return;
       if (selectedElLevels.some((level) => s.el_level_target.includes(level))) {
         all.add(s.name);
       }
