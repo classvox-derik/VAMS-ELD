@@ -64,8 +64,6 @@ export interface DifferentiatedAssignment {
   el_level?: ELLevel;
   scaffolds_applied: string[];
   output_html: string;
-  parent_note?: string;
-  parent_note_sent_at?: string;
   google_doc_id?: string;
   google_doc_url?: string;
   pdf_url?: string;
@@ -76,7 +74,6 @@ export interface DifferentiatedAssignment {
 /** Structured output from Gemini scaffold generation */
 export interface ScaffoldGenerationResult {
   html: string;
-  parentNote: string | null;
   wordBank: { term: string; definition: string }[] | null;
   scaffoldsUsed: string[];
   teacherInstructions: string | null;

@@ -41,18 +41,12 @@ const scaffoldResponseSchema: Schema = {
       description:
         "Brief instructions for the teacher on how to use this scaffolded assignment (2-3 sentences).",
     },
-    parent_note: {
-      type: SchemaType.STRING,
-      description:
-        "A brief parent communication (2-3 sentences, 5th grade reading level) explaining what scaffolds were used and why, written in a warm and supportive tone.",
-    },
   },
   required: [
     "scaffolded_html",
     "scaffolds_used",
     "word_bank",
     "teacher_instructions",
-    "parent_note",
   ],
 };
 
@@ -98,7 +92,6 @@ export async function generateScaffoldedAssignment(
 
     return {
       html: parsed.scaffolded_html,
-      parentNote: parsed.parent_note || null,
       wordBank: parsed.word_bank || null,
       scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
       teacherInstructions: parsed.teacher_instructions || null,
@@ -114,7 +107,6 @@ export async function generateScaffoldedAssignment(
 
     return {
       html,
-      parentNote: null,
       wordBank: null,
       scaffoldsUsed: params.scaffoldNames,
       teacherInstructions: null,
@@ -187,12 +179,6 @@ ${scaffoldInstructions}
 - For Expanding: use clear academic definitions
 - For Bridging: focus on nuanced/domain-specific terms
 
-## Rules for parent_note
-- Write 2-3 sentences at a 5th grade reading level
-- Warm, supportive tone
-- Mention the assignment title and what types of support were added
-- Do NOT include student names (the teacher will personalize it)
-
 ## Rules for teacher_instructions
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
@@ -252,8 +238,6 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
 
   return {
     html,
-    parentNote:
-      `Your child's assignment "${title}" has been adapted with extra learning support including ${scaffoldNames.join(", ")}. These tools help your child understand and complete the assignment at their current English proficiency level. Please encourage your child to use the sentence starters and word bank provided.`,
     wordBank: [
       { term: "scaffold", definition: "A support structure to help with learning" },
       { term: "differentiate", definition: "To make different versions for different needs" },

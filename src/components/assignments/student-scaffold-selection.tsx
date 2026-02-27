@@ -196,7 +196,6 @@ export function StudentScaffoldSelection({
             studentCount: levelStudents.length,
             studentNames: levelStudents.map((s) => s.name),
             outputHtml: results[i].outputHtml,
-            parentNote: results[i].parentNote,
             wordBank: results[i].wordBank,
             scaffoldsUsed: results[i].scaffoldsUsed,
             teacherInstructions: results[i].teacherInstructions,
@@ -286,7 +285,6 @@ export function StudentScaffoldSelection({
       `scaffold-result-${resultId}`,
       JSON.stringify({
         outputHtml: data.outputHtml,
-        parentNote: data.parentNote,
         wordBank: data.wordBank,
         scaffoldsUsed: data.scaffoldsUsed,
         teacherInstructions: data.teacherInstructions,

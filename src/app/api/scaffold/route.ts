@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
         el_level: elLevel,
         scaffolds_applied: scaffoldNames,
         output_html: result.html,
-        parent_note: result.parentNote || undefined,
       });
       storedId = stored.id;
     } catch {
@@ -163,7 +162,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       outputHtml: result.html,
-      parentNote: result.parentNote,
       wordBank: result.wordBank,
       scaffoldsUsed: result.scaffoldsUsed,
       teacherInstructions: result.teacherInstructions,

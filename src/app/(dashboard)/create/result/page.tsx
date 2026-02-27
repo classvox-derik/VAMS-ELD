@@ -13,8 +13,6 @@ import {
   ChevronDown,
   ChevronUp,
   BookOpen,
-  Copy,
-  MessageSquare,
   GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,7 +34,6 @@ interface ScaffoldResult {
   teacherNotes?: string;
   generatedAt: string;
   // Structured output fields
-  parentNote?: string;
   wordBank?: { term: string; definition: string }[];
   scaffoldsUsed?: string[];
   teacherInstructions?: string;
@@ -50,49 +47,11 @@ interface BatchLevel {
   studentCount: number;
   studentNames: string[];
   outputHtml: string;
-  parentNote?: string;
   wordBank?: { term: string; definition: string }[];
   scaffoldsUsed?: string[];
   teacherInstructions?: string;
   scaffoldsApplied: string[];
   isDemo: boolean;
-}
-
-function copyToClipboard(text: string, label: string) {
-  navigator.clipboard.writeText(text).then(
-    () => toast.success(`${label} copied to clipboard!`),
-    () => toast.error("Failed to copy to clipboard")
-  );
-}
-
-function ParentNoteCard({ note }: { note: string }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-eld-lilac-ash" />
-          <CardTitle className="text-sm">Parent Communication</CardTitle>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => copyToClipboard(note, "Parent note")}
-          className="gap-1.5"
-        >
-          <Copy className="h-3.5 w-3.5" />
-          Copy
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="rounded-xl border border-eld-almond-silk/40 bg-eld-seashell/30 p-4 text-sm leading-relaxed dark:border-gray-700 dark:bg-gray-800/30">
-          {note}
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Personalize with the student&apos;s name before sending. Written at a 5th grade reading level.
-        </p>
-      </CardContent>
-    </Card>
-  );
 }
 
 function TeacherInstructionsCard({ instructions }: { instructions: string }) {
@@ -311,8 +270,6 @@ function ScaffoldResultContent() {
               )}
 
 
-              {/* Parent note */}
-              {lvl.parentNote && <ParentNoteCard note={lvl.parentNote} />}
             </TabsContent>
           ))}
         </Tabs>
@@ -503,9 +460,6 @@ function ScaffoldResultContent() {
         </CardContent>
       </Card>
 
-
-      {/* Parent Communication */}
-      {result.parentNote && <ParentNoteCard note={result.parentNote} />}
 
       {/* Teacher Notes */}
       <Card>
