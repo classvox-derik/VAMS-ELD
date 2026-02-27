@@ -646,17 +646,6 @@ own sentences.
           ]}
         />
 
-        {/* Visual Organizers — Venn Diagram (Coming Soon) */}
-        <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-8 text-center">
-          <Network className="mx-auto h-10 w-10 text-muted-foreground/50" />
-          <h3 className="mt-3 text-lg font-semibold text-muted-foreground">
-            Visual Organizer: Venn Diagram
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground/70">
-            Coming soon
-          </p>
-        </div>
-
         {/* Visual Organizer: Main Idea Map */}
         <ScaffoldSection
           icon={Network}
