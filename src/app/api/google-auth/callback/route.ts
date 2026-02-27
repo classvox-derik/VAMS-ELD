@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import {
   isGoogleConfigured,
   exchangeCodeForTokens,
@@ -6,7 +7,47 @@ import {
   saveGoogleToken,
   GOOGLE_TOKEN_COOKIE,
 } from "@/lib/google-oauth";
-import { getAuthUser } from "@/lib/get-auth-user";
+
+/**
+ * Read the Supabase user directly from the request cookies.
+ *
+ * We intentionally avoid the shared `getAuthUser` helper here because this
+ * route is hit via a cross-origin redirect from Google.  The helper creates a
+ * throw-away NextResponse for the Supabase cookie writer — if the session
+ * needs a token refresh during the redirect the refreshed cookies are lost and
+ * `getUser()` can return null.
+ *
+ * Instead we create a Supabase client whose `setAll` writes refreshed tokens
+ * directly onto the redirect `response` we already have, so they travel back
+ * to the browser together with the Google token cookie.
+ */
+async function getCallbackUser(
+  request: NextRequest,
+  response: NextResponse
+) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          // Write refreshed Supabase tokens onto the redirect response so the
+          // browser receives them in the same round-trip.
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+}
 
 export async function GET(request: NextRequest) {
   if (!isGoogleConfigured()) {
@@ -57,11 +98,20 @@ export async function GET(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365, // 1 year
     });
 
-    // Persist to database so the connection survives cookie clears
-    const user = await getAuthUser(request);
+    // Persist to database so the connection survives cookie clears / logouts.
+    // Use getCallbackUser which writes refreshed Supabase session cookies onto
+    // the same redirect response, avoiding the stale-token problem.
+    const user = await getCallbackUser(request, response);
     if (user) {
       const email = await getUserEmail(tokens.refresh_token);
       await saveGoogleToken(user.id, tokens.refresh_token, email);
+    } else {
+      // Log so we can diagnose — the token is still in the cookie and the
+      // status route will back-fill the DB row on the next check.
+      console.warn(
+        "Google OAuth callback: could not resolve Supabase user — " +
+          "token saved to cookie only; DB will be synced on next status check."
+      );
     }
 
     return response;
