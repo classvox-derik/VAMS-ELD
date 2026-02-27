@@ -1,10 +1,12 @@
 /**
- * Simple in-memory rate limiter for Gemini API calls.
- * Protects against accidental overuse on the free tier (15 RPM / 1M TPM).
+ * In-memory rate limiter for Gemini API calls.
+ * Protects against overuse on the free tier (10 RPM / 250K TPM / 250 RPD).
  * Resets naturally as timestamps age out of the window.
  */
 
 const requests = new Map<string, number[]>();
+
+const GLOBAL_KEY = "__global__";
 
 /**
  * Check if a user can make another request within the rate limit window.
@@ -30,6 +32,15 @@ export function checkRateLimit(userId: string, maxPerMinute = 10): boolean {
   userRequests.push(now);
   requests.set(userId, userRequests);
   return true;
+}
+
+/**
+ * Check if the platform-wide RPM limit has been reached.
+ * Uses a single global key to track all requests across all users.
+ * @param maxPerMinute - Global RPM cap (default: 10, matching Gemini Flash free tier)
+ */
+export function checkGlobalRateLimit(maxPerMinute = 10): boolean {
+  return checkRateLimit(GLOBAL_KEY, maxPerMinute);
 }
 
 /**

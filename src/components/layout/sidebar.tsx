@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UsageCounter } from "./usage-counter";
+import { useUsage } from "@/lib/hooks/use-usage";
 
 const navItems = [
   {
@@ -58,6 +59,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { used, limit } = useUsage();
 
   return (
     <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-50 w-[290px] bg-[#4a4e69] dark:bg-eld-space-indigo overflow-hidden shadow-[6px_0_24px_rgba(0,0,0,0.35)]">
@@ -121,7 +123,7 @@ export function Sidebar() {
 
       {/* Bottom Section */}
       <div className="mt-auto shrink-0 border-t border-white/20 dark:border-eld-lilac-ash/20 px-3 py-4">
-        <UsageCounter used={0} limit={1000} isCollapsed={false} />
+        <UsageCounter used={used} limit={limit} isCollapsed={false} />
       </div>
     </aside>
   );

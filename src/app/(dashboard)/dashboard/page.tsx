@@ -6,10 +6,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Zap, FileText, PenSquare, GraduationCap } from "lucide-react";
+import { Users, FileText, PenSquare, GraduationCap } from "lucide-react";
 import { createClient } from "@/lib/supabase-server";
 import type { ELLevel } from "@/types";
 import { DashboardGreeting } from "@/components/dashboard/greeting";
+import { AIUsageCard } from "@/components/dashboard/ai-usage-card";
 
 const levelStyles: Record<ELLevel, string> = {
   Emerging: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
@@ -180,26 +181,7 @@ export default async function DashboardPage() {
 
       {/* AI Usage + Quick Action */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Today&apos;s AI Usage
-            </CardTitle>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
-              <Zap className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-title-sm font-bold text-foreground">0</div>
-            <p className="text-theme-xs text-muted-foreground">of 1,000 daily limit</p>
-            <div className="mt-3 h-2 rounded-full bg-eld-almond-silk/30 dark:bg-gray-700">
-              <div
-                className="h-2 rounded-full bg-eld-space-indigo transition-all dark:bg-eld-dusty-grape"
-                style={{ width: "0%" }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <AIUsageCard />
 
         <Card className="flex flex-col items-center justify-center p-6 text-center">
           <PenSquare className="h-8 w-8 text-muted-foreground mb-3" />

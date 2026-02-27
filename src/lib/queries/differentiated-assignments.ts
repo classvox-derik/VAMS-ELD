@@ -76,3 +76,57 @@ export async function logUsageAnalytic(
     metadata,
   });
 }
+
+/**
+ * Get today's global scaffold generation count (all users).
+ * Gemini RPD resets at midnight Pacific time.
+ */
+export async function getTodayGlobalUsage(): Promise<number> {
+  const supabase = createClient();
+  const todayStartPT = getTodayStartPacific();
+
+  const { count, error } = await supabase
+    .from("usage_analytics")
+    .select("*", { count: "exact", head: true })
+    .eq("action_type", "scaffold_generated")
+    .gte("created_at", todayStartPT);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/**
+ * Get today's scaffold generation count for a specific user.
+ */
+export async function getTodayUserUsage(teacherId: string): Promise<number> {
+  const supabase = createClient();
+  const todayStartPT = getTodayStartPacific();
+
+  const { count, error } = await supabase
+    .from("usage_analytics")
+    .select("*", { count: "exact", head: true })
+    .eq("action_type", "scaffold_generated")
+    .eq("teacher_id", teacherId)
+    .gte("created_at", todayStartPT);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Midnight Pacific time today as ISO string (for Gemini RPD reset boundary). */
+function getTodayStartPacific(): string {
+  const now = new Date();
+  // Today's date in Pacific time (YYYY-MM-DD, handles DST)
+  const ptDate = now.toLocaleDateString("en-CA", {
+    timeZone: "America/Los_Angeles",
+  });
+  // Detect PST vs PDT from timezone abbreviation
+  const tzAbbr = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    timeZoneName: "short",
+  })
+    .formatToParts(now)
+    .find((p) => p.type === "timeZoneName")?.value;
+  const offset = tzAbbr === "PDT" ? "-07:00" : "-08:00";
+  return `${ptDate}T00:00:00${offset}`;
+}

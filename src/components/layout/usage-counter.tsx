@@ -17,7 +17,7 @@ export function UsageCounter({
   isCollapsed = false,
 }: UsageCounterProps) {
   const remaining = limit - used;
-  const isWarning = remaining <= 100 && remaining > 0;
+  const isWarning = remaining > 0 && remaining <= Math.max(2, Math.ceil(limit * 0.2));
   const isExhausted = remaining <= 0;
   const percentage = Math.min((used / limit) * 100, 100);
 

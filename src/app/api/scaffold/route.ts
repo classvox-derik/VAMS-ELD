@@ -3,7 +3,10 @@ import { createServerClient } from "@supabase/ssr";
 import { generateScaffoldedAssignment } from "@/lib/gemini";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
 import { scaffoldRequestSchema } from "@/lib/validations";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, checkGlobalRateLimit } from "@/lib/rate-limit";
+
+const DAILY_GLOBAL_LIMIT = parseInt(process.env.DAILY_GLOBAL_LIMIT ?? "250", 10);
+const DAILY_PER_USER_LIMIT = parseInt(process.env.DAILY_PER_USER_LIMIT ?? "10", 10);
 
 async function getAuthUser(request: NextRequest) {
   const response = NextResponse.next({ request });
@@ -37,13 +40,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Rate limit — protect Gemini free tier (10 requests/min per user)
-    if (!checkRateLimit(user.id, 10)) {
+    // 1. Global RPM rate limit (protects Gemini free tier 10 RPM)
+    if (!checkGlobalRateLimit(10)) {
+      return NextResponse.json(
+        { error: "Platform rate limit reached. Please wait a moment and try again." },
+        { status: 429 }
+      );
+    }
+
+    // 2. Per-user RPM (secondary protection)
+    if (!checkRateLimit(user.id, 5)) {
       return NextResponse.json(
         { error: "Rate limit exceeded. Please wait a moment before generating again." },
         { status: 429 }
       );
     }
+
+    // 3. Daily usage limits (database-backed)
+    try {
+      const { getTodayGlobalUsage, getTodayUserUsage } = await import(
+        "@/lib/queries/differentiated-assignments"
+      );
+      const [globalUsed, userUsed] = await Promise.all([
+        getTodayGlobalUsage(),
+        getTodayUserUsage(user.id),
+      ]);
+
+      if (globalUsed >= DAILY_GLOBAL_LIMIT) {
+        return NextResponse.json(
+          { error: "Platform daily limit reached. Scaffold generation will reset at midnight Pacific time." },
+          { status: 429 }
+        );
+      }
+
+      if (userUsed >= DAILY_PER_USER_LIMIT) {
+        return NextResponse.json(
+          { error: `You've reached your daily limit of ${DAILY_PER_USER_LIMIT} scaffold generations. Resets at midnight Pacific time.` },
+          { status: 429 }
+        );
+      }
+    } catch {
+      // Database not configured — skip daily limit enforcement
+    }
+
     const body = await request.json();
 
     // Zod validation
