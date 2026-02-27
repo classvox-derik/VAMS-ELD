@@ -72,7 +72,9 @@ export function AssignmentDetailsForm({
           <Label htmlFor="grade_level">Grade Level (optional)</Label>
           <Select
             id="grade_level"
-            {...register("grade_level", { valueAsNumber: true })}
+            {...register("grade_level", {
+              setValueAs: (v: string) => (v === "" ? undefined : Number(v)),
+            })}
           >
             <option value="">Select grade...</option>
             {GRADES.map((g) => (
