@@ -108,6 +108,11 @@
   }
 }
 
+/* Scaffold preview always has a light background, so force dark text in dark mode */
+.dark .scaffold-preview {
+  color: #111827;
+}
+
 @layer utilities {
   .bg-background {
     background-color: hsl(var(--background));
