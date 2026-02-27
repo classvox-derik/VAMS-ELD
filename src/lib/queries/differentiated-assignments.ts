@@ -69,11 +69,12 @@ export async function logUsageAnalytic(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   const supabase = createClient();
-  await supabase.from("usage_analytics").insert({
+  const { error } = await supabase.from("usage_analytics").insert({
     teacher_id: teacherId,
     action_type: actionType,
     metadata,
   });
+  if (error) throw error;
 }
 
 /**

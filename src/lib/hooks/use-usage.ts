@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
 
 interface UsageData {
   used: number;
@@ -13,10 +14,12 @@ const DEFAULT_USAGE: UsageData = { used: 0, limit: 10, globalUsed: 0, globalLimi
 
 /**
  * Fetches current AI usage from /api/usage.
- * Polls every 60 seconds and exposes a manual refresh function.
+ * Refreshes on route changes and polls every 60 seconds.
+ * Exposes a manual refresh function.
  */
 export function useUsage() {
   const [usage, setUsage] = useState<UsageData>(DEFAULT_USAGE);
+  const pathname = usePathname();
 
   const refresh = useCallback(async () => {
     try {
@@ -29,11 +32,12 @@ export function useUsage() {
     }
   }, []);
 
+  // Refresh on mount, on route change, and poll every 60s
   useEffect(() => {
     refresh();
     const id = setInterval(refresh, 60_000);
     return () => clearInterval(id);
-  }, [refresh]);
+  }, [refresh, pathname]);
 
   return { ...usage, refresh };
 }

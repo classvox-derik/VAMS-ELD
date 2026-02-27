@@ -139,11 +139,11 @@ export async function POST(request: NextRequest) {
         output_html: result.html,
       });
       storedId = stored.id;
-    } catch {
-      // Database not configured — continue without storing
+    } catch (err) {
+      console.error("Failed to store differentiated assignment:", err);
     }
 
-    // Log usage analytic with real teacher ID (graceful failure)
+    // Log usage analytic with real teacher ID
     try {
       const { logUsageAnalytic } = await import(
         "@/lib/queries/differentiated-assignments"
@@ -155,8 +155,8 @@ export async function POST(request: NextRequest) {
         contentLength: content.length,
         isDemo: result.isDemo,
       });
-    } catch {
-      // Database not configured — continue
+    } catch (err) {
+      console.error("Failed to log usage analytic:", err);
     }
 
     return NextResponse.json({
