@@ -10,6 +10,7 @@ import {
   Eye,
   Trash2,
   PenSquare,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,55 +24,74 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ELBadge } from "@/components/students/el-badge";
-import { getLibrary, deleteFromLibrary, type LibraryEntry } from "@/lib/local-library";
 import { formatRelativeDate } from "@/lib/utils";
-import type { ELLevel } from "@/types";
+import type { DifferentiatedAssignment, ELLevel } from "@/types";
 import { EL_LEVELS } from "@/types";
 
 export default function LibraryPage() {
   const router = useRouter();
-  const [entries, setEntries] = useState<LibraryEntry[]>([]);
+  const [entries, setEntries] = useState<DifferentiatedAssignment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterLevel, setFilterLevel] = useState<ELLevel | "all">("all");
-  const [deleteTarget, setDeleteTarget] = useState<LibraryEntry | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DifferentiatedAssignment | null>(null);
   const [isExporting, setIsExporting] = useState<string | null>(null);
 
   useEffect(() => {
-    setEntries(getLibrary());
+    async function load() {
+      try {
+        const res = await fetch("/api/library");
+        if (res.ok) {
+          setEntries(await res.json());
+        } else {
+          toast.error("Failed to load library.");
+        }
+      } catch {
+        toast.error("Failed to load library.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
   }, []);
 
   const filtered = useMemo(() => {
     let result = entries;
     if (filterLevel !== "all") {
-      result = result.filter((e) => e.elLevel === filterLevel);
+      result = result.filter((e) => e.el_level === filterLevel);
     }
     if (search) {
       const lower = search.toLowerCase();
       result = result.filter(
         (e) =>
-          e.assignmentTitle.toLowerCase().includes(lower) ||
-          e.studentName.toLowerCase().includes(lower)
+          (e.assignment_title ?? "").toLowerCase().includes(lower) ||
+          (e.student_name ?? "").toLowerCase().includes(lower)
       );
     }
     return result;
   }, [entries, search, filterLevel]);
 
-  function handleDelete(entry: LibraryEntry) {
-    deleteFromLibrary(entry.id);
-    setEntries(getLibrary());
-    setDeleteTarget(null);
-    toast.success("Assignment removed from library.");
+  async function handleDelete(entry: DifferentiatedAssignment) {
+    try {
+      const res = await fetch(`/api/library/${entry.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setEntries((prev) => prev.filter((e) => e.id !== entry.id));
+      setDeleteTarget(null);
+      toast.success("Assignment removed from library.");
+    } catch {
+      toast.error("Failed to delete assignment.");
+    }
   }
 
-  async function handleDownloadPdf(entry: LibraryEntry) {
+  async function handleDownloadPdf(entry: DifferentiatedAssignment) {
     setIsExporting(entry.id);
     try {
       const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
       await downloadScaffoldPdf({
-        html: entry.outputHtml,
-        title: entry.assignmentTitle,
-        elLevel: entry.elLevel,
-        filename: `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`,
+        html: entry.output_html,
+        title: entry.assignment_title,
+        elLevel: entry.el_level as ELLevel,
+        filename: `${entry.assignment_title}-${entry.el_level}-scaffolded.pdf`,
       });
       toast.success("PDF downloaded!");
     } catch {
@@ -81,8 +101,16 @@ export default function LibraryPage() {
     }
   }
 
-  function handleView(entry: LibraryEntry) {
+  function handleView(entry: DifferentiatedAssignment) {
     router.push(`/library/${entry.id}`);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -185,9 +213,9 @@ export default function LibraryPage() {
                   {/* Title & Demo badge */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-semibold line-clamp-2">
-                      {entry.assignmentTitle}
+                      {entry.assignment_title}
                     </h3>
-                    {entry.isDemo && (
+                    {entry.is_demo && (
                       <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
                         Demo
                       </span>
@@ -196,15 +224,15 @@ export default function LibraryPage() {
 
                   {/* Metadata */}
                   <div className="flex items-center gap-2">
-                    <ELBadge level={entry.elLevel} />
+                    <ELBadge level={entry.el_level as ELLevel} />
                     <span className="text-xs text-muted-foreground">
-                      {entry.studentName}
+                      {entry.student_name}
                     </span>
                   </div>
 
                   {/* Scaffold tags */}
                   <div className="flex flex-wrap gap-1">
-                    {entry.scaffoldsApplied.slice(0, 3).map((name) => (
+                    {entry.scaffolds_applied.slice(0, 3).map((name) => (
                       <span
                         key={name}
                         className="rounded-full bg-eld-almond-silk/20 px-2 py-0.5 text-[10px] text-eld-dusty-grape dark:bg-gray-800 dark:text-gray-400"
@@ -212,16 +240,16 @@ export default function LibraryPage() {
                         {name.split(":")[0]}
                       </span>
                     ))}
-                    {entry.scaffoldsApplied.length > 3 && (
+                    {entry.scaffolds_applied.length > 3 && (
                       <span className="rounded-full bg-eld-almond-silk/20 px-2 py-0.5 text-[10px] text-eld-dusty-grape dark:bg-gray-800 dark:text-gray-400">
-                        +{entry.scaffoldsApplied.length - 3}
+                        +{entry.scaffolds_applied.length - 3}
                       </span>
                     )}
                   </div>
 
                   {/* Date */}
                   <p className="text-xs text-muted-foreground">
-                    {formatRelativeDate(entry.createdAt)}
+                    {formatRelativeDate(entry.created_at)}
                   </p>
 
                   {/* Actions */}
@@ -269,7 +297,7 @@ export default function LibraryPage() {
           <DialogHeader>
             <DialogTitle>Delete Assignment?</DialogTitle>
             <DialogDescription>
-              This will permanently remove &quot;{deleteTarget?.assignmentTitle}
+              This will permanently remove &quot;{deleteTarget?.assignment_title}
               &quot; from your library. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ELBadge } from "@/components/students/el-badge";
-import { updateTeacherNotes } from "@/lib/local-library";
 import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
 import type { ELLevel } from "@/types";
 
@@ -97,31 +96,66 @@ function ScaffoldResultContent() {
     }
     resultIdRef.current = id;
 
+    // 1. Try sessionStorage first (immediate display after generation)
     const stored = sessionStorage.getItem(`scaffold-result-${id}`);
-    if (!stored) {
-      setNotFound(true);
-      return;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as ScaffoldResult;
+        setResult(parsed);
+        setNotes(parsed.teacherNotes ?? "");
+        if (parsed.isBatch && parsed.levels?.length) {
+          setActiveTab(parsed.levels[0].level);
+        }
+        return;
+      } catch {
+        // Fall through to DB fetch
+      }
     }
 
-    try {
-      const parsed = JSON.parse(stored) as ScaffoldResult;
-      setResult(parsed);
-      setNotes(parsed.teacherNotes ?? "");
-      // Set initial tab for batch mode
-      if (parsed.isBatch && parsed.levels?.length) {
-        setActiveTab(parsed.levels[0].level);
+    // 2. Fetch from database (handles page refresh, different browser, shared link)
+    async function loadFromDb() {
+      try {
+        const res = await fetch(`/api/library/${id}`);
+        if (!res.ok) {
+          setNotFound(true);
+          return;
+        }
+        const data = await res.json();
+        setResult({
+          outputHtml: data.output_html,
+          isDemo: data.is_demo,
+          scaffoldsApplied: data.scaffolds_applied,
+          assignmentTitle: data.assignment_title,
+          elLevel: data.el_level,
+          studentName: data.student_name ?? "Unknown",
+          originalContent: data.original_content,
+          teacherNotes: data.teacher_notes,
+          generatedAt: data.created_at,
+          wordBank: data.word_bank,
+          teacherInstructions: data.teacher_instructions,
+        });
+        setNotes(data.teacher_notes ?? "");
+      } catch {
+        setNotFound(true);
       }
-    } catch {
-      setNotFound(true);
     }
+    loadFromDb();
   }, [searchParams]);
 
   const handleNotesChange = useCallback((value: string) => {
     setNotes(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
+    debounceRef.current = setTimeout(async () => {
       if (resultIdRef.current) {
-        updateTeacherNotes(resultIdRef.current, value);
+        try {
+          await fetch(`/api/library/${resultIdRef.current}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ teacher_notes: value }),
+          });
+        } catch {
+          // Silent fail on note save
+        }
       }
     }, 500);
   }, []);
@@ -467,7 +501,7 @@ function ScaffoldResultContent() {
             className="w-full rounded-lg border border-eld-almond-silk/60 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-theme-xs placeholder:text-gray-400 focus:border-eld-space-indigo focus:outline-none focus:ring-3 focus:ring-eld-space-indigo/10 min-h-[80px] resize-y dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
-            Notes are auto-saved to your local library.
+            Notes are auto-saved.
           </p>
         </CardContent>
       </Card>

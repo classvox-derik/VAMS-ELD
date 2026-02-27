@@ -41,6 +41,7 @@ export const scaffoldRequestSchema = z.object({
   studentId: z.string().uuid().optional(),
   studentIds: z.array(z.string().uuid()).optional(),
   assignmentId: z.string().optional(),
+  studentName: z.string().max(200).optional(),
 });
 
 export type StudentFormValues = z.infer<typeof studentSchema>;

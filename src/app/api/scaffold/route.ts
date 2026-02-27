@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames } = parsed.data;
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName } = parsed.data;
 
     // Look up scaffolds by name instead of fragile indices
     const selectedScaffolds = defaultScaffolds.filter((s) =>
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       gradeLevel: gradeLevel || undefined,
     });
 
-    // Attempt to store in database (graceful failure)
+    // Store in database with all library fields (graceful failure)
     let storedId: string | null = null;
     try {
       const { createDifferentiatedAssignment } = await import(
@@ -134,9 +134,15 @@ export async function POST(request: NextRequest) {
         assignment_id: body.assignmentId || "draft",
         teacher_id: user.id,
         student_id: body.studentId || undefined,
+        student_name: studentName || undefined,
+        assignment_title: title,
         el_level: elLevel,
         scaffolds_applied: scaffoldNames,
         output_html: result.html,
+        original_content: content,
+        word_bank: result.wordBank,
+        teacher_instructions: result.teacherInstructions,
+        is_demo: result.isDemo,
       });
       storedId = stored.id;
     } catch (err) {
@@ -159,6 +165,17 @@ export async function POST(request: NextRequest) {
       console.error("Failed to log usage analytic:", err);
     }
 
+    // Fetch updated usage count for immediate client-side counter update
+    let updatedUsage: number | undefined;
+    try {
+      const { getTodayUserUsage } = await import(
+        "@/lib/queries/differentiated-assignments"
+      );
+      updatedUsage = await getTodayUserUsage(user.id);
+    } catch {
+      // Non-critical
+    }
+
     return NextResponse.json({
       success: true,
       outputHtml: result.html,
@@ -168,6 +185,7 @@ export async function POST(request: NextRequest) {
       isDemo: result.isDemo,
       scaffoldsApplied: scaffoldNames,
       storedId,
+      updatedUsage,
     });
   } catch (error) {
     const message =

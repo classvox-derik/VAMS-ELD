@@ -60,10 +60,17 @@ export interface Assignment {
 export interface DifferentiatedAssignment {
   id: string;
   assignment_id: string;
+  teacher_id: string;
   student_id?: string;
+  student_name?: string;
+  assignment_title: string;
   el_level?: ELLevel;
   scaffolds_applied: string[];
   output_html: string;
+  original_content?: string;
+  word_bank?: { term: string; definition: string }[] | null;
+  teacher_instructions?: string | null;
+  is_demo: boolean;
   google_doc_id?: string;
   google_doc_url?: string;
   pdf_url?: string;

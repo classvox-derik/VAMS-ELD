@@ -1,19 +1,28 @@
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 import type { DifferentiatedAssignment, ELLevel } from "@/types";
 
 export async function createDifferentiatedAssignment(data: {
   assignment_id: string;
-  teacher_id?: string;
+  teacher_id: string;
   student_id?: string;
+  student_name?: string;
+  assignment_title?: string;
   el_level?: ELLevel;
   scaffolds_applied: string[];
   output_html: string;
+  original_content?: string;
+  word_bank?: { term: string; definition: string }[] | null;
+  teacher_instructions?: string | null;
+  is_demo?: boolean;
   teacher_notes?: string;
 }): Promise<DifferentiatedAssignment> {
   const supabase = createClient();
   const { data: result, error } = await supabase
     .from("differentiated_assignments")
-    .insert(data)
+    .insert({
+      ...data,
+      word_bank: data.word_bank ?? null,
+    })
     .select()
     .single();
 
@@ -61,6 +70,33 @@ export async function getDifferentiatedAssignmentsByTeacher(
 
   if (error) throw error;
   return (data as DifferentiatedAssignment[]) ?? [];
+}
+
+export async function deleteDifferentiatedAssignment(
+  id: string,
+  teacherId: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("differentiated_assignments")
+    .delete()
+    .eq("id", id)
+    .eq("teacher_id", teacherId);
+  if (error) throw error;
+}
+
+export async function updateDifferentiatedAssignmentNotes(
+  id: string,
+  teacherId: string,
+  notes: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("differentiated_assignments")
+    .update({ teacher_notes: notes })
+    .eq("id", id)
+    .eq("teacher_id", teacherId);
+  if (error) throw error;
 }
 
 export async function logUsageAnalytic(

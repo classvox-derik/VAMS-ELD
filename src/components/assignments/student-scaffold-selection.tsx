@@ -17,7 +17,6 @@ import { StudentSelector, type StudentSelection } from "./student-selector";
 import { ScaffoldPicker } from "./scaffold-picker";
 import { getAllStudents } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
-import { saveToLibrary } from "@/lib/local-library";
 import type { Student, ELLevel } from "@/types";
 
 interface StudentScaffoldSelectionProps {
@@ -137,6 +136,15 @@ export function StudentScaffoldSelection({
 
   const generationCount = batchLevels ? batchLevels.size : 0;
 
+  /** Dispatch usage-updated event so sidebar counter updates immediately */
+  function dispatchUsageUpdate(data: Record<string, unknown>) {
+    if (typeof data.updatedUsage === "number") {
+      window.dispatchEvent(
+        new CustomEvent("usage-updated", { detail: { used: data.updatedUsage } })
+      );
+    }
+  }
+
   async function handleGenerate() {
     if (!canGenerate || !batchLevels) return;
     setIsGenerating(true);
@@ -149,6 +157,9 @@ export function StudentScaffoldSelection({
       if (levels.length === 1) {
         const [level, levelStudents] = levels[0];
         const isSingle = levelStudents.length === 1;
+        const studentName = isSingle
+          ? levelStudents[0].name
+          : `${levelStudents.length} ${level} students`;
 
         // Single level — one Gemini call
         const result = await callScaffoldAPI({
@@ -160,16 +171,13 @@ export function StudentScaffoldSelection({
           scaffoldNames,
           studentId: isSingle ? levelStudents[0].id : undefined,
           studentIds: !isSingle ? levelStudents.map((s) => s.id) : undefined,
+          studentName,
         });
 
-        const resultId = crypto.randomUUID();
-        const studentName = isSingle
-          ? levelStudents[0].name
-          : `${levelStudents.length} ${level} students`;
-
-        storeAndNavigate(resultId, result, studentName, level);
+        storeAndNavigate(result, studentName, level);
       } else {
         // Batch mode: generate per-level (max 3 calls)
+        const totalStudents = selection.students.length;
         const results = await Promise.all(
           levels.map(([level, levelStudents]) =>
             callScaffoldAPI({
@@ -180,14 +188,14 @@ export function StudentScaffoldSelection({
               elLevel: level,
               scaffoldNames,
               studentIds: levelStudents.map((s) => s.id),
+              studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
             })
           )
         );
 
-        // Store a combined result with all levels
-        const resultId = crypto.randomUUID();
+        // Use the first result's storedId as the primary ID for navigation
+        const resultId = results[0].storedId || crypto.randomUUID();
         const generatedAt = new Date().toISOString();
-        const totalStudents = selection.students.length;
 
         const batchResult = {
           isBatch: true,
@@ -212,21 +220,8 @@ export function StudentScaffoldSelection({
           JSON.stringify(batchResult)
         );
 
-        // Save primary level to library
-        const primaryLevel = levels[0];
-        const primaryResult = results[0];
-        saveToLibrary({
-          id: resultId,
-          assignmentTitle,
-          elLevel: primaryLevel[0],
-          studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
-          scaffoldsApplied: primaryResult.scaffoldsApplied,
-          outputHtml: primaryResult.outputHtml,
-          originalContent: content,
-          isDemo: primaryResult.isDemo,
-          teacherNotes: "",
-          createdAt: generatedAt,
-        });
+        // Dispatch usage update from last result (most up-to-date count)
+        dispatchUsageUpdate(results[results.length - 1]);
 
         toast.success(
           `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
@@ -254,6 +249,7 @@ export function StudentScaffoldSelection({
     scaffoldNames: string[];
     studentId?: string;
     studentIds?: string[];
+    studentName?: string;
   }) {
     const response = await fetch("/api/scaffold", {
       method: "POST",
@@ -274,13 +270,14 @@ export function StudentScaffoldSelection({
   }
 
   function storeAndNavigate(
-    resultId: string,
     data: Record<string, unknown>,
     studentName: string,
     elLevel: ELLevel
   ) {
+    const resultId = (data.storedId as string) || crypto.randomUUID();
     const generatedAt = new Date().toISOString();
 
+    // Store in sessionStorage for immediate display on result page
     sessionStorage.setItem(
       `scaffold-result-${resultId}`,
       JSON.stringify({
@@ -298,18 +295,8 @@ export function StudentScaffoldSelection({
       })
     );
 
-    saveToLibrary({
-      id: resultId,
-      assignmentTitle,
-      elLevel,
-      studentName,
-      scaffoldsApplied: data.scaffoldsApplied as string[],
-      outputHtml: data.outputHtml as string,
-      originalContent: content,
-      isDemo: data.isDemo as boolean,
-      teacherNotes: "",
-      createdAt: generatedAt,
-    });
+    // Dispatch usage update so sidebar counter updates immediately
+    dispatchUsageUpdate(data);
 
     toast.success(
       data.isDemo

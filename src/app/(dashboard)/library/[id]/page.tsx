@@ -25,19 +25,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ELBadge } from "@/components/students/el-badge";
-import {
-  getLibraryEntry,
-  updateTeacherNotes,
-  deleteFromLibrary,
-  type LibraryEntry,
-} from "@/lib/local-library";
 import { formatDate } from "@/lib/utils";
 import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
+import type { DifferentiatedAssignment, ELLevel } from "@/types";
 
 export default function LibraryDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const [entry, setEntry] = useState<LibraryEntry | null>(null);
+  const [entry, setEntry] = useState<DifferentiatedAssignment | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [notes, setNotes] = useState("");
@@ -57,22 +52,38 @@ export default function LibraryDetailPage() {
       setNotFound(true);
       return;
     }
-    const found = getLibraryEntry(id);
-    if (!found) {
-      setNotFound(true);
-      return;
+    async function load() {
+      try {
+        const res = await fetch(`/api/library/${id}`);
+        if (!res.ok) {
+          setNotFound(true);
+          return;
+        }
+        const data = await res.json();
+        setEntry(data);
+        setNotes(data.teacher_notes ?? "");
+      } catch {
+        setNotFound(true);
+      }
     }
-    setEntry(found);
-    setNotes(found.teacherNotes ?? "");
+    load();
   }, [id]);
 
   const handleNotesChange = useCallback(
     (value: string) => {
       setNotes(value);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
+      debounceRef.current = setTimeout(async () => {
         if (id) {
-          updateTeacherNotes(id, value);
+          try {
+            await fetch(`/api/library/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ teacher_notes: value }),
+            });
+          } catch {
+            // Silent fail on note save
+          }
         }
       }, 500);
     },
@@ -85,10 +96,10 @@ export default function LibraryDetailPage() {
     try {
       const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
       await downloadScaffoldPdf({
-        html: entry.outputHtml,
-        title: entry.assignmentTitle,
-        elLevel: entry.elLevel,
-        filename: `${entry.assignmentTitle}-${entry.elLevel}-scaffolded.pdf`,
+        html: entry.output_html,
+        title: entry.assignment_title,
+        elLevel: entry.el_level as ELLevel,
+        filename: `${entry.assignment_title}-${entry.el_level}-scaffolded.pdf`,
       });
       toast.success("PDF downloaded successfully!");
     } catch {
@@ -98,10 +109,15 @@ export default function LibraryDetailPage() {
     }
   }
 
-  function handleDelete() {
-    deleteFromLibrary(id);
-    toast.success("Assignment removed from library.");
-    router.push("/library");
+  async function handleDelete() {
+    try {
+      const res = await fetch(`/api/library/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Assignment removed from library.");
+      router.push("/library");
+    } catch {
+      toast.error("Failed to delete assignment.");
+    }
   }
 
   if (notFound) {
@@ -133,10 +149,10 @@ export default function LibraryDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="scaffold-heading">{entry.assignmentTitle}</h1>
+          <h1 className="scaffold-heading">{entry.assignment_title}</h1>
           <p className="scaffold-description mt-1">
-            Generated {formatDate(entry.createdAt)}
-            {entry.isDemo && " (Demo)"}
+            Generated {formatDate(entry.created_at)}
+            {entry.is_demo && " (Demo)"}
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
@@ -167,14 +183,14 @@ export default function LibraryDetailPage() {
               <p className="text-theme-xs font-medium text-muted-foreground">
                 Student
               </p>
-              <p className="text-sm font-medium mt-0.5">{entry.studentName}</p>
+              <p className="text-sm font-medium mt-0.5">{entry.student_name}</p>
             </div>
             <div>
               <p className="text-theme-xs font-medium text-muted-foreground">
                 EL Level
               </p>
               <div className="mt-1">
-                <ELBadge level={entry.elLevel} />
+                <ELBadge level={entry.el_level as ELLevel} />
               </div>
             </div>
             <div>
@@ -182,14 +198,14 @@ export default function LibraryDetailPage() {
                 Scaffolds Applied
               </p>
               <p className="text-sm font-medium mt-0.5">
-                {entry.scaffoldsApplied.length} scaffold
-                {entry.scaffoldsApplied.length !== 1 ? "s" : ""}
+                {entry.scaffolds_applied.length} scaffold
+                {entry.scaffolds_applied.length !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {entry.scaffoldsApplied.map((name) => (
+            {entry.scaffolds_applied.map((name) => (
               <span
                 key={name}
                 className="inline-flex items-center rounded-full bg-eld-almond-silk/20 px-2.5 py-0.5 text-xs font-medium text-eld-space-indigo"
@@ -202,7 +218,7 @@ export default function LibraryDetailPage() {
       </Card>
 
       {/* Original Content Toggle */}
-      {entry.originalContent && (
+      {entry.original_content && (
         <Card>
           <CardHeader className="pb-0">
             <button
@@ -220,7 +236,7 @@ export default function LibraryDetailPage() {
           {showOriginal && (
             <CardContent className="pt-3">
               <div className="rounded-xl border border-eld-almond-silk/40 bg-eld-seashell/50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
-                {entry.originalContent}
+                {entry.original_content}
               </div>
             </CardContent>
           )}
@@ -258,10 +274,10 @@ export default function LibraryDetailPage() {
               onClick={() =>
                 entry &&
                 exportToGoogleDocs({
-                  title: entry.assignmentTitle,
-                  outputHtml: entry.outputHtml,
-                  elLevel: entry.elLevel,
-                  scaffoldsApplied: entry.scaffoldsApplied,
+                  title: entry.assignment_title,
+                  outputHtml: entry.output_html,
+                  elLevel: entry.el_level as ELLevel,
+                  scaffoldsApplied: entry.scaffolds_applied,
                 })
               }
               className="gap-1.5"
@@ -282,7 +298,7 @@ export default function LibraryDetailPage() {
           <div
             id="scaffold-preview-content"
             className="scaffold-preview rounded-xl border bg-white p-6 dark:bg-gray-50"
-            dangerouslySetInnerHTML={{ __html: entry.outputHtml }}
+            dangerouslySetInnerHTML={{ __html: entry.output_html }}
           />
         </CardContent>
       </Card>
@@ -300,7 +316,7 @@ export default function LibraryDetailPage() {
             className="w-full rounded-lg border border-eld-almond-silk/60 bg-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-eld-space-indigo focus:outline-none focus:ring-3 focus:ring-eld-space-indigo/10 min-h-[80px] resize-y dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
-            Notes are auto-saved to your local library.
+            Notes are auto-saved.
           </p>
         </CardContent>
       </Card>
@@ -323,7 +339,7 @@ export default function LibraryDetailPage() {
           <DialogHeader>
             <DialogTitle>Delete Assignment?</DialogTitle>
             <DialogDescription>
-              This will permanently remove &quot;{entry.assignmentTitle}&quot;
+              This will permanently remove &quot;{entry.assignment_title}&quot;
               from your library. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

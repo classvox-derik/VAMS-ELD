@@ -15,6 +15,7 @@ const DEFAULT_USAGE: UsageData = { used: 0, limit: 10, globalUsed: 0, globalLimi
 /**
  * Fetches current AI usage from /api/usage.
  * Refreshes on route changes and polls every 60 seconds.
+ * Listens for "usage-updated" custom events for immediate updates.
  * Exposes a manual refresh function.
  */
 export function useUsage() {
@@ -38,6 +39,18 @@ export function useUsage() {
     const id = setInterval(refresh, 60_000);
     return () => clearInterval(id);
   }, [refresh, pathname]);
+
+  // Listen for immediate usage updates dispatched after scaffold generation
+  useEffect(() => {
+    function handleUsageUpdate(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      if (typeof detail?.used === "number") {
+        setUsage((prev) => ({ ...prev, used: detail.used }));
+      }
+    }
+    window.addEventListener("usage-updated", handleUsageUpdate);
+    return () => window.removeEventListener("usage-updated", handleUsageUpdate);
+  }, []);
 
   return { ...usage, refresh };
 }
