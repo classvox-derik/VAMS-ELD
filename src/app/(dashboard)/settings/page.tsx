@@ -31,7 +31,7 @@ function SettingsContent() {
   const [googleStatus, setGoogleStatus] = useState<GoogleStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const { profile, saveProfile, isLoaded } = useUserProfile();
+  const { profile, saveProfile, isLoaded, isSaving } = useUserProfile();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -42,9 +42,13 @@ function SettingsContent() {
     }
   }, [isLoaded, profile.firstName, profile.lastName]);
 
-  function handleSaveProfile() {
-    saveProfile({ firstName: firstName.trim(), lastName: lastName.trim() });
-    toast.success("Profile saved!");
+  async function handleSaveProfile() {
+    const ok = await saveProfile({ firstName: firstName.trim(), lastName: lastName.trim() });
+    if (ok) {
+      toast.success("Profile saved!");
+    } else {
+      toast.error("Failed to save profile. Please try again.");
+    }
   }
 
   useEffect(() => {
@@ -146,8 +150,8 @@ function SettingsContent() {
                 />
               </div>
             </div>
-            <Button onClick={handleSaveProfile} size="sm">
-              Save Profile
+            <Button onClick={handleSaveProfile} size="sm" disabled={isSaving}>
+              {isSaving ? "Saving…" : "Save Profile"}
             </Button>
           </div>
         </CardContent>
