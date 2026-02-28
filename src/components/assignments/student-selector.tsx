@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { Search, Users, Check, X, UserCheck } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Search, Check, X, UserCheck, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ELBadge } from "@/components/students/el-badge";
@@ -27,6 +27,11 @@ export function StudentSelector({
 }: StudentSelectorProps) {
   const [search, setSearch] = useState("");
 
+  // Filter state — each category tracks which values are active
+  const [activeGrades, setActiveGrades] = useState<Set<number>>(new Set());
+  const [activeELLevels, setActiveELLevels] = useState<Set<ELLevel>>(new Set());
+  const [activeHomerooms, setActiveHomerooms] = useState<Set<string>>(new Set());
+
   const selectedIds = useMemo(() => {
     if (!selection) return new Set<string>();
     return new Set(selection.students.map((s) => s.id));
@@ -37,6 +42,76 @@ export function StudentSelector({
     if (!gradeLevel) return students;
     return students.filter((s) => s.grade === gradeLevel);
   }, [students, gradeLevel]);
+
+  const hasActiveFilters = activeGrades.size > 0 || activeELLevels.size > 0 || activeHomerooms.size > 0;
+
+  // Compute students that match ALL active filter categories (intersection across categories, union within)
+  const filteredByFilters = useMemo(() => {
+    let pool = gradeScopedStudents;
+    if (activeGrades.size > 0) {
+      pool = pool.filter((s) => activeGrades.has(s.grade));
+    }
+    if (activeELLevels.size > 0) {
+      pool = pool.filter((s) => activeELLevels.has(s.el_level));
+    }
+    if (activeHomerooms.size > 0) {
+      pool = pool.filter((s) => activeHomerooms.has(s.homeroom || "Unassigned"));
+    }
+    return pool;
+  }, [gradeScopedStudents, activeGrades, activeELLevels, activeHomerooms]);
+
+  // When filters change, auto-select matching students
+  useEffect(() => {
+    if (!hasActiveFilters) {
+      onSelect(null);
+      return;
+    }
+    onSelect(
+      filteredByFilters.length > 0
+        ? { type: "multi", students: filteredByFilters }
+        : null
+    );
+  }, [filteredByFilters, hasActiveFilters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Count how many students each filter value would yield given the OTHER active filters
+  const countsForGrade = useMemo(() => {
+    const map: Partial<Record<number, number>> = {};
+    for (const g of GRADES) {
+      let pool = students.filter((s) => s.grade === g);
+      if (activeELLevels.size > 0) pool = pool.filter((s) => activeELLevels.has(s.el_level));
+      if (activeHomerooms.size > 0) pool = pool.filter((s) => activeHomerooms.has(s.homeroom || "Unassigned"));
+      map[g] = pool.length;
+    }
+    return map;
+  }, [students, activeELLevels, activeHomerooms]);
+
+  const countsForEL = useMemo(() => {
+    const map: Record<ELLevel, number> = { Emerging: 0, Expanding: 0, Bridging: 0 };
+    for (const level of EL_LEVELS) {
+      let pool = gradeScopedStudents.filter((s) => s.el_level === level);
+      if (activeGrades.size > 0 && !gradeLevel) pool = pool.filter((s) => activeGrades.has(s.grade));
+      if (activeHomerooms.size > 0) pool = pool.filter((s) => activeHomerooms.has(s.homeroom || "Unassigned"));
+      map[level] = pool.length;
+    }
+    return map;
+  }, [gradeScopedStudents, activeGrades, activeHomerooms, gradeLevel]);
+
+  const countsForHomeroom = useMemo(() => {
+    const map: Record<string, number> = {};
+    gradeScopedStudents.forEach((s) => {
+      const hr = s.homeroom || "Unassigned";
+      if (!map[hr]) map[hr] = 0;
+    });
+    for (const hr of Object.keys(map)) {
+      let pool = gradeScopedStudents.filter((s) => (s.homeroom || "Unassigned") === hr);
+      if (activeGrades.size > 0 && !gradeLevel) pool = pool.filter((s) => activeGrades.has(s.grade));
+      if (activeELLevels.size > 0) pool = pool.filter((s) => activeELLevels.has(s.el_level));
+      map[hr] = pool.length;
+    }
+    return Object.fromEntries(
+      Object.entries(map).sort(([a], [b]) => a.localeCompare(b))
+    );
+  }, [gradeScopedStudents, activeGrades, activeELLevels, gradeLevel]);
 
   const studentsByLevel = useMemo(() => {
     const map: Record<ELLevel, Student[]> = {
@@ -70,7 +145,7 @@ export function StudentSelector({
   }, [students]);
 
   const filtered = useMemo(() => {
-    const pool = gradeScopedStudents;
+    const pool = hasActiveFilters ? filteredByFilters : gradeScopedStudents;
     if (!search) return pool;
     const lower = search.toLowerCase();
     return pool.filter(
@@ -78,7 +153,34 @@ export function StudentSelector({
         s.name.toLowerCase().includes(lower) ||
         s.primary_language.toLowerCase().includes(lower)
     );
-  }, [gradeScopedStudents, search]);
+  }, [gradeScopedStudents, filteredByFilters, hasActiveFilters, search]);
+
+  const toggleGrade = useCallback((grade: number) => {
+    setActiveGrades((prev) => {
+      const next = new Set(prev);
+      if (next.has(grade)) next.delete(grade);
+      else next.add(grade);
+      return next;
+    });
+  }, []);
+
+  const toggleELLevel = useCallback((level: ELLevel) => {
+    setActiveELLevels((prev) => {
+      const next = new Set(prev);
+      if (next.has(level)) next.delete(level);
+      else next.add(level);
+      return next;
+    });
+  }, []);
+
+  const toggleHomeroom = useCallback((homeroom: string) => {
+    setActiveHomerooms((prev) => {
+      const next = new Set(prev);
+      if (next.has(homeroom)) next.delete(homeroom);
+      else next.add(homeroom);
+      return next;
+    });
+  }, []);
 
   const toggleStudent = useCallback(
     (student: Student) => {
@@ -92,54 +194,21 @@ export function StudentSelector({
     [selection, onSelect]
   );
 
-  const toggleGroup = useCallback(
-    (groupStudents: Student[]) => {
-      const current = selection?.students ?? [];
-      const currentIds = new Set(current.map((s) => s.id));
-      const allSelected = groupStudents.every((s) => currentIds.has(s.id));
-
-      let next: Student[];
-      if (allSelected) {
-        const groupIds = new Set(groupStudents.map((s) => s.id));
-        next = current.filter((s) => !groupIds.has(s.id));
-      } else {
-        const toAdd = groupStudents.filter((s) => !currentIds.has(s.id));
-        next = [...current, ...toAdd];
-      }
-      onSelect(next.length > 0 ? { type: "multi", students: next } : null);
-    },
-    [selection, onSelect]
-  );
-
   const selectAll = useCallback(() => {
+    const pool = hasActiveFilters ? filteredByFilters : gradeScopedStudents;
     onSelect(
-      gradeScopedStudents.length > 0
-        ? { type: "multi", students: [...gradeScopedStudents] }
+      pool.length > 0
+        ? { type: "multi", students: [...pool] }
         : null
     );
-  }, [gradeScopedStudents, onSelect]);
+  }, [gradeScopedStudents, filteredByFilters, hasActiveFilters, onSelect]);
 
   const clearAll = useCallback(() => {
+    setActiveGrades(new Set());
+    setActiveELLevels(new Set());
+    setActiveHomerooms(new Set());
     onSelect(null);
   }, [onSelect]);
-
-  const isGroupFullySelected = useCallback(
-    (groupStudents: Student[]) => {
-      if (groupStudents.length === 0) return false;
-      return groupStudents.every((s) => selectedIds.has(s.id));
-    },
-    [selectedIds]
-  );
-
-  const isGroupPartiallySelected = useCallback(
-    (groupStudents: Student[]) => {
-      if (groupStudents.length === 0) return false;
-      const some = groupStudents.some((s) => selectedIds.has(s.id));
-      const all = groupStudents.every((s) => selectedIds.has(s.id));
-      return some && !all;
-    },
-    [selectedIds]
-  );
 
   return (
     <div className="space-y-4">
@@ -160,29 +229,36 @@ export function StudentSelector({
         </p>
       )}
 
-      {/* Quick-select by Grade Level — only show when no grade is locked from Step 2 */}
+      {hasActiveFilters && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Filter className="h-3 w-3" />
+          <span>
+            Filters narrow results — students must match <strong>all</strong> selected categories.
+            {" "}<strong>{filteredByFilters.length}</strong> student{filteredByFilters.length !== 1 ? "s" : ""} match.
+          </span>
+        </div>
+      )}
+
+      {/* Filter by Grade Level — only show when no grade is locked from Step 2 */}
       {!gradeLevel && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">Select by Grade Level</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {GRADES.map((grade) => {
-              const gradeStudents = studentsByGrade[grade] ?? [];
-              const count = gradeStudents.length;
-              const fullySelected = isGroupFullySelected(gradeStudents);
-              const partiallySelected = isGroupPartiallySelected(gradeStudents);
+              const isActive = activeGrades.has(grade);
+              const count = countsForGrade[grade] ?? 0;
+              const totalCount = (studentsByGrade[grade] ?? []).length;
               return (
                 <button
                   key={grade}
-                  onClick={() => toggleGroup(gradeStudents)}
-                  disabled={count === 0}
+                  onClick={() => toggleGrade(grade)}
+                  disabled={totalCount === 0}
                   className={cn(
                     "flex items-center justify-between rounded-xl border p-2.5 text-left text-sm transition-colors",
-                    fullySelected
+                    isActive
                       ? "border-eld-space-indigo bg-eld-space-indigo/10 dark:border-eld-dusty-grape dark:bg-eld-dusty-grape/20"
-                      : partiallySelected
-                      ? "border-eld-space-indigo/50 bg-eld-space-indigo/5 dark:border-eld-dusty-grape/50 dark:bg-eld-dusty-grape/10"
                       : "border-gray-200 dark:border-gray-800",
-                    count > 0
+                    totalCount > 0
                       ? "hover:border-eld-space-indigo hover:bg-eld-space-indigo/5 cursor-pointer"
                       : "opacity-50 cursor-not-allowed"
                   )}
@@ -193,7 +269,7 @@ export function StudentSelector({
                       {count} student{count !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  {fullySelected && (
+                  {isActive && (
                     <Check className="h-4 w-4 text-black dark:text-eld-seashell" />
                   )}
                 </button>
@@ -203,28 +279,25 @@ export function StudentSelector({
         </div>
       )}
 
-      {/* Quick-select by EL Level */}
+      {/* Filter by EL Level */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground">Select by EL Level</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {EL_LEVELS.map((level) => {
-            const levelStudents = studentsByLevel[level];
-            const count = levelStudents.length;
-            const fullySelected = isGroupFullySelected(levelStudents);
-            const partiallySelected = isGroupPartiallySelected(levelStudents);
+            const isActive = activeELLevels.has(level);
+            const count = countsForEL[level];
+            const totalCount = studentsByLevel[level].length;
             return (
               <button
                 key={level}
-                onClick={() => toggleGroup(levelStudents)}
-                disabled={count === 0}
+                onClick={() => toggleELLevel(level)}
+                disabled={totalCount === 0}
                 className={cn(
                   "flex items-center justify-between rounded-xl border p-2.5 text-left transition-colors",
-                  fullySelected
+                  isActive
                     ? "border-eld-space-indigo bg-eld-space-indigo/10 dark:border-eld-dusty-grape dark:bg-eld-dusty-grape/20"
-                    : partiallySelected
-                    ? "border-eld-space-indigo/50 bg-eld-space-indigo/5 dark:border-eld-dusty-grape/50 dark:bg-eld-dusty-grape/10"
                     : "border-gray-200 dark:border-gray-800",
-                  count > 0
+                  totalCount > 0
                     ? "hover:border-eld-space-indigo hover:bg-eld-space-indigo/5 cursor-pointer"
                     : "opacity-50 cursor-not-allowed"
                 )}
@@ -237,7 +310,7 @@ export function StudentSelector({
                     {count} student{count !== 1 ? "s" : ""}
                   </p>
                 </div>
-                {fullySelected && (
+                {isActive && (
                   <Check className="h-4 w-4 text-black dark:text-eld-seashell" />
                 )}
               </button>
@@ -246,27 +319,24 @@ export function StudentSelector({
         </div>
       </div>
 
-      {/* Quick-select by Homeroom */}
+      {/* Filter by Homeroom */}
       {Object.keys(studentsByHomeroom).length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">
             Select by Homeroom{gradeLevel ? ` (Grade ${gradeLevel})` : ""}
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {Object.entries(studentsByHomeroom).map(([homeroom, hrStudents]) => {
-              const count = hrStudents.length;
-              const fullySelected = isGroupFullySelected(hrStudents);
-              const partiallySelected = isGroupPartiallySelected(hrStudents);
+            {Object.entries(countsForHomeroom).map(([homeroom, count]) => {
+              const isActive = activeHomerooms.has(homeroom);
+              const totalCount = (studentsByHomeroom[homeroom] ?? []).length;
               return (
                 <button
                   key={homeroom}
-                  onClick={() => toggleGroup(hrStudents)}
+                  onClick={() => toggleHomeroom(homeroom)}
                   className={cn(
                     "flex items-center justify-between rounded-xl border p-2.5 text-left text-sm transition-colors",
-                    fullySelected
+                    isActive
                       ? "border-eld-space-indigo bg-eld-space-indigo/10 dark:border-eld-dusty-grape dark:bg-eld-dusty-grape/20"
-                      : partiallySelected
-                      ? "border-eld-space-indigo/50 bg-eld-space-indigo/5 dark:border-eld-dusty-grape/50 dark:bg-eld-dusty-grape/10"
                       : "border-gray-200 dark:border-gray-800",
                     "hover:border-eld-space-indigo hover:bg-eld-space-indigo/5 cursor-pointer"
                   )}
@@ -277,7 +347,7 @@ export function StudentSelector({
                       {count} student{count !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  {fullySelected && (
+                  {isActive && (
                     <Check className="h-4 w-4 text-black dark:text-eld-seashell" />
                   )}
                 </button>
@@ -290,12 +360,12 @@ export function StudentSelector({
       {/* Select All / Clear All */}
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={selectAll} className="text-xs">
-          Select All{gradeLevel ? ` Grade ${gradeLevel}` : ""}
+          Select All{hasActiveFilters ? " Matching" : gradeLevel ? ` Grade ${gradeLevel}` : ""}
         </Button>
-        {selectedIds.size > 0 && (
+        {(selectedIds.size > 0 || hasActiveFilters) && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-xs gap-1">
             <X className="h-3 w-3" />
-            Clear All
+            Clear{hasActiveFilters ? " Filters" : " All"}
           </Button>
         )}
       </div>
@@ -325,6 +395,8 @@ export function StudentSelector({
               ? gradeLevel
                 ? `No students in Grade ${gradeLevel}.`
                 : "No students in your roster yet."
+              : hasActiveFilters && !search
+              ? "No students match all selected filters."
               : "No students match your search."}
           </div>
         ) : (
