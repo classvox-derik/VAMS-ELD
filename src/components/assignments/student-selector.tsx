@@ -48,6 +48,18 @@ export function StudentSelector({
     return map;
   }, [gradeScopedStudents]);
 
+  const studentsByHomeroom = useMemo(() => {
+    const map: Record<string, Student[]> = {};
+    gradeScopedStudents.forEach((s) => {
+      const hr = s.homeroom || "Unassigned";
+      if (!map[hr]) map[hr] = [];
+      map[hr].push(s);
+    });
+    return Object.fromEntries(
+      Object.entries(map).sort(([a], [b]) => a.localeCompare(b))
+    );
+  }, [gradeScopedStudents]);
+
   const studentsByGrade = useMemo(() => {
     const map: Partial<Record<number, Student[]>> = {};
     GRADES.forEach((g) => (map[g] = []));
@@ -233,6 +245,47 @@ export function StudentSelector({
           })}
         </div>
       </div>
+
+      {/* Quick-select by Homeroom */}
+      {Object.keys(studentsByHomeroom).length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Select by Homeroom{gradeLevel ? ` (Grade ${gradeLevel})` : ""}
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {Object.entries(studentsByHomeroom).map(([homeroom, hrStudents]) => {
+              const count = hrStudents.length;
+              const fullySelected = isGroupFullySelected(hrStudents);
+              const partiallySelected = isGroupPartiallySelected(hrStudents);
+              return (
+                <button
+                  key={homeroom}
+                  onClick={() => toggleGroup(hrStudents)}
+                  className={cn(
+                    "flex items-center justify-between rounded-xl border p-2.5 text-left text-sm transition-colors",
+                    fullySelected
+                      ? "border-eld-space-indigo bg-eld-space-indigo/10 dark:border-eld-dusty-grape dark:bg-eld-dusty-grape/20"
+                      : partiallySelected
+                      ? "border-eld-space-indigo/50 bg-eld-space-indigo/5 dark:border-eld-dusty-grape/50 dark:bg-eld-dusty-grape/10"
+                      : "border-gray-200 dark:border-gray-800",
+                    "hover:border-eld-space-indigo hover:bg-eld-space-indigo/5 cursor-pointer"
+                  )}
+                >
+                  <div>
+                    <span className="font-medium">{homeroom}</span>
+                    <p className="text-[10px] text-muted-foreground">
+                      {count} student{count !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  {fullySelected && (
+                    <Check className="h-4 w-4 text-black dark:text-eld-seashell" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Select All / Clear All */}
       <div className="flex items-center gap-2">

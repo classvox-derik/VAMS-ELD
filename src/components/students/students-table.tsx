@@ -31,8 +31,17 @@ export function StudentsTable({
   const [search, setSearch] = useState("");
   const [gradeFilter, setGradeFilter] = useState<string>("all");
   const [elFilter, setElFilter] = useState<string>("all");
+  const [homeroomFilter, setHomeroomFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const homeroomOptions = useMemo(() => {
+    const pool = gradeFilter !== "all"
+      ? students.filter((s) => s.grade === parseInt(gradeFilter))
+      : students;
+    const set = new Set(pool.map((s) => s.homeroom).filter(Boolean));
+    return Array.from(set).sort();
+  }, [students, gradeFilter]);
 
   const filteredAndSorted = useMemo(() => {
     let result = [...students];
@@ -59,6 +68,11 @@ export function StudentsTable({
       result = result.filter((s) => s.el_level === elFilter);
     }
 
+    // Homeroom filter
+    if (homeroomFilter !== "all") {
+      result = result.filter((s) => s.homeroom === homeroomFilter);
+    }
+
     // Sort
     result.sort((a, b) => {
       const aVal = a[sortField];
@@ -71,7 +85,7 @@ export function StudentsTable({
     });
 
     return result;
-  }, [students, search, gradeFilter, elFilter, sortField, sortDirection]);
+  }, [students, search, gradeFilter, elFilter, homeroomFilter, sortField, sortDirection]);
 
   function toggleSort(field: SortField) {
     if (sortField === field) {
@@ -116,7 +130,7 @@ export function StudentsTable({
           </div>
           <Select
             value={gradeFilter}
-            onChange={(e) => setGradeFilter(e.target.value)}
+            onChange={(e) => { setGradeFilter(e.target.value); setHomeroomFilter("all"); }}
             className="w-36 flex-none"
           >
             <option value="all">All Grades</option>
@@ -138,6 +152,18 @@ export function StudentsTable({
               </option>
             ))}
           </Select>
+          <Select
+            value={homeroomFilter}
+            onChange={(e) => setHomeroomFilter(e.target.value)}
+            className="w-40 flex-none"
+          >
+            <option value="all">All Homerooms</option>
+            {homeroomOptions.map((hr) => (
+              <option key={hr} value={hr}>
+                {hr}
+              </option>
+            ))}
+          </Select>
         </div>
         {isAdmin && onAdd && (
           <Button onClick={onAdd} className="gap-2">
@@ -150,7 +176,7 @@ export function StudentsTable({
       {/* Results count */}
       <p className="text-sm text-muted-foreground">
         {filteredAndSorted.length} student{filteredAndSorted.length !== 1 ? "s" : ""}
-        {(search || gradeFilter !== "all" || elFilter !== "all") && " (filtered)"}
+        {(search || gradeFilter !== "all" || elFilter !== "all" || homeroomFilter !== "all") && " (filtered)"}
       </p>
 
       {/* Desktop Table */}
