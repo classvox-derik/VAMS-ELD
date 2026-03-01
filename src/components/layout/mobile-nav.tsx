@@ -10,14 +10,12 @@ import {
   Settings,
   GraduationCap,
   Layers,
-  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "Home", href: "/dashboard", icon: LayoutDashboard },
   { title: "Students", href: "/students", icon: Users },
-  { title: "ELPAC", href: "/elpac-progress", icon: ClipboardList },
   { title: "Create", href: "/create", icon: PenSquare },
   { title: "Library", href: "/library", icon: BookOpen },
   { title: "Scaffolds", href: "/eld-guide/scaffolds", icon: Layers },

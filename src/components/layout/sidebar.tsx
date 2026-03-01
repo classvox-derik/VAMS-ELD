@@ -11,7 +11,6 @@ import {
   Settings,
   GraduationCap,
   Layers,
-  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UsageCounter } from "./usage-counter";
@@ -28,11 +27,6 @@ const navItems = [
     href: "/students",
     icon: Users,
     divider: true,
-  },
-  {
-    title: "ELPAC Progress",
-    href: "/elpac-progress",
-    icon: ClipboardList,
   },
   {
     title: "Create Assignment",
