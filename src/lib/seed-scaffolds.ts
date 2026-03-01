@@ -57,7 +57,7 @@ const defaultScaffolds = [
     category: "chunking",
     el_level_target: ["Emerging"],
     ai_prompt_template:
-      'For each paragraph longer than 4 sentences, break it into smaller chunks of 2-3 sentences. Add between chunks: <div style="margin: 0.75rem 0; padding: 0.5rem; background: #fef3c7; border-left: 3px solid #f59e0b; font-size: 0.875rem; font-weight: 500;">Pause here and re-read before continuing.</div>',
+      'For each paragraph longer than 4 sentences, break it into smaller chunks of 2-3 sentences. Add a blank line between chunks to visually separate them.',
     is_default: true,
   },
   {
@@ -78,7 +78,7 @@ const defaultScaffolds = [
     category: "bilingual_support",
     el_level_target: ["Emerging", "Expanding", "Bridging"],
     ai_prompt_template:
-      "Translate ONLY the student-facing assignment content to Spanish — this includes the original assignment text, reading passages, questions, directions for students, and any text the student would read or respond to. DO NOT translate any teacher-facing or scaffold-generated elements. Keep ALL of the following in English: the assignment title, teacher instructions, scaffold labels and headings ('Word Bank', 'Sentence Frames:', 'Section X of Y', 'Pause here and re-read before continuing', 'Compare & Contrast', 'Scaffolds Applied', etc.), section divider text, and Word Bank terms/definitions. Preserve all HTML structure, inline styles, and formatting. Keep proper nouns, names, and numbers unchanged. The translated student content should read naturally in Spanish. If a Word Bank section exists in the HTML, keep the original English word bank intact and add a second word bank directly below it with the heading 'Banco de Palabras' containing the same terms translated to Spanish with Spanish definitions.",
+      "Translate ONLY the student-facing assignment content to Spanish — this includes the original assignment text, reading passages, questions, directions for students, and any text the student would read or respond to. DO NOT translate any teacher-facing or scaffold-generated elements. Keep ALL of the following in English: the assignment title, teacher instructions, scaffold labels and headings ('Word Bank', 'Sentence Frames:', 'Section X of Y', 'Compare & Contrast', 'Scaffolds Applied', etc.), section divider text, and Word Bank terms/definitions. Preserve all HTML structure, inline styles, and formatting. Keep proper nouns, names, and numbers unchanged. The translated student content should read naturally in Spanish. If a Word Bank section exists in the HTML, keep the original English word bank intact and add a second word bank directly below it with the heading 'Banco de Palabras' containing the same terms translated to Spanish with Spanish definitions.",
     is_default: true,
   },
 ];
