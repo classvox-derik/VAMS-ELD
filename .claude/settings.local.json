@@ -27,7 +27,8 @@
       "Bash(grep:*)",
       "Bash(identify:*)",
       "Bash(npm ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:vamseld.com)"
     ]
   }
 }
