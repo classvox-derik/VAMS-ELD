@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase-server";
 import type { ELLevel } from "@/types";
 import { DashboardGreeting } from "@/components/dashboard/greeting";
 import { AIUsageCard } from "@/components/dashboard/ai-usage-card";
+import { UpdatesCard } from "@/components/dashboard/updates-card";
 
 const levelStyles: Record<ELLevel, string> = {
   Emerging: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
@@ -197,6 +198,9 @@ export default async function DashboardPage() {
           </Button>
         </Card>
       </div>
+
+      {/* What's New */}
+      <UpdatesCard />
     </div>
   );
 }
