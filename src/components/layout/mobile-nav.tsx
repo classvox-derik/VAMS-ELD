@@ -10,6 +10,7 @@ import {
   Settings,
   GraduationCap,
   Layers,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const navItems = [
   { title: "Library", href: "/library", icon: BookOpen },
   { title: "Scaffolds", href: "/eld-guide/scaffolds", icon: Layers },
   { title: "ELD Guide", href: "/eld-guide", icon: GraduationCap },
+  { title: "ELPAC", href: "/elpac-schedule", icon: CalendarDays },
   { title: "Settings", href: "/settings", icon: Settings },
 ];
 

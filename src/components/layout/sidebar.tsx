@@ -11,6 +11,7 @@ import {
   Settings,
   GraduationCap,
   Layers,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UsageCounter } from "./usage-counter";
@@ -48,6 +49,11 @@ const navItems = [
     title: "ELD Guide",
     href: "/eld-guide",
     icon: GraduationCap,
+  },
+  {
+    title: "ELPAC Test Schedule",
+    href: "/elpac-schedule",
+    icon: CalendarDays,
   },
   {
     title: "Settings",
