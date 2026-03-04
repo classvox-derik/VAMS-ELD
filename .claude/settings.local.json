@@ -28,7 +28,8 @@
       "Bash(identify:*)",
       "Bash(npm ls:*)",
       "Bash(cat:*)",
-      "WebFetch(domain:vamseld.com)"
+      "WebFetch(domain:vamseld.com)",
+      "Bash(npx supabase:*)"
     ]
   }
 }

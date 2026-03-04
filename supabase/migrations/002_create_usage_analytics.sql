@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS usage_analytics (
 );
 
 -- Fast lookup: global daily scaffold count
-CREATE INDEX idx_usage_action_created
+CREATE INDEX IF NOT EXISTS idx_usage_action_created
   ON usage_analytics (action_type, created_at);
 
 -- Fast lookup: per-user daily scaffold count
-CREATE INDEX idx_usage_teacher_action_created
+CREATE INDEX IF NOT EXISTS idx_usage_teacher_action_created
   ON usage_analytics (teacher_id, action_type, created_at);

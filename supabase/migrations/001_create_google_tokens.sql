@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS google_tokens (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Allow the service role full access (RLS is off by default for new tables,
--- and the app uses the service-role key for server-side operations).
+-- RLS is enabled in 005_enable_rls.sql.
+-- The app uses the service-role key for server-side operations (bypasses RLS).
