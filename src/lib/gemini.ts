@@ -9,9 +9,8 @@ function isPlaceholder(): boolean {
 }
 
 /** JSON schema for structured Gemini output */
-const scaffoldResponseSchema: Schema = {
-  type: SchemaType.OBJECT,
-  properties: {
+function buildResponseSchema(includeWordBank: boolean): Schema {
+  const properties: Record<string, Schema> = {
     scaffolded_html: {
       type: SchemaType.STRING,
       description:
@@ -23,7 +22,17 @@ const scaffoldResponseSchema: Schema = {
       description:
         "List of scaffold technique names that were actually applied.",
     },
-    word_bank: {
+    teacher_instructions: {
+      type: SchemaType.STRING,
+      description:
+        "Brief instructions for the teacher on how to use this scaffolded assignment (2-3 sentences).",
+    },
+  };
+
+  const required = ["scaffolded_html", "scaffolds_used", "teacher_instructions"];
+
+  if (includeWordBank) {
+    properties.word_bank = {
       type: SchemaType.ARRAY,
       items: {
         type: SchemaType.OBJECT,
@@ -35,22 +44,18 @@ const scaffoldResponseSchema: Schema = {
       },
       description:
         "Key vocabulary terms with simple definitions appropriate for the EL level. 6-12 terms.",
-    },
-    teacher_instructions: {
-      type: SchemaType.STRING,
-      description:
-        "Brief instructions for the teacher on how to use this scaffolded assignment (2-3 sentences).",
-    },
-  },
-  required: [
-    "scaffolded_html",
-    "scaffolds_used",
-    "word_bank",
-    "teacher_instructions",
-  ],
-};
+    };
+    required.push("word_bank");
+  }
 
-function getGeminiModel() {
+  return {
+    type: SchemaType.OBJECT,
+    properties,
+    required,
+  };
+}
+
+function getGeminiModel(includeWordBank: boolean) {
   if (isPlaceholder()) {
     return null;
   }
@@ -59,7 +64,7 @@ function getGeminiModel() {
     model: "gemini-2.5-flash",
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: scaffoldResponseSchema,
+      responseSchema: buildResponseSchema(includeWordBank),
     },
   });
 }
@@ -74,16 +79,21 @@ export interface GenerateParams {
   gradeLevel?: number;
 }
 
+const WORD_BANK_SCAFFOLD_PREFIX = "Word Bank";
+
 export async function generateScaffoldedAssignment(
   params: GenerateParams
 ): Promise<ScaffoldGenerationResult> {
-  const model = getGeminiModel();
+  const includeWordBank = params.scaffoldNames.some((n) =>
+    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX)
+  );
+  const model = getGeminiModel(includeWordBank);
 
   if (!model) {
     return buildMockResult(params);
   }
 
-  const prompt = buildPrompt(params);
+  const prompt = buildPrompt(params, includeWordBank);
 
   try {
     const result = await model.generateContent(prompt);
@@ -122,7 +132,7 @@ function getGeminiModelFallback() {
   return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 }
 
-function buildPrompt(params: GenerateParams): string {
+function buildPrompt(params: GenerateParams, includeWordBank: boolean): string {
   const {
     originalContent,
     elLevel,
@@ -172,7 +182,7 @@ ${scaffoldInstructions}
 - Target the scaffolding complexity for ${elLevel}-level ELL students
 - If a scaffold instruction says to add something "before" or "after" content, place it logically relative to the relevant section
 
-## Rules for word_bank
+${includeWordBank ? `## Rules for word_bank
 - Select 6-12 academic or challenging vocabulary words from the assignment
 - The word_bank field must ALWAYS be in English (terms and definitions), even when a bilingual translation scaffold is applied
 - Definitions should be appropriate for the ${elLevel} EL level
@@ -180,7 +190,7 @@ ${scaffoldInstructions}
 - For Expanding: use clear academic definitions
 - For Bridging: focus on nuanced/domain-specific terms
 
-## Rules for teacher_instructions
+` : ""}## Rules for teacher_instructions
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 
@@ -190,6 +200,9 @@ ${originalContent}`;
 
 function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
   const { originalContent, elLevel, scaffoldNames, title } = params;
+  const includeWordBank = scaffoldNames.some((n) =>
+    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX)
+  );
 
   const scaffoldList = scaffoldNames
     .map((name) => `<li>${name}</li>`)
@@ -227,23 +240,25 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
       ${paragraphs}
     </div>
 
-    <div style="border: 2px solid #2563eb; padding: 1.25rem; margin: 2rem 0; background: #eff6ff; border-radius: 8px;">
+    ${includeWordBank ? `<div style="border: 2px solid #2563eb; padding: 1.25rem; margin: 2rem 0; background: #eff6ff; border-radius: 8px;">
       <h3 style="margin: 0 0 1rem 0; color: #1e40af; font-size: 1.125rem;">Word Bank (Demo)</h3>
       <div style="display: grid; gap: 0.5rem;">
         <div><strong style="color: #1e40af;">scaffold:</strong> A support structure to help with learning</div>
         <div><strong style="color: #1e40af;">differentiate:</strong> To make different versions for different needs</div>
         <div><strong style="color: #1e40af;">assignment:</strong> A task or piece of work given to a student</div>
       </div>
-    </div>
+    </div>` : ""}
   </div>`;
 
   return {
     html,
-    wordBank: [
-      { term: "scaffold", definition: "A support structure to help with learning" },
-      { term: "differentiate", definition: "To make different versions for different needs" },
-      { term: "assignment", definition: "A task or piece of work given to a student" },
-    ],
+    wordBank: includeWordBank
+      ? [
+          { term: "scaffold", definition: "A support structure to help with learning" },
+          { term: "differentiate", definition: "To make different versions for different needs" },
+          { term: "assignment", definition: "A task or piece of work given to a student" },
+        ]
+      : null,
     scaffoldsUsed: scaffoldNames,
     teacherInstructions:
       "This is a demo preview. Connect your Gemini API key for real scaffolding with teacher-specific instructions.",
