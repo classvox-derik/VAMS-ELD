@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { seedScaffoldTemplates } from "@/lib/seed-scaffolds";
 import { seedStudents } from "@/lib/seed-students";
+import { getAuthUser } from "@/lib/get-auth-user";
+import { isAdminEmail } from "@/lib/admin";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthUser(request);
+  if (!user?.email || !isAdminEmail(user.email)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
   const target = searchParams.get("target");
 

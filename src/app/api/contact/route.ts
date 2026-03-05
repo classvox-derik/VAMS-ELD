@@ -35,26 +35,34 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  await transporter.sendMail({
-    from: `"VAMS ELD Platform" <${smtpUser}>`,
-    to: RECIPIENT_EMAIL,
-    subject: `Message from ${firstName.trim()} ${lastName.trim()} – VAMS ELD`,
-    text: `You have a new message from ${firstName.trim()} ${lastName.trim()}:\n\n${message.trim()}`,
-    html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #22223b; border-bottom: 2px solid #22223b; padding-bottom: 8px;">
-          New Message – VAMS ELD Platform
-        </h2>
-        <p style="color: #555; margin-bottom: 4px;"><strong>From:</strong> ${firstName.trim()} ${lastName.trim()}</p>
-        <div style="background: #f5f5f5; border-left: 4px solid #22223b; padding: 16px; margin-top: 16px; border-radius: 4px;">
-          <p style="margin: 0; white-space: pre-wrap; color: #333;">${message.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+  try {
+    await transporter.sendMail({
+      from: `"VAMS ELD Platform" <${smtpUser}>`,
+      to: RECIPIENT_EMAIL,
+      subject: `Message from ${firstName.trim()} ${lastName.trim()} – VAMS ELD`,
+      text: `You have a new message from ${firstName.trim()} ${lastName.trim()}:\n\n${message.trim()}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #22223b; border-bottom: 2px solid #22223b; padding-bottom: 8px;">
+            New Message – VAMS ELD Platform
+          </h2>
+          <p style="color: #555; margin-bottom: 4px;"><strong>From:</strong> ${firstName.trim()} ${lastName.trim()}</p>
+          <div style="background: #f5f5f5; border-left: 4px solid #22223b; padding: 16px; margin-top: 16px; border-radius: 4px;">
+            <p style="margin: 0; white-space: pre-wrap; color: #333;">${message.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+          </div>
+          <p style="color: #999; font-size: 12px; margin-top: 24px;">
+            Sent via the VAMS ELD Scaffolding Platform
+          </p>
         </div>
-        <p style="color: #999; font-size: 12px; margin-top: 24px;">
-          Sent via the VAMS ELD Scaffolding Platform
-        </p>
-      </div>
-    `,
-  });
+      `,
+    });
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Contact email failed:", error);
+    return NextResponse.json(
+      { error: "Failed to send message. Please try again later." },
+      { status: 500 }
+    );
+  }
 }
