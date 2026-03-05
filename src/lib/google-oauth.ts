@@ -3,7 +3,7 @@ import { createClient as createServiceClient } from "@/lib/supabase-server";
 
 const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET ?? "";
-const redirectUri =
+const defaultRedirectUri =
   process.env.GOOGLE_REDIRECT_URI ??
   "http://localhost:3000/api/google-auth/callback";
 
@@ -24,12 +24,26 @@ export function isGoogleConfigured(): boolean {
   );
 }
 
-export function getOAuthClient() {
-  return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+/**
+ * Derive the OAuth callback URL from the current request's origin.
+ * This ensures the redirect URI matches the actual deployment URL
+ * (works in both local dev and production without extra configuration).
+ */
+export function buildCallbackUrl(requestUrl: string): string {
+  const { origin } = new URL(requestUrl);
+  return `${origin}/api/google-auth/callback`;
 }
 
-export function getAuthUrl(): string {
-  const client = getOAuthClient();
+export function getOAuthClient(redirectOverride?: string) {
+  return new google.auth.OAuth2(
+    clientId,
+    clientSecret,
+    redirectOverride ?? defaultRedirectUri
+  );
+}
+
+export function getAuthUrl(callbackUrl: string): string {
+  const client = getOAuthClient(callbackUrl);
   return client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
@@ -37,8 +51,11 @@ export function getAuthUrl(): string {
   });
 }
 
-export async function exchangeCodeForTokens(code: string) {
-  const client = getOAuthClient();
+export async function exchangeCodeForTokens(
+  code: string,
+  callbackUrl: string
+) {
+  const client = getOAuthClient(callbackUrl);
   const { tokens } = await client.getToken(code);
   return tokens;
 }

@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server";
-import { isGoogleConfigured, getAuthUrl } from "@/lib/google-oauth";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  isGoogleConfigured,
+  getAuthUrl,
+  buildCallbackUrl,
+} from "@/lib/google-oauth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!isGoogleConfigured()) {
     return NextResponse.json(
       {
@@ -13,6 +17,7 @@ export async function GET() {
     );
   }
 
-  const url = getAuthUrl();
+  const callbackUrl = buildCallbackUrl(request.url);
+  const url = getAuthUrl(callbackUrl);
   return NextResponse.redirect(url);
 }

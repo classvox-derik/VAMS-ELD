@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import {
   isGoogleConfigured,
   exchangeCodeForTokens,
+  buildCallbackUrl,
   getUserEmail,
   saveGoogleToken,
   GOOGLE_TOKEN_COOKIE,
@@ -76,7 +77,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const tokens = await exchangeCodeForTokens(code);
+    const callbackUrl = buildCallbackUrl(request.url);
+    const tokens = await exchangeCodeForTokens(code, callbackUrl);
 
     if (!tokens.refresh_token) {
       const redirectUrl = new URL("/settings", request.url);
