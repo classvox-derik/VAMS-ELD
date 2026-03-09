@@ -284,7 +284,6 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 - For highlights, use short phrases (5-20 words), NOT entire paragraphs
 - Order actions: highlight_range first, then insert/divider actions (top-to-bottom through the document), then append_section actions last
 - The scaffold_actions should produce equivalent scaffolding to what scaffolded_html contains, but as targeted modifications rather than a full HTML rewrite
-- Image placeholders [IMG:img_0] etc. in the original text represent inline images. Do NOT reference them in search_text for highlights or paragraph_prefix. Treat them as opaque markers.
 
 `;
   }
@@ -303,9 +302,12 @@ Apply the following scaffold modifications to the assignment below. Follow each 
 ### Scaffolds to Apply:
 ${scaffoldInstructions}
 
-## Rules for scaffolded_html
-- Preserve ALL original assignment content — do not remove, summarize, or rewrite the text
-- Apply scaffolds by ADDING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the original content
+## Rules for scaffolded_html (CRITICAL — follow ALL of these)
+- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
+- Preserve the original assignment structure and meaning — do not remove content or summarize
+- EXCEPTION: If a bilingual/translation scaffold is requested, you MUST translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold — it replaces the original language for student-facing text while keeping scaffold labels in English.
+- For color coding scaffolds: you MUST wrap the relevant text with the specified highlight colors. Identify topic sentences, evidence, and transitions throughout the ENTIRE document, not just the first paragraph. Every paragraph should have at least some highlighted text.
+- Apply scaffolds by ADDING or MODIFYING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the content
 - Use inline CSS styles only (no class names that require external stylesheets)
 - Wrap the entire output in a single <div> element
 - Make the output clean, readable, and well-structured for printing
