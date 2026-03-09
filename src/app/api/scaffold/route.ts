@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId, sourceHtml, skipUsageLog } = parsed.data;
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId, skipUsageLog } = parsed.data;
 
     // Look up scaffolds by name instead of fragile indices
     const selectedScaffolds = defaultScaffolds.filter((s) =>
@@ -125,7 +125,6 @@ export async function POST(request: NextRequest) {
       subject: subject || undefined,
       gradeLevel: gradeLevel || undefined,
       sourceDocId: sourceDocId || undefined,
-      sourceHtml: sourceHtml || undefined,
     });
 
     // Store in database with all library fields (graceful failure)
