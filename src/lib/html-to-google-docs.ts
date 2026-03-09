@@ -38,12 +38,19 @@ type BlockType =
   | "paragraph"
   | "list-bullet"
   | "list-number"
-  | "divider";
+  | "divider"
+  | "image";
 
 interface DocumentBlock {
   type: BlockType;
   runs: TextRun[];
   indent?: number;
+  /** For image blocks: the image URI (public URL or data URI) */
+  imageUri?: string;
+  /** Image width in pts */
+  imageWidth?: number;
+  /** Image height in pts */
+  imageHeight?: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -345,6 +352,32 @@ export function parseHtmlToBlocks(html: string): DocumentBlock[] {
         blocks.push({ type: "divider", runs: [] });
         continue;
       }
+      if (tag === "img") {
+        const src = attrs.src || "";
+        if (src) {
+          flushBlock();
+          // Parse width/height from attrs or inline style
+          const css = parseInlineStyle(attrs.style || "");
+          let w = attrs.width ? parseFloat(attrs.width) : undefined;
+          let h = attrs.height ? parseFloat(attrs.height) : undefined;
+          if (!w && css.width) {
+            const m = css.width.match(/^(\d+(?:\.\d+)?)/);
+            if (m) w = +m[1];
+          }
+          if (!h && css.height) {
+            const m = css.height.match(/^(\d+(?:\.\d+)?)/);
+            if (m) h = +m[1];
+          }
+          blocks.push({
+            type: "image",
+            runs: [],
+            imageUri: src,
+            imageWidth: w,
+            imageHeight: h,
+          });
+        }
+        continue;
+      }
 
       if (BLOCK_TAGS.has(tag)) {
         if (tag === "ul" || tag === "ol") {
@@ -449,6 +482,29 @@ export function blocksToDocsRequests(
         end: s + line.length - 1,
         style: { textColor: { red: 0.75, green: 0.75, blue: 0.75 }, fontSize: 8 },
       });
+      continue;
+    }
+
+    if (block.type === "image" && block.imageUri) {
+      // Skip data: URIs — Google Docs API requires publicly accessible URLs
+      if (!block.imageUri.startsWith("data:")) {
+        // Insert a newline as placeholder, then image will be inserted at that position
+        const imgIdx = startIndex + fullText.length;
+        fullText += "\n";
+        requests.push({
+          insertInlineImage: {
+            location: { index: imgIdx },
+            uri: block.imageUri,
+            objectSize: {
+              width: { magnitude: Math.min(block.imageWidth || 400, 500), unit: "PT" },
+              height: { magnitude: block.imageHeight || 300, unit: "PT" },
+            },
+          },
+        });
+      } else {
+        // For data: URIs, insert a placeholder text
+        fullText += "[Image]\n";
+      }
       continue;
     }
 

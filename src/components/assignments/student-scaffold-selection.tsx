@@ -17,7 +17,7 @@ import { StudentSelector, type StudentSelection } from "./student-selector";
 import { ScaffoldPicker } from "./scaffold-picker";
 import { getAllStudents } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
-import type { Student, ELLevel } from "@/types";
+import type { Student, ELLevel, DocImage } from "@/types";
 
 interface StudentScaffoldSelectionProps {
   assignmentTitle: string;
@@ -28,6 +28,8 @@ interface StudentScaffoldSelectionProps {
   contentLength: number;
   /** Google Doc ID when imported from Google Docs (for format-preserving export) */
   sourceDocId?: string;
+  /** Inline images extracted from Google Docs */
+  images?: DocImage[];
   onBack: () => void;
 }
 
@@ -38,6 +40,7 @@ export function StudentScaffoldSelection({
   gradeLevel,
   contentLength,
   sourceDocId,
+  images,
   onBack,
 }: StudentScaffoldSelectionProps) {
   const router = useRouter();
@@ -225,6 +228,7 @@ export function StudentScaffoldSelection({
           originalContent: content,
           generatedAt,
           sourceDocId: sourceDocId || undefined,
+          images: images || undefined,
         };
 
         sessionStorage.setItem(
@@ -308,6 +312,7 @@ export function StudentScaffoldSelection({
         generatedAt,
         sourceDocId: sourceDocId || undefined,
         scaffoldActions: data.scaffoldActions || undefined,
+        images: images || undefined,
       })
     );
 

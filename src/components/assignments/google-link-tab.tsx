@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+import type { DocImage } from "@/types";
+
 interface GoogleLinkTabProps {
   content: string;
-  onChange: (content: string, docId?: string) => void;
+  onChange: (content: string, docId?: string, images?: DocImage[]) => void;
 }
 
 export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
@@ -47,7 +49,7 @@ export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
         return;
       }
 
-      onChange(data.content, data.docId);
+      onChange(data.content, data.docId, data.images);
       setDocTitle(data.title);
       setImported(true);
     } catch {

@@ -20,7 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ELBadge } from "@/components/students/el-badge";
 import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
-import type { ELLevel } from "@/types";
+import { injectImagesIntoHtml } from "@/lib/inject-images";
+import type { ELLevel, DocImage } from "@/types";
 
 interface ScaffoldResult {
   outputHtml: string;
@@ -39,6 +40,8 @@ interface ScaffoldResult {
   // Format-preserving export fields
   sourceDocId?: string;
   scaffoldActions?: unknown[];
+  // Inline images from Google Docs
+  images?: DocImage[];
   // Batch mode
   isBatch?: boolean;
   levels?: BatchLevel[];
@@ -342,7 +345,11 @@ function ScaffoldResultContent() {
                 <CardContent>
                   <div
                     className="scaffold-preview rounded-lg border bg-white p-6 dark:bg-gray-50"
-                    dangerouslySetInnerHTML={{ __html: lvl.outputHtml }}
+                    dangerouslySetInnerHTML={{
+                      __html: result.images?.length
+                        ? injectImagesIntoHtml(lvl.outputHtml, result.images)
+                        : lvl.outputHtml,
+                    }}
                   />
                 </CardContent>
               </Card>
@@ -544,7 +551,11 @@ function ScaffoldResultContent() {
           <div
             id="scaffold-preview-content"
             className="scaffold-preview rounded-lg border bg-white p-6 dark:bg-gray-50"
-            dangerouslySetInnerHTML={{ __html: result.outputHtml }}
+            dangerouslySetInnerHTML={{
+              __html: result.images?.length
+                ? injectImagesIntoHtml(result.outputHtml, result.images)
+                : result.outputHtml,
+            }}
           />
         </CardContent>
       </Card>

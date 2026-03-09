@@ -132,6 +132,22 @@ export interface UsageAnalytic {
   created_at: string;
 }
 
+// ---------------------------------------------------------------------------
+// Document images extracted from Google Docs
+// ---------------------------------------------------------------------------
+
+export interface DocImage {
+  /** Placeholder ID, e.g. "img_0", "img_1" */
+  id: string;
+  /** Base64 data URI, e.g. "data:image/png;base64,..." */
+  base64: string;
+  /** Width in points */
+  width?: number;
+  /** Height in points */
+  height?: number;
+  mimeType: string;
+}
+
 // Enums and union types
 
 export type ELLevel = "Emerging" | "Expanding" | "Bridging";

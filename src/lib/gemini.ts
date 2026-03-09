@@ -284,6 +284,7 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 - For highlights, use short phrases (5-20 words), NOT entire paragraphs
 - Order actions: highlight_range first, then insert/divider actions (top-to-bottom through the document), then append_section actions last
 - The scaffold_actions should produce equivalent scaffolding to what scaffolded_html contains, but as targeted modifications rather than a full HTML rewrite
+- Image placeholders [IMG:img_0] etc. in the original text represent inline images. Do NOT reference them in search_text for highlights or paragraph_prefix. Treat them as opaque markers.
 
 `;
   }
@@ -310,6 +311,7 @@ ${scaffoldInstructions}
 - Make the output clean, readable, and well-structured for printing
 - Target the scaffolding complexity for ${elLevel}-level ELL students
 - If a scaffold instruction says to add something "before" or "after" content, place it logically relative to the relevant section
+- If the original content contains image placeholders like [IMG:img_0], [IMG:img_1], etc., you MUST preserve these placeholders EXACTLY as they appear. Place each one in its own paragraph tag: <p>[IMG:img_0]</p>. Do NOT modify, remove, or reorder image placeholders.
 
 ${includeWordBank ? `## Rules for word_bank
 - Select 6-12 academic or challenging vocabulary words from the assignment

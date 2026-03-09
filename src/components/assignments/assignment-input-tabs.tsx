@@ -7,11 +7,12 @@ import { TextInputTab } from "./text-input-tab";
 import { FileUploadTab } from "./file-upload-tab";
 import { GoogleLinkTab } from "./google-link-tab";
 import type { SourceType } from "@/lib/hooks/use-assignment-form";
+import type { DocImage } from "@/types";
 
 interface AssignmentInputTabsProps {
   content: string;
   sourceType: SourceType;
-  onContentChange: (content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string) => void;
+  onContentChange: (content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string, images?: DocImage[]) => void;
 }
 
 export function AssignmentInputTabs({
@@ -60,7 +61,7 @@ export function AssignmentInputTabs({
       <TabsContent value="google_doc">
         <GoogleLinkTab
           content={activeTab === "google_doc" ? content : ""}
-          onChange={(text, docId) => onContentChange(text, "google_doc", undefined, docId)}
+          onChange={(text, docId, images) => onContentChange(text, "google_doc", undefined, docId, images)}
         />
       </TabsContent>
     </Tabs>
