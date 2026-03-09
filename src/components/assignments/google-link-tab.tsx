@@ -6,14 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-import type { DocImage } from "@/types";
-
 interface GoogleLinkTabProps {
   content: string;
-  onChange: (content: string, docId?: string, images?: DocImage[]) => void;
+  /** Full HTML from Google Drive export for 1:1 preview */
+  sourceHtml?: string;
+  onChange: (content: string, docId?: string, sourceHtml?: string) => void;
 }
 
-export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
+export function GoogleLinkTab({ content, sourceHtml, onChange }: GoogleLinkTabProps) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,7 +49,7 @@ export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
         return;
       }
 
-      onChange(data.content, data.docId, data.images);
+      onChange(data.content, data.docId, data.sourceHtml);
       setDocTitle(data.title);
       setImported(true);
     } catch {
@@ -142,20 +142,26 @@ export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Paste the URL of any Google Doc your account has access to. The text
-          content will be extracted for scaffolding.
+          Paste the URL of any Google Doc your account has access to.
         </p>
       </div>
 
-      {/* Preview of imported content */}
+      {/* Preview of imported content — show rich HTML when available, plain text fallback */}
       {content && (
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            Imported Content
+            Document Preview
           </label>
-          <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm whitespace-pre-wrap dark:border-gray-700 dark:bg-gray-800/30">
-            {content}
-          </div>
+          {sourceHtml ? (
+            <div
+              className="max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-50 scaffold-preview"
+              dangerouslySetInnerHTML={{ __html: sourceHtml }}
+            />
+          ) : (
+            <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm whitespace-pre-wrap dark:border-gray-700 dark:bg-gray-800/30">
+              {content}
+            </div>
+          )}
         </div>
       )}
     </div>

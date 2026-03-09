@@ -159,6 +159,8 @@ export interface GenerateParams {
   gradeLevel?: number;
   /** When set, Gemini also produces scaffold_actions for clone-based export */
   sourceDocId?: string;
+  /** Full HTML from Google Drive export — when provided, Gemini scaffolds on top of this HTML */
+  sourceHtml?: string;
 }
 
 const WORD_BANK_SCAFFOLD_PREFIX = "Word Bank";
@@ -234,6 +236,7 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
     title,
     subject,
     gradeLevel,
+    sourceHtml,
   } = params;
 
   const scaffoldInstructions = scaffoldPrompts
@@ -304,14 +307,18 @@ Apply the following scaffold modifications to the assignment below. Follow each 
 ${scaffoldInstructions}
 
 ## Rules for scaffolded_html
-- Preserve ALL original assignment content — do not remove, summarize, or rewrite the text
+${sourceHtml ? `- You are given the FULL HTML of the original Google Doc below. Your output MUST preserve the original HTML structure, styles, formatting, and images EXACTLY as they are.
+- Apply scaffolds by INSERTING new HTML elements (highlights, section dividers, word banks, sentence frames, etc.) INTO or AROUND the existing HTML content. Do NOT rewrite or restructure the existing HTML.
+- Preserve all existing inline styles, <style> blocks, <img> tags, and formatting from the original HTML.
+- For highlights: wrap target text spans with <span style="background-color: #COLOR;">...</span>
+- For word banks, sentence frames, and other appended sections: add them AFTER the original document content inside the wrapper div.
+- The output must be the complete modified HTML — a single <div> containing the original styles, the original body content (with scaffold additions), and any appended sections.` : `- Preserve ALL original assignment content — do not remove, summarize, or rewrite the text
 - Apply scaffolds by ADDING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the original content
 - Use inline CSS styles only (no class names that require external stylesheets)
-- Wrap the entire output in a single <div> element
+- Wrap the entire output in a single <div> element`}
 - Make the output clean, readable, and well-structured for printing
 - Target the scaffolding complexity for ${elLevel}-level ELL students
 - If a scaffold instruction says to add something "before" or "after" content, place it logically relative to the relevant section
-- If the original content contains image placeholders like [IMG:img_0], [IMG:img_1], etc., you MUST preserve these placeholders EXACTLY as they appear. Place each one in its own paragraph tag: <p>[IMG:img_0]</p>. Do NOT modify, remove, or reorder image placeholders.
 
 ${includeWordBank ? `## Rules for word_bank
 - Select 6-12 academic or challenging vocabulary words from the assignment
@@ -325,8 +332,12 @@ ${includeWordBank ? `## Rules for word_bank
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 ${actionsSection}
-## Original Assignment:
-${originalContent}`;
+${sourceHtml ? `## Original Assignment (Full HTML from Google Docs):
+${sourceHtml}
+
+## Original Assignment (Plain Text — use for scaffold_actions search_text matching):
+${originalContent}` : `## Original Assignment:
+${originalContent}`}`;
 }
 
 function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {

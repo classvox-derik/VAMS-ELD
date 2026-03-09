@@ -11,7 +11,6 @@ import { StudentScaffoldSelection } from "@/components/assignments/student-scaff
 import { useAssignmentForm } from "@/lib/hooks/use-assignment-form";
 import { cn } from "@/lib/utils";
 import type { AssignmentDetailsFormValues } from "@/lib/validations";
-import type { DocImage } from "@/types";
 
 const steps = [
   { number: 1, label: "Input Assignment" },
@@ -23,8 +22,8 @@ export default function CreateAssignmentPage() {
   const form = useAssignmentForm();
 
   const handleContentChange = useCallback(
-    (content: string, sourceType: "text" | "upload" | "google_doc", fileName?: string, sourceDocId?: string, images?: DocImage[]) => {
-      form.updateContent(content, sourceType, fileName, sourceDocId, images);
+    (content: string, sourceType: "text" | "upload" | "google_doc", fileName?: string, sourceDocId?: string, sourceHtml?: string) => {
+      form.updateContent(content, sourceType, fileName, sourceDocId, undefined, sourceHtml);
     },
     [form]
   );
@@ -104,6 +103,7 @@ export default function CreateAssignmentPage() {
             <AssignmentInputTabs
               content={form.content}
               sourceType={form.sourceType}
+              sourceHtml={form.sourceHtml}
               onContentChange={handleContentChange}
             />
             <div className="flex justify-end pt-2">
@@ -157,7 +157,7 @@ export default function CreateAssignmentPage() {
               gradeLevel={form.gradeLevel}
               contentLength={form.content.length}
               sourceDocId={form.sourceDocId}
-              images={form.images}
+              sourceHtml={form.sourceHtml}
               onBack={form.prevStep}
             />
           </CardContent>

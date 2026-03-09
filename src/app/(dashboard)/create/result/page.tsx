@@ -20,8 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ELBadge } from "@/components/students/el-badge";
 import { useGoogleDocsExport } from "@/lib/hooks/use-google-docs-export";
-import { injectImagesIntoHtml } from "@/lib/inject-images";
-import type { ELLevel, DocImage } from "@/types";
+import type { ELLevel } from "@/types";
 
 interface ScaffoldResult {
   outputHtml: string;
@@ -40,8 +39,8 @@ interface ScaffoldResult {
   // Format-preserving export fields
   sourceDocId?: string;
   scaffoldActions?: unknown[];
-  // Inline images from Google Docs
-  images?: DocImage[];
+  /** Full HTML from Google Drive export (for original preview) */
+  sourceHtml?: string;
   // Batch mode
   isBatch?: boolean;
   levels?: BatchLevel[];
@@ -345,11 +344,7 @@ function ScaffoldResultContent() {
                 <CardContent>
                   <div
                     className="scaffold-preview rounded-lg border bg-white p-6 dark:bg-gray-50"
-                    dangerouslySetInnerHTML={{
-                      __html: result.images?.length
-                        ? injectImagesIntoHtml(lvl.outputHtml, result.images)
-                        : lvl.outputHtml,
-                    }}
+                    dangerouslySetInnerHTML={{ __html: lvl.outputHtml }}
                   />
                 </CardContent>
               </Card>
@@ -484,9 +479,16 @@ function ScaffoldResultContent() {
           </CardHeader>
           {showOriginal && (
             <CardContent className="pt-3">
-              <div className="rounded-xl border border-eld-almond-silk/40 bg-eld-seashell/50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
-                {result.originalContent}
-              </div>
+              {result.sourceHtml ? (
+                <div
+                  className="rounded-xl border border-eld-almond-silk/40 bg-white p-4 max-h-96 overflow-y-auto scrollbar-thin scaffold-preview"
+                  dangerouslySetInnerHTML={{ __html: result.sourceHtml }}
+                />
+              ) : (
+                <div className="rounded-xl border border-eld-almond-silk/40 bg-eld-seashell/50 p-4 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto scrollbar-thin dark:border-gray-700 dark:bg-gray-800/30">
+                  {result.originalContent}
+                </div>
+              )}
             </CardContent>
           )}
         </Card>
@@ -551,11 +553,7 @@ function ScaffoldResultContent() {
           <div
             id="scaffold-preview-content"
             className="scaffold-preview rounded-lg border bg-white p-6 dark:bg-gray-50"
-            dangerouslySetInnerHTML={{
-              __html: result.images?.length
-                ? injectImagesIntoHtml(result.outputHtml, result.images)
-                : result.outputHtml,
-            }}
+            dangerouslySetInnerHTML={{ __html: result.outputHtml }}
           />
         </CardContent>
       </Card>

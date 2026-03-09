@@ -8,116 +8,58 @@ import {
   GOOGLE_TOKEN_COOKIE,
 } from "@/lib/google-oauth";
 import { getAuthUser } from "@/lib/get-auth-user";
-import type { DocImage } from "@/types";
-
-// Max total image payload (8 MB) and per-image limit (2 MB)
-const MAX_TOTAL_IMAGE_BYTES = 8 * 1024 * 1024;
-const MAX_SINGLE_IMAGE_BYTES = 2 * 1024 * 1024;
 
 // Extract document ID from various Google Docs URL formats
 function extractDocId(url: string): string | null {
-  // Format: https://docs.google.com/document/d/DOCUMENT_ID/...
   const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
   return match?.[1] ?? null;
 }
 
-// Download an image from a Google Docs contentUri using the OAuth access token
-async function downloadImage(
-  contentUri: string,
-  accessToken: string,
-): Promise<{ base64: string; mimeType: string; byteLength: number } | null> {
-  try {
-    const response = await fetch(contentUri, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    if (!response.ok) return null;
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.byteLength > MAX_SINGLE_IMAGE_BYTES) return null;
-
-    const mimeType = response.headers.get("content-type") || "image/png";
-    return {
-      base64: `data:${mimeType};base64,${buffer.toString("base64")}`,
-      mimeType,
-      byteLength: buffer.byteLength,
-    };
-  } catch (err) {
-    console.warn("[Import] Failed to download image:", err);
-    return null;
-  }
-}
-
-// Google Docs inline object shape (from documents.get response)
-interface InlineObjectMap {
-  [objectId: string]: {
-    inlineObjectProperties?: {
-      embeddedObject?: {
-        imageProperties?: {
-          contentUri?: string;
-        };
-        size?: {
-          width?: { magnitude?: number };
-          height?: { magnitude?: number };
-        };
-        title?: string;
-        description?: string;
-      };
-    };
-  };
-}
-
-interface ParagraphElement {
-  textRun?: { content?: string };
-  inlineObjectElement?: { inlineObjectId?: string };
-}
-
-interface ExtractResult {
-  text: string;
-  imageObjectIds: string[]; // ordered list of encountered objectIds
-}
-
-// Convert Google Docs structural elements to plain text, inserting image placeholders
-function extractTextWithImages(
-  elements: Array<Record<string, unknown>>,
-  imageObjectIds: string[] = [],
-): ExtractResult {
+// Extract plain text from Google Docs structural elements (for validation & Gemini scaffold_actions)
+function extractText(elements: Array<Record<string, unknown>>): string {
   let text = "";
-
   for (const element of elements) {
     if (element.paragraph) {
       const paragraph = element.paragraph as {
-        elements?: ParagraphElement[];
+        elements?: Array<{ textRun?: { content?: string } }>;
       };
       for (const el of paragraph.elements ?? []) {
-        if (el.textRun?.content) {
-          text += el.textRun.content;
-        } else if (el.inlineObjectElement?.inlineObjectId) {
-          const objId = el.inlineObjectElement.inlineObjectId;
-          const imgIdx = imageObjectIds.length;
-          imageObjectIds.push(objId);
-          text += `[IMG:img_${imgIdx}]`;
-        }
+        if (el.textRun?.content) text += el.textRun.content;
       }
     } else if (element.table) {
       const table = element.table as {
         tableRows?: Array<{
-          tableCells?: Array<{
-            content?: Array<Record<string, unknown>>;
-          }>;
+          tableCells?: Array<{ content?: Array<Record<string, unknown>> }>;
         }>;
       };
       for (const row of table.tableRows ?? []) {
         const cells: string[] = [];
         for (const cell of row.tableCells ?? []) {
-          const result = extractTextWithImages(cell.content ?? [], imageObjectIds);
-          cells.push(result.text.trim());
+          cells.push(extractText(cell.content ?? []).trim());
         }
         text += cells.join("\t") + "\n";
       }
     }
   }
+  return text;
+}
 
-  return { text, imageObjectIds };
+/**
+ * Extract the <body> inner HTML and essential <style> from Google's HTML export.
+ * Google wraps everything in <html><head><style>...</style></head><body>...</body></html>.
+ * We keep the styles so formatting is preserved, and wrap them with the body content.
+ */
+function extractHtmlBody(rawHtml: string): string {
+  // Extract <style> blocks from <head>
+  const styleMatches = rawHtml.match(/<style[^>]*>[\s\S]*?<\/style>/gi);
+  const styles = styleMatches ? styleMatches.join("\n") : "";
+
+  // Extract <body> inner content
+  const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const bodyContent = bodyMatch ? bodyMatch[1] : rawHtml;
+
+  // Combine styles + body in a scoped wrapper div
+  return `<div class="google-doc-import">${styles}${bodyContent}</div>`;
 }
 
 export async function POST(request: NextRequest) {
@@ -178,80 +120,50 @@ export async function POST(request: NextRequest) {
     }
 
     const auth = await getAuthenticatedClient(refreshToken);
+
+    // Run both API calls in parallel:
+    // 1. Google Docs API — get document title + plain text (for validation & scaffold_actions)
+    // 2. Google Drive API — export as HTML (for 1:1 visual replica)
     const docs = google.docs({ version: "v1", auth });
+    const drive = google.drive({ version: "v3", auth });
 
-    // Fetch the document
-    const doc = await docs.documents.get({ documentId: docId });
+    const [docResult, htmlResult] = await Promise.all([
+      docs.documents.get({ documentId: docId }),
+      drive.files.export({ fileId: docId, mimeType: "text/html" }, { responseType: "text" }),
+    ]);
 
-    const title = doc.data.title ?? "Untitled";
-    const body2 = doc.data.body;
+    const title = docResult.data.title ?? "Untitled";
+    const docBody = docResult.data.body;
 
-    if (!body2?.content) {
+    if (!docBody?.content) {
       return NextResponse.json(
         { error: "Document is empty or could not be read." },
         { status: 400 }
       );
     }
 
-    // Extract text with image placeholders
-    const { text: content, imageObjectIds } = extractTextWithImages(
-      body2.content as Array<Record<string, unknown>>
-    );
+    // Plain text for validation and Gemini scaffold_actions
+    const content = extractText(docBody.content as Array<Record<string, unknown>>).trim();
 
-    const trimmedContent = content.trim();
-    if (!trimmedContent) {
+    if (!content) {
       return NextResponse.json(
         { error: "No text content found in this document." },
         { status: 400 }
       );
     }
 
-    // Extract images from inlineObjects
-    const images: DocImage[] = [];
-    const inlineObjects = (doc.data.inlineObjects ?? {}) as InlineObjectMap;
-    const accessToken = (await auth.getAccessToken()).token;
+    // Full HTML from Drive export — exact 1:1 replica of the Google Doc
+    const rawHtml = htmlResult.data as string;
+    const sourceHtml = extractHtmlBody(rawHtml);
 
-    if (accessToken && imageObjectIds.length > 0) {
-      let totalBytes = 0;
-
-      for (let i = 0; i < imageObjectIds.length; i++) {
-        const objId = imageObjectIds[i];
-        const obj = inlineObjects[objId];
-        const embedded = obj?.inlineObjectProperties?.embeddedObject;
-        const contentUri = embedded?.imageProperties?.contentUri;
-
-        // Skip non-image objects (drawings, etc.)
-        if (!contentUri) continue;
-
-        // Stop if total payload would exceed limit
-        if (totalBytes >= MAX_TOTAL_IMAGE_BYTES) {
-          console.warn(`[Import] Skipping remaining images — total exceeds ${MAX_TOTAL_IMAGE_BYTES} bytes`);
-          break;
-        }
-
-        const downloaded = await downloadImage(contentUri, accessToken);
-        if (!downloaded) continue;
-
-        totalBytes += downloaded.byteLength;
-
-        images.push({
-          id: `img_${i}`,
-          base64: downloaded.base64,
-          mimeType: downloaded.mimeType,
-          width: embedded?.size?.width?.magnitude,
-          height: embedded?.size?.height?.magnitude,
-        });
-      }
-
-      console.log(`[Import] Extracted ${images.length} image(s), total ~${Math.round(totalBytes / 1024)} KB`);
-    }
+    console.log(`[Import] Imported "${title}" — plaintext: ${content.length} chars, HTML: ${sourceHtml.length} chars`);
 
     return NextResponse.json({
       success: true,
       title,
-      content: trimmedContent,
+      content,
       docId,
-      images: images.length > 0 ? images : undefined,
+      sourceHtml,
     });
   } catch (error) {
     console.error("Google Docs import error:", error);

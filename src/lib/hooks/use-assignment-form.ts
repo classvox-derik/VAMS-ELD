@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { DocImage } from "@/types";
 
 export type AssignmentStep = 1 | 2 | 3;
 export type SourceType = "text" | "upload" | "google_doc";
@@ -13,8 +12,8 @@ interface AssignmentFormState {
   fileName?: string;
   /** Google Doc ID when source is google_doc (for format-preserving export) */
   sourceDocId?: string;
-  /** Inline images extracted from Google Docs */
-  images?: DocImage[];
+  /** Full HTML export from Google Drive (for 1:1 preview replica) */
+  sourceHtml?: string;
 
   // Step 2: Details
   title: string;
@@ -36,7 +35,7 @@ const initialState: AssignmentFormState = {
   sourceType: "text",
   fileName: undefined,
   sourceDocId: undefined,
-  images: undefined,
+  sourceHtml: undefined,
   title: "",
   subject: "",
   gradeLevel: undefined,
@@ -50,15 +49,15 @@ const initialState: AssignmentFormState = {
 export function useAssignmentForm() {
   const [state, setState] = useState<AssignmentFormState>(initialState);
 
-  const updateContent = useCallback((content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string, images?: DocImage[]) => {
+  const updateContent = useCallback((content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string, _images?: unknown, sourceHtml?: string) => {
     setState((prev) => ({
       ...prev,
       content,
       sourceType,
       fileName,
-      // Only keep sourceDocId and images when source is google_doc
+      // Only keep Google Doc fields when source is google_doc
       sourceDocId: sourceType === "google_doc" ? sourceDocId : undefined,
-      images: sourceType === "google_doc" ? images : undefined,
+      sourceHtml: sourceType === "google_doc" ? sourceHtml : undefined,
     }));
   }, []);
 

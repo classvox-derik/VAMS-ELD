@@ -44,6 +44,8 @@ export const scaffoldRequestSchema = z.object({
   studentName: z.string().max(200).optional(),
   /** Google Doc ID when imported from Google Docs (enables format-preserving export) */
   sourceDocId: z.string().optional(),
+  /** Full HTML from Google Drive export (for scaffolding on top of original formatting) */
+  sourceHtml: z.string().max(500000).optional(),
   /** Skip usage logging for batch calls after the first (counts as 1 generation) */
   skipUsageLog: z.boolean().optional(),
 });

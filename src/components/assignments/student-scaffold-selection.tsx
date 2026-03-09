@@ -17,7 +17,7 @@ import { StudentSelector, type StudentSelection } from "./student-selector";
 import { ScaffoldPicker } from "./scaffold-picker";
 import { getAllStudents } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
-import type { Student, ELLevel, DocImage } from "@/types";
+import type { Student, ELLevel } from "@/types";
 
 interface StudentScaffoldSelectionProps {
   assignmentTitle: string;
@@ -28,8 +28,8 @@ interface StudentScaffoldSelectionProps {
   contentLength: number;
   /** Google Doc ID when imported from Google Docs (for format-preserving export) */
   sourceDocId?: string;
-  /** Inline images extracted from Google Docs */
-  images?: DocImage[];
+  /** Full HTML from Google Drive export (for 1:1 preview) */
+  sourceHtml?: string;
   onBack: () => void;
 }
 
@@ -40,7 +40,7 @@ export function StudentScaffoldSelection({
   gradeLevel,
   contentLength,
   sourceDocId,
-  images,
+  sourceHtml,
   onBack,
 }: StudentScaffoldSelectionProps) {
   const router = useRouter();
@@ -183,6 +183,7 @@ export function StudentScaffoldSelection({
           studentIds: !isSingle ? levelStudents.map((s) => s.id) : undefined,
           studentName,
           sourceDocId,
+          sourceHtml,
         });
 
         storeAndNavigate(result, studentName, level);
@@ -201,6 +202,7 @@ export function StudentScaffoldSelection({
               studentIds: levelStudents.map((s) => s.id),
               studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
               sourceDocId,
+              sourceHtml,
               skipUsageLog: idx > 0,
             })
           )
@@ -228,7 +230,7 @@ export function StudentScaffoldSelection({
           originalContent: content,
           generatedAt,
           sourceDocId: sourceDocId || undefined,
-          images: images || undefined,
+          sourceHtml: sourceHtml || undefined,
         };
 
         sessionStorage.setItem(
@@ -267,6 +269,7 @@ export function StudentScaffoldSelection({
     studentIds?: string[];
     studentName?: string;
     sourceDocId?: string;
+    sourceHtml?: string;
     skipUsageLog?: boolean;
   }) {
     const response = await fetch("/api/scaffold", {
@@ -312,7 +315,7 @@ export function StudentScaffoldSelection({
         generatedAt,
         sourceDocId: sourceDocId || undefined,
         scaffoldActions: data.scaffoldActions || undefined,
-        images: images || undefined,
+        sourceHtml: sourceHtml || undefined,
       })
     );
 
