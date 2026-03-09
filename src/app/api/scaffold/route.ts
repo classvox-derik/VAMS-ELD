@@ -88,8 +88,10 @@ export async function POST(request: NextRequest) {
     // Zod validation
     const parsed = scaffoldRequestSchema.safeParse(body);
     if (!parsed.success) {
+      const flattened = parsed.error.flatten();
+      console.error("[Scaffold API] Validation failed:", JSON.stringify(flattened, null, 2));
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        { error: "Validation failed", details: flattened },
         { status: 400 }
       );
     }

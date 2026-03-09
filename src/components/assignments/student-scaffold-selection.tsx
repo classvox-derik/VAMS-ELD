@@ -281,8 +281,10 @@ export function StudentScaffoldSelection({
     const data = await response.json();
 
     if (!response.ok) {
-      const msg = data.detail
-        ? `${data.error}: ${data.detail}`
+      console.error("[Scaffold] API error:", data);
+      const details = data.details || data.detail;
+      const msg = details
+        ? `${data.error}: ${JSON.stringify(details)}`
         : data.error || "Generation failed";
       throw new Error(msg);
     }
