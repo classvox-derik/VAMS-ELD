@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import type { DifferentiatedAssignment, ELLevel } from "@/types";
+import type { DifferentiatedAssignment, ELLevel, ScaffoldAction } from "@/types";
 
 export async function createDifferentiatedAssignment(data: {
   assignment_id: string;
@@ -15,6 +15,8 @@ export async function createDifferentiatedAssignment(data: {
   teacher_instructions?: string | null;
   is_demo?: boolean;
   teacher_notes?: string;
+  source_doc_id?: string;
+  scaffold_actions?: ScaffoldAction[] | null;
 }): Promise<DifferentiatedAssignment> {
   const supabase = createClient();
   const { data: result, error } = await supabase

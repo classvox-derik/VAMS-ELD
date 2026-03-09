@@ -10,6 +10,8 @@ interface AssignmentFormState {
   content: string;
   sourceType: SourceType;
   fileName?: string;
+  /** Google Doc ID when source is google_doc (for format-preserving export) */
+  sourceDocId?: string;
 
   // Step 2: Details
   title: string;
@@ -30,6 +32,7 @@ const initialState: AssignmentFormState = {
   content: "",
   sourceType: "text",
   fileName: undefined,
+  sourceDocId: undefined,
   title: "",
   subject: "",
   gradeLevel: undefined,
@@ -43,8 +46,15 @@ const initialState: AssignmentFormState = {
 export function useAssignmentForm() {
   const [state, setState] = useState<AssignmentFormState>(initialState);
 
-  const updateContent = useCallback((content: string, sourceType: SourceType, fileName?: string) => {
-    setState((prev) => ({ ...prev, content, sourceType, fileName }));
+  const updateContent = useCallback((content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string) => {
+    setState((prev) => ({
+      ...prev,
+      content,
+      sourceType,
+      fileName,
+      // Only keep sourceDocId when source is google_doc
+      sourceDocId: sourceType === "google_doc" ? sourceDocId : undefined,
+    }));
   }, []);
 
   const updateDetails = useCallback((details: { title: string; subject: string; gradeLevel?: number }) => {

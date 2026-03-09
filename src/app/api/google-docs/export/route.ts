@@ -9,6 +9,7 @@ import {
 } from "@/lib/google-oauth";
 import { getAuthUser } from "@/lib/get-auth-user";
 import { buildDocumentRequests } from "@/lib/html-to-google-docs";
+import type { ScaffoldAction } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,6 +55,8 @@ export async function POST(request: NextRequest) {
       scaffoldsApplied,
       wordBank,
       teacherInstructions,
+      sourceDocId,
+      scaffoldActions,
     } = body;
 
     if (!title || !outputHtml) {
@@ -64,6 +67,59 @@ export async function POST(request: NextRequest) {
     }
 
     const auth = await getAuthenticatedClient(refreshToken);
+
+    // -----------------------------------------------------------------------
+    // Clone + Apply path: when source is a Google Doc with scaffold actions
+    // -----------------------------------------------------------------------
+    if (sourceDocId && scaffoldActions?.length > 0) {
+      try {
+        const drive = google.drive({ version: "v3", auth });
+
+        // 1. Clone the original document
+        const copyResponse = await drive.files.copy({
+          fileId: sourceDocId,
+          requestBody: {
+            name: `${title} - ${elLevel} Scaffolded`,
+          },
+        });
+
+        const clonedDocId = copyResponse.data.id;
+        if (!clonedDocId) {
+          throw new Error("Failed to clone Google Doc");
+        }
+
+        // 2. Apply scaffold modifications to the clone
+        const { applyScaffoldsToClonedDoc } = await import(
+          "@/lib/google-docs-scaffolder"
+        );
+        const stats = await applyScaffoldsToClonedDoc(
+          auth,
+          clonedDocId,
+          scaffoldActions as ScaffoldAction[],
+          elLevel
+        );
+
+        const docUrl = `https://docs.google.com/document/d/${clonedDocId}/edit`;
+
+        return NextResponse.json({
+          success: true,
+          docId: clonedDocId,
+          docUrl,
+          exportMethod: "clone_and_apply",
+          scaffoldStats: stats,
+        });
+      } catch (cloneError) {
+        // If clone fails, fall through to HTML-based export
+        console.error(
+          "Clone+apply export failed, falling back to HTML export:",
+          cloneError
+        );
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // HTML-based path: create new doc from scaffolded HTML (original flow)
+    // -----------------------------------------------------------------------
     const docs = google.docs({ version: "v1", auth });
 
     // 1. Create a new Google Doc
@@ -102,6 +158,7 @@ export async function POST(request: NextRequest) {
       success: true,
       docId,
       docUrl,
+      exportMethod: "html_to_doc",
     });
   } catch (error) {
     console.error("Google Docs export error:", error);

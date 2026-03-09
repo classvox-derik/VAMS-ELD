@@ -8,7 +8,7 @@ import Link from "next/link";
 
 interface GoogleLinkTabProps {
   content: string;
-  onChange: (content: string) => void;
+  onChange: (content: string, docId?: string) => void;
 }
 
 export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
@@ -47,7 +47,7 @@ export function GoogleLinkTab({ content, onChange }: GoogleLinkTabProps) {
         return;
       }
 
-      onChange(data.content);
+      onChange(data.content, data.docId);
       setDocTitle(data.title);
       setImported(true);
     } catch {

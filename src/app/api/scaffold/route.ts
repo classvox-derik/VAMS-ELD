@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName } = parsed.data;
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId } = parsed.data;
 
     // Look up scaffolds by name instead of fragile indices
     const selectedScaffolds = defaultScaffolds.filter((s) =>
@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
       title,
       subject: subject || undefined,
       gradeLevel: gradeLevel || undefined,
+      sourceDocId: sourceDocId || undefined,
     });
 
     // Store in database with all library fields (graceful failure)
@@ -143,6 +144,8 @@ export async function POST(request: NextRequest) {
         word_bank: result.wordBank,
         teacher_instructions: result.teacherInstructions,
         is_demo: result.isDemo,
+        source_doc_id: sourceDocId || undefined,
+        scaffold_actions: result.scaffoldActions || undefined,
       });
       storedId = stored.id;
     } catch (err) {
@@ -184,6 +187,7 @@ export async function POST(request: NextRequest) {
       teacherInstructions: result.teacherInstructions,
       isDemo: result.isDemo,
       scaffoldsApplied: scaffoldNames,
+      scaffoldActions: result.scaffoldActions || null,
       storedId,
       updatedUsage,
     });

@@ -22,8 +22,8 @@ export default function CreateAssignmentPage() {
   const form = useAssignmentForm();
 
   const handleContentChange = useCallback(
-    (content: string, sourceType: "text" | "upload" | "google_doc", fileName?: string) => {
-      form.updateContent(content, sourceType, fileName);
+    (content: string, sourceType: "text" | "upload" | "google_doc", fileName?: string, sourceDocId?: string) => {
+      form.updateContent(content, sourceType, fileName, sourceDocId);
     },
     [form]
   );
@@ -155,6 +155,7 @@ export default function CreateAssignmentPage() {
               sourceType={form.sourceType}
               gradeLevel={form.gradeLevel}
               contentLength={form.content.length}
+              sourceDocId={form.sourceDocId}
               onBack={form.prevStep}
             />
           </CardContent>

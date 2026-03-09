@@ -16,6 +16,10 @@ interface ExportParams {
   scaffoldsApplied: string[];
   wordBank?: { term: string; definition: string }[] | null;
   teacherInstructions?: string | null;
+  /** Google Doc ID for format-preserving clone+apply export */
+  sourceDocId?: string;
+  /** Structured scaffold actions for clone+apply export */
+  scaffoldActions?: unknown[] | null;
 }
 
 export function useGoogleDocsExport() {

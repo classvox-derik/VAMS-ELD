@@ -36,6 +36,9 @@ interface ScaffoldResult {
   wordBank?: { term: string; definition: string }[];
   scaffoldsUsed?: string[];
   teacherInstructions?: string;
+  // Format-preserving export fields
+  sourceDocId?: string;
+  scaffoldActions?: unknown[];
   // Batch mode
   isBatch?: boolean;
   levels?: BatchLevel[];
@@ -51,6 +54,7 @@ interface BatchLevel {
   teacherInstructions?: string;
   scaffoldsApplied: string[];
   isDemo: boolean;
+  scaffoldActions?: unknown[];
 }
 
 function TeacherInstructionsCard({ instructions }: { instructions: string }) {
@@ -133,6 +137,8 @@ function ScaffoldResultContent() {
           generatedAt: data.created_at,
           wordBank: data.word_bank,
           teacherInstructions: data.teacher_instructions,
+          sourceDocId: data.source_doc_id,
+          scaffoldActions: data.scaffold_actions,
         });
         setNotes(data.teacher_notes ?? "");
       } catch {
@@ -461,6 +467,8 @@ function ScaffoldResultContent() {
                   scaffoldsApplied: result.scaffoldsApplied,
                   wordBank: result.wordBank,
                   teacherInstructions: result.teacherInstructions,
+                  sourceDocId: result.sourceDocId,
+                  scaffoldActions: result.scaffoldActions,
                 })
               }
               className="gap-1.5"

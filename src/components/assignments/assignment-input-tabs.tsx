@@ -11,7 +11,7 @@ import type { SourceType } from "@/lib/hooks/use-assignment-form";
 interface AssignmentInputTabsProps {
   content: string;
   sourceType: SourceType;
-  onContentChange: (content: string, sourceType: SourceType, fileName?: string) => void;
+  onContentChange: (content: string, sourceType: SourceType, fileName?: string, sourceDocId?: string) => void;
 }
 
 export function AssignmentInputTabs({
@@ -60,7 +60,7 @@ export function AssignmentInputTabs({
       <TabsContent value="google_doc">
         <GoogleLinkTab
           content={activeTab === "google_doc" ? content : ""}
-          onChange={(text) => onContentChange(text, "google_doc")}
+          onChange={(text, docId) => onContentChange(text, "google_doc", undefined, docId)}
         />
       </TabsContent>
     </Tabs>

@@ -26,6 +26,8 @@ interface StudentScaffoldSelectionProps {
   sourceType?: string;
   gradeLevel?: number;
   contentLength: number;
+  /** Google Doc ID when imported from Google Docs (for format-preserving export) */
+  sourceDocId?: string;
   onBack: () => void;
 }
 
@@ -35,6 +37,7 @@ export function StudentScaffoldSelection({
   subject,
   gradeLevel,
   contentLength,
+  sourceDocId,
   onBack,
 }: StudentScaffoldSelectionProps) {
   const router = useRouter();
@@ -176,6 +179,7 @@ export function StudentScaffoldSelection({
           studentId: isSingle ? levelStudents[0].id : undefined,
           studentIds: !isSingle ? levelStudents.map((s) => s.id) : undefined,
           studentName,
+          sourceDocId,
         });
 
         storeAndNavigate(result, studentName, level);
@@ -193,6 +197,7 @@ export function StudentScaffoldSelection({
               scaffoldNames,
               studentIds: levelStudents.map((s) => s.id),
               studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
+              sourceDocId,
             })
           )
         );
@@ -213,10 +218,12 @@ export function StudentScaffoldSelection({
             teacherInstructions: results[i].teacherInstructions,
             scaffoldsApplied: results[i].scaffoldsApplied,
             isDemo: results[i].isDemo,
+            scaffoldActions: results[i].scaffoldActions || undefined,
           })),
           assignmentTitle,
           originalContent: content,
           generatedAt,
+          sourceDocId: sourceDocId || undefined,
         };
 
         sessionStorage.setItem(
@@ -254,6 +261,7 @@ export function StudentScaffoldSelection({
     studentId?: string;
     studentIds?: string[];
     studentName?: string;
+    sourceDocId?: string;
   }) {
     const response = await fetch("/api/scaffold", {
       method: "POST",
@@ -296,6 +304,8 @@ export function StudentScaffoldSelection({
         studentName,
         originalContent: content,
         generatedAt,
+        sourceDocId: sourceDocId || undefined,
+        scaffoldActions: data.scaffoldActions || undefined,
       })
     );
 

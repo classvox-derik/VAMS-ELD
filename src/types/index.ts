@@ -75,7 +75,43 @@ export interface DifferentiatedAssignment {
   google_doc_url?: string;
   pdf_url?: string;
   teacher_notes?: string;
+  source_doc_id?: string;
+  scaffold_actions?: ScaffoldAction[] | null;
   created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Scaffold Actions — structured modifications for clone-based Google Docs export
+// ---------------------------------------------------------------------------
+
+/** Flat shape compatible with Gemini structured output (all optional fields, action_type discriminator) */
+export interface ScaffoldAction {
+  action_type: "highlight_range" | "insert_after_paragraph" | "insert_divider_after_paragraph" | "append_section";
+  /** For highlight_range: exact text to highlight (must be verbatim from original) */
+  search_text?: string;
+  /** Hex color for highlights or section styling (e.g., "#FFF176") */
+  background_color?: string;
+  /** Category label for highlights (e.g., "topic_sentence", "evidence", "transition") */
+  category?: string;
+  /** For insert/divider actions: first 60+ chars of the target paragraph */
+  paragraph_prefix?: string;
+  /** For insert_after_paragraph: the text content to insert */
+  insert_content?: string;
+  /** For insert_divider_after_paragraph: optional divider label (e.g., "Section 2 of 4") */
+  label?: string;
+  /** For append_section: the section heading */
+  heading?: string;
+  /** For append_section: the section body text */
+  content?: string;
+  /** For append_section word banks: term-definition pairs */
+  items?: { term: string; definition: string }[];
+  /** For append_section: style hint */
+  section_style?: "word_bank" | "sentence_frames" | "translation";
+  /** Inline style overrides for inserted content */
+  style_italic?: boolean;
+  style_bold?: boolean;
+  style_font_size_pt?: number;
+  style_text_color?: string;
 }
 
 /** Structured output from Gemini scaffold generation */
@@ -85,6 +121,7 @@ export interface ScaffoldGenerationResult {
   scaffoldsUsed: string[];
   teacherInstructions: string | null;
   isDemo: boolean;
+  scaffoldActions?: ScaffoldAction[] | null;
 }
 
 export interface UsageAnalytic {

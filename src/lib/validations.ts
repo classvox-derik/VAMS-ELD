@@ -42,6 +42,8 @@ export const scaffoldRequestSchema = z.object({
   studentIds: z.array(z.string().uuid()).optional(),
   assignmentId: z.string().optional(),
   studentName: z.string().max(200).optional(),
+  /** Google Doc ID when imported from Google Docs (enables format-preserving export) */
+  sourceDocId: z.string().optional(),
 });
 
 export type StudentFormValues = z.infer<typeof studentSchema>;

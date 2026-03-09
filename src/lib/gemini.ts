@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
 import { getELDPromptContext } from "@/lib/eld-standards";
-import type { ELLevel, ScaffoldGenerationResult } from "@/types";
+import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types";
 
 const apiKey = process.env.GEMINI_API_KEY ?? "";
 
@@ -8,8 +8,78 @@ function isPlaceholder(): boolean {
   return !apiKey || apiKey === "placeholder_gemini_key" || apiKey.length < 10;
 }
 
+/** Schema for a single scaffold action (flat shape for Gemini compatibility) */
+const scaffoldActionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    action_type: {
+      type: SchemaType.STRING,
+      description:
+        "One of: highlight_range, insert_after_paragraph, insert_divider_after_paragraph, append_section",
+    },
+    search_text: {
+      type: SchemaType.STRING,
+      description:
+        "For highlight_range: the exact verbatim text to highlight. Must match the original document text exactly.",
+    },
+    background_color: {
+      type: SchemaType.STRING,
+      description: "Hex color (e.g., '#FFF176') for highlights or section styling.",
+    },
+    category: {
+      type: SchemaType.STRING,
+      description:
+        "For highlight_range: what this highlight represents (topic_sentence, evidence, transition).",
+    },
+    paragraph_prefix: {
+      type: SchemaType.STRING,
+      description:
+        "For insert/divider actions: first 60+ characters of the target paragraph to uniquely identify it.",
+    },
+    insert_content: {
+      type: SchemaType.STRING,
+      description: "For insert_after_paragraph: the text content to insert.",
+    },
+    label: {
+      type: SchemaType.STRING,
+      description:
+        "For insert_divider_after_paragraph: optional divider label text (e.g., 'Section 2 of 4').",
+    },
+    heading: {
+      type: SchemaType.STRING,
+      description: "For append_section: the section heading.",
+    },
+    content: {
+      type: SchemaType.STRING,
+      description: "For append_section: the section body text.",
+    },
+    items: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          term: { type: SchemaType.STRING },
+          definition: { type: SchemaType.STRING },
+        },
+        required: ["term", "definition"],
+      },
+      description: "For append_section word banks: term-definition pairs.",
+    },
+    section_style: {
+      type: SchemaType.STRING,
+      description:
+        "For append_section: one of word_bank, sentence_frames, translation.",
+    },
+    style_italic: { type: SchemaType.BOOLEAN },
+    style_bold: { type: SchemaType.BOOLEAN },
+    style_font_size_pt: { type: SchemaType.NUMBER },
+    style_text_color: { type: SchemaType.STRING },
+  },
+  required: ["action_type"],
+};
+
 /** JSON schema for structured Gemini output */
-function buildResponseSchema(includeWordBank: boolean): Schema {
+function buildResponseSchema(includeWordBank: boolean, includeActions: boolean): Schema {
   const properties: Record<string, Schema> = {
     scaffolded_html: {
       type: SchemaType.STRING,
@@ -48,6 +118,16 @@ function buildResponseSchema(includeWordBank: boolean): Schema {
     required.push("word_bank");
   }
 
+  if (includeActions) {
+    properties.scaffold_actions = {
+      type: SchemaType.ARRAY,
+      items: scaffoldActionSchema,
+      description:
+        "Structured scaffold modifications for applying directly to the original Google Doc. Each action describes a targeted change to make.",
+    };
+    required.push("scaffold_actions");
+  }
+
   return {
     type: SchemaType.OBJECT,
     properties,
@@ -55,7 +135,7 @@ function buildResponseSchema(includeWordBank: boolean): Schema {
   };
 }
 
-function getGeminiModel(includeWordBank: boolean) {
+function getGeminiModel(includeWordBank: boolean, includeActions: boolean) {
   if (isPlaceholder()) {
     return null;
   }
@@ -64,7 +144,7 @@ function getGeminiModel(includeWordBank: boolean) {
     model: "gemini-2.5-flash",
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: buildResponseSchema(includeWordBank),
+      responseSchema: buildResponseSchema(includeWordBank, includeActions),
     },
   });
 }
@@ -77,6 +157,8 @@ export interface GenerateParams {
   title: string;
   subject?: string;
   gradeLevel?: number;
+  /** When set, Gemini also produces scaffold_actions for clone-based export */
+  sourceDocId?: string;
 }
 
 const WORD_BANK_SCAFFOLD_PREFIX = "Word Bank";
@@ -87,13 +169,14 @@ export async function generateScaffoldedAssignment(
   const includeWordBank = params.scaffoldNames.some((n) =>
     n.startsWith(WORD_BANK_SCAFFOLD_PREFIX)
   );
-  const model = getGeminiModel(includeWordBank);
+  const includeActions = !!params.sourceDocId;
+  const model = getGeminiModel(includeWordBank, includeActions);
 
   if (!model) {
     return buildMockResult(params);
   }
 
-  const prompt = buildPrompt(params, includeWordBank);
+  const prompt = buildPrompt(params, includeWordBank, includeActions);
 
   try {
     const result = await model.generateContent(prompt);
@@ -106,6 +189,7 @@ export async function generateScaffoldedAssignment(
       scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
       teacherInstructions: parsed.teacher_instructions || null,
       isDemo: false,
+      scaffoldActions: (parsed.scaffold_actions as ScaffoldAction[]) || null,
     };
   } catch (error) {
     // If JSON parsing fails, try extracting HTML from raw text
@@ -121,6 +205,7 @@ export async function generateScaffoldedAssignment(
       scaffoldsUsed: params.scaffoldNames,
       teacherInstructions: null,
       isDemo: false,
+      scaffoldActions: null,
     };
   }
 }
@@ -132,7 +217,7 @@ function getGeminiModelFallback() {
   return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 }
 
-function buildPrompt(params: GenerateParams, includeWordBank: boolean): string {
+function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeActions: boolean): string {
   const {
     originalContent,
     elLevel,
@@ -158,6 +243,42 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean): string {
 
   // Pull CA ELD Framework context for this level
   const eldContext = getELDPromptContext(elLevel);
+
+  let actionsSection = "";
+  if (includeActions) {
+    actionsSection = `
+## Rules for scaffold_actions (CRITICAL — Generate these for Google Docs format preservation)
+You MUST generate a scaffold_actions array. Each action describes a precise modification to apply directly to the original Google Doc to preserve its formatting.
+
+### Action Types:
+1. **highlight_range**: Find exact text in the original and apply a background color.
+   - search_text MUST be an exact, verbatim substring from the original assignment text (case-sensitive, including punctuation)
+   - Keep search_text to a phrase or single sentence (not an entire paragraph)
+   - background_color must be a hex color string (e.g., "#FFF176" for yellow, "#AED581" for green, "#90CAF9" for blue)
+
+2. **insert_after_paragraph**: Insert new content after an identified paragraph.
+   - paragraph_prefix must be the first 60+ characters of the target paragraph, exact match
+   - insert_content is the text to insert (plain text, newlines allowed)
+   - Use style_italic, style_bold, style_text_color, style_font_size_pt as needed
+
+3. **insert_divider_after_paragraph**: Insert a visual section divider after a paragraph.
+   - paragraph_prefix identifies the paragraph after which to insert
+   - label is optional divider text (e.g., "Section 2 of 4")
+
+4. **append_section**: Add a section at the END of the document.
+   - heading is the section title (e.g., "Word Bank", "Sentence Starters", "Spanish Translation")
+   - content is the body text
+   - items is for word bank entries [{term, definition}]
+   - section_style should be "word_bank", "sentence_frames", or "translation"
+
+### Critical Rules for scaffold_actions:
+- search_text and paragraph_prefix values MUST be exact substrings from the Original Assignment below — copy them character-for-character
+- For highlights, use short phrases (5-20 words), NOT entire paragraphs
+- Order actions: highlight_range first, then insert/divider actions (top-to-bottom through the document), then append_section actions last
+- The scaffold_actions should produce equivalent scaffolding to what scaffolded_html contains, but as targeted modifications rather than a full HTML rewrite
+
+`;
+  }
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
@@ -193,7 +314,7 @@ ${includeWordBank ? `## Rules for word_bank
 ` : ""}## Rules for teacher_instructions
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
-
+${actionsSection}
 ## Original Assignment:
 ${originalContent}`;
 }
@@ -263,5 +384,6 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
     teacherInstructions:
       "This is a demo preview. Connect your Gemini API key for real scaffolding with teacher-specific instructions.",
     isDemo: true,
+    scaffoldActions: null,
   };
 }
