@@ -80,11 +80,20 @@ export async function POST(request: NextRequest) {
     // -----------------------------------------------------------------------
     // Clone + Apply path: when source is a Google Doc with scaffold actions
     // -----------------------------------------------------------------------
+    console.log("[Export] Clone path check:", {
+      hasSourceDocId: !!sourceDocId,
+      hasScaffoldActions: Array.isArray(scaffoldActions) && scaffoldActions.length > 0,
+      willUseClonePath: !!(sourceDocId && scaffoldActions?.length > 0),
+    });
+
+    let cloneFallbackReason: string | null = null;
+
     if (sourceDocId && scaffoldActions?.length > 0) {
       try {
         const drive = google.drive({ version: "v3", auth });
 
         // 1. Clone the original document
+        console.log("[Export] Cloning Google Doc:", sourceDocId);
         const copyResponse = await drive.files.copy({
           fileId: sourceDocId,
           requestBody: {
@@ -108,6 +117,11 @@ export async function POST(request: NextRequest) {
           elLevel
         );
 
+        console.log("[Export] Clone+apply succeeded:", {
+          clonedDocId,
+          stats,
+        });
+
         const docUrl = `https://docs.google.com/document/d/${clonedDocId}/edit`;
 
         return NextResponse.json({
@@ -118,12 +132,30 @@ export async function POST(request: NextRequest) {
           scaffoldStats: stats,
         });
       } catch (cloneError) {
-        // If clone fails, fall through to HTML-based export
+        const errMsg =
+          cloneError instanceof Error ? cloneError.message : String(cloneError);
         console.error(
-          "Clone+apply export failed, falling back to HTML export:",
+          "[Export] Clone+apply failed, falling back to HTML export:",
+          errMsg,
           cloneError
         );
+        cloneFallbackReason = errMsg;
+
+        // If it's a scope/auth issue, surface it clearly
+        if (
+          errMsg.includes("insufficient") ||
+          errMsg.includes("scope") ||
+          errMsg.includes("forbidden") ||
+          errMsg.includes("403")
+        ) {
+          cloneFallbackReason =
+            "Google Drive permissions insufficient. Please disconnect and reconnect your Google account in Settings to grant updated permissions.";
+        }
       }
+    } else if (sourceDocId && (!scaffoldActions || scaffoldActions.length === 0)) {
+      cloneFallbackReason =
+        "No scaffold actions were generated for format preservation. The AI may not have produced targeted modifications for this document.";
+      console.warn("[Export] sourceDocId present but no scaffoldActions — falling back to HTML");
     }
 
     // -----------------------------------------------------------------------
@@ -168,6 +200,7 @@ export async function POST(request: NextRequest) {
       docId,
       docUrl,
       exportMethod: "html_to_doc",
+      cloneFallbackReason,
     });
   } catch (error) {
     console.error("Google Docs export error:", error);
