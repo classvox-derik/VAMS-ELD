@@ -187,7 +187,7 @@ export function StudentScaffoldSelection({
         // Batch mode: generate per-level (max 3 calls)
         const totalStudents = selection.students.length;
         const results = await Promise.all(
-          levels.map(([level, levelStudents]) =>
+          levels.map(([level, levelStudents], idx) =>
             callScaffoldAPI({
               content,
               title: assignmentTitle,
@@ -198,6 +198,7 @@ export function StudentScaffoldSelection({
               studentIds: levelStudents.map((s) => s.id),
               studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
               sourceDocId,
+              skipUsageLog: idx > 0,
             })
           )
         );
@@ -262,6 +263,7 @@ export function StudentScaffoldSelection({
     studentIds?: string[];
     studentName?: string;
     sourceDocId?: string;
+    skipUsageLog?: boolean;
   }) {
     const response = await fetch("/api/scaffold", {
       method: "POST",
@@ -425,10 +427,7 @@ export function StudentScaffoldSelection({
           <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 p-3 text-sm text-muted-foreground">
             <p>
               This will use{" "}
-              <strong>
-                {generationCount} of your daily AI generations
-              </strong>
-              .
+              <strong>1 of your daily AI generations</strong>.
             </p>
             {batchLevels && batchLevels.size > 1 && (
               <p className="mt-1">

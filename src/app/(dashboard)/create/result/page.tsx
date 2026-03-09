@@ -276,11 +276,66 @@ function ScaffoldResultContent() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={async () => {
+                        setIsExporting(true);
+                        try {
+                          const { downloadScaffoldPdf } = await import("@/lib/export-pdf");
+                          await downloadScaffoldPdf({
+                            html: lvl.outputHtml,
+                            title: result.assignmentTitle,
+                            elLevel: lvl.level,
+                            teacherInstructions: lvl.teacherInstructions,
+                            filename: `${result.assignmentTitle}-${lvl.level}-scaffolded.pdf`,
+                          });
+                          toast.success("PDF downloaded successfully!");
+                        } catch {
+                          toast.error("Failed to generate PDF. Please try again.");
+                        } finally {
+                          setIsExporting(false);
+                        }
+                      }}
+                      disabled={isExporting}
+                      className="gap-1.5"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      {isExporting ? "Exporting..." : "Download PDF"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => window.print()}
                       className="gap-1.5"
                     >
                       <Printer className="h-3.5 w-3.5" />
                       Print
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!isGoogleConnected || isGDocsExporting}
+                      onClick={() =>
+                        exportToGoogleDocs({
+                          title: result.assignmentTitle,
+                          outputHtml: lvl.outputHtml,
+                          elLevel: lvl.level,
+                          scaffoldsApplied: lvl.scaffoldsApplied,
+                          wordBank: lvl.wordBank,
+                          teacherInstructions: lvl.teacherInstructions,
+                          sourceDocId: result.sourceDocId,
+                          scaffoldActions: lvl.scaffoldActions,
+                        })
+                      }
+                      className="gap-1.5"
+                      title={
+                        isGoogleConnected
+                          ? "Export to Google Docs"
+                          : "Connect Google account in Settings"
+                      }
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">
+                        {isGDocsExporting ? "Exporting..." : "Google Docs"}
+                      </span>
                     </Button>
                   </div>
                 </CardHeader>

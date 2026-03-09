@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId } = parsed.data;
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId, skipUsageLog } = parsed.data;
 
     // Look up scaffolds by name instead of fragile indices
     const selectedScaffolds = defaultScaffolds.filter((s) =>
@@ -152,20 +152,22 @@ export async function POST(request: NextRequest) {
       console.error("Failed to store differentiated assignment:", err);
     }
 
-    // Log usage analytic with real teacher ID
-    try {
-      const { logUsageAnalytic } = await import(
-        "@/lib/queries/differentiated-assignments"
-      );
-      await logUsageAnalytic(user.id, "scaffold_generated", {
-        title,
-        elLevel,
-        scaffoldCount: selectedScaffolds.length,
-        contentLength: content.length,
-        isDemo: result.isDemo,
-      });
-    } catch (err) {
-      console.error("Failed to log usage analytic:", err);
+    // Log usage analytic with real teacher ID (skip for batch sub-calls)
+    if (!skipUsageLog) {
+      try {
+        const { logUsageAnalytic } = await import(
+          "@/lib/queries/differentiated-assignments"
+        );
+        await logUsageAnalytic(user.id, "scaffold_generated", {
+          title,
+          elLevel,
+          scaffoldCount: selectedScaffolds.length,
+          contentLength: content.length,
+          isDemo: result.isDemo,
+        });
+      } catch (err) {
+        console.error("Failed to log usage analytic:", err);
+      }
     }
 
     // Fetch updated usage count for immediate client-side counter update
