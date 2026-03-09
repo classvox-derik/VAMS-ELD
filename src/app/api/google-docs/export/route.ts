@@ -59,6 +59,15 @@ export async function POST(request: NextRequest) {
       scaffoldActions,
     } = body;
 
+    console.log("[Export] Received request:", {
+      title,
+      hasOutputHtml: !!outputHtml,
+      elLevel,
+      sourceDocId: sourceDocId || "(none)",
+      scaffoldActionsCount: Array.isArray(scaffoldActions) ? scaffoldActions.length : 0,
+      scaffoldActionsType: typeof scaffoldActions,
+    });
+
     if (!title || !outputHtml) {
       return NextResponse.json(
         { error: "Title and outputHtml are required" },

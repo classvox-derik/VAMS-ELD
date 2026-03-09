@@ -179,6 +179,12 @@ export async function POST(request: NextRequest) {
       // Non-critical
     }
 
+    console.log("[Scaffold API] Response:", {
+      sourceDocId: sourceDocId || "(none)",
+      scaffoldActionsCount: result.scaffoldActions ? result.scaffoldActions.length : 0,
+      storedId,
+    });
+
     return NextResponse.json({
       success: true,
       outputHtml: result.html,

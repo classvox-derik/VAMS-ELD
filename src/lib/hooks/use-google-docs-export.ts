@@ -67,7 +67,12 @@ export function useGoogleDocsExport() {
           throw new Error(data.message || data.error || "Export failed");
         }
 
-        toast.success("Exported to Google Docs!", {
+        const toastMsg =
+          data.exportMethod === "clone_and_apply"
+            ? "Exported to Google Docs (formatting preserved)!"
+            : "Exported to Google Docs!";
+
+        toast.success(toastMsg, {
           action: {
             label: "Open",
             onClick: () => window.open(data.docUrl, "_blank"),

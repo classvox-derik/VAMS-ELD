@@ -183,13 +183,21 @@ export async function generateScaffoldedAssignment(
     const text = result.response.text();
     const parsed = JSON.parse(text);
 
+    const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
+    console.log("[Gemini] Generation complete:", {
+      includeActions,
+      sourceDocId: params.sourceDocId || "(none)",
+      scaffoldActionsReturned: scaffoldActions ? scaffoldActions.length : 0,
+      actionTypes: scaffoldActions?.map((a) => a.action_type) || [],
+    });
+
     return {
       html: parsed.scaffolded_html,
       wordBank: parsed.word_bank || null,
       scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
       teacherInstructions: parsed.teacher_instructions || null,
       isDemo: false,
-      scaffoldActions: (parsed.scaffold_actions as ScaffoldAction[]) || null,
+      scaffoldActions,
     };
   } catch (error) {
     // If JSON parsing fails, try extracting HTML from raw text
