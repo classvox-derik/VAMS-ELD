@@ -245,6 +245,18 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-auth/callback`}
                 We&apos;ll request access to create Google Docs on your behalf.
                 You can disconnect at any time.
               </p>
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  <span className="font-medium">Note:</span> Google may show a
+                  &quot;Google hasn&apos;t verified this app&quot; warning. This
+                  is normal — click{" "}
+                  <span className="font-medium">Advanced</span>, then{" "}
+                  <span className="font-medium">
+                    &quot;Go to vamseld.com (unsafe)&quot;
+                  </span>{" "}
+                  to continue. Your data is secure.
+                </p>
+              </div>
             </div>
           )}
         </CardContent>

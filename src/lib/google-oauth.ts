@@ -25,11 +25,21 @@ export function isGoogleConfigured(): boolean {
 }
 
 /**
- * Derive the OAuth callback URL from the current request's origin.
- * This ensures the redirect URI matches the actual deployment URL
- * (works in both local dev and production without extra configuration).
+ * Build the OAuth callback URL used as the redirect_uri for Google.
+ *
+ * Priority:
+ *  1. GOOGLE_REDIRECT_URI  – explicit override (must match Google Cloud Console)
+ *  2. NEXT_PUBLIC_APP_URL  – derive from the canonical app URL
+ *  3. request URL origin   – fallback for local development
  */
 export function buildCallbackUrl(requestUrl: string): string {
+  if (process.env.GOOGLE_REDIRECT_URI) {
+    return process.env.GOOGLE_REDIRECT_URI;
+  }
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) {
+    return `${appUrl.replace(/\/+$/, "")}/api/google-auth/callback`;
+  }
   const { origin } = new URL(requestUrl);
   return `${origin}/api/google-auth/callback`;
 }
