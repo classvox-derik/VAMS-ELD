@@ -378,6 +378,8 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
     .map((prompt, i) => `${i + 1}. **${scaffoldNames[i]}**: ${prompt}`)
     .join("\n");
 
+  const hasTranslation = scaffoldNames.some((n) => /translat|bilingual/i.test(n));
+
   const metaContext = [
     `Assignment title: "${title}"`,
     subject ? `Subject: ${subject}` : null,
@@ -425,27 +427,26 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 `;
   }
 
+  const translationRule = hasTranslation
+    ? `\n\n## TRANSLATION (HIGHEST PRIORITY)
+Every piece of English text in the document MUST be replaced with its Spanish translation. This applies to ALL text: paragraphs, headings, list items, table cells, instructions, questions — everything the student reads. Only keep proper nouns, names, and numbers unchanged. Do NOT leave any English text in the output. Do NOT add extra sections — just replace the English text with Spanish.`
+    : "";
+
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — modify the original HTML in-place)
 - You are given a SLIMMED version of the original Google Doc HTML below. The original stylesheet will be re-attached automatically — do NOT add <style> blocks.
-- Modify the HTML IN-PLACE. PRESERVE all tags, <img> tags, and content order. Do NOT regenerate, reorganize, or restructure the HTML.
+- Modify the HTML IN-PLACE. PRESERVE the HTML structure: all tags, <img> tags, and element order. Do NOT regenerate, reorganize, or restructure the HTML.
 - Do NOT add any extra sections, content, or scaffolds beyond what is listed above.
-
-### How each scaffold type modifies the document:
-- **Color coding**: Wrap the original text with a background-color span. The text stays the same, only a highlight is added. Example: <span style="background-color: #FFF176;">original text here</span>
-- **Translation**: Replace the English text inside each element with its translated version. The HTML tags and structure stay exactly the same — only the text content changes. Do NOT add any extra translated sections.
-- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.`
-    : `## Rules for scaffolded_html (CRITICAL — preserve the original, only add scaffolds)
-- Convert the original text to clean, minimal HTML that preserves its exact structure, order, and content word-for-word.
+- **Color coding**: Wrap text with a background-color span. Example: <span style="background-color: #FFF176;">text here</span>
+- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.${translationRule}`
+    : `## Rules for scaffolded_html (CRITICAL — preserve the original structure, only add scaffolds)
+- Convert the original text to HTML that preserves its structure and element order.
 - Do NOT add formatting, styling, or structure that wasn't in the original.
 - Do NOT add any extra sections, content, or scaffolds beyond what is listed above.
 - Use inline CSS styles only. Wrap the entire output in a single <div> element.
 - Use semantic HTML matching the original: <p>, <ol>/<ul>, <table>, <b>/<i>/<u>, <h1>-<h6>.
-
-### How each scaffold type modifies the document:
-- **Color coding**: Wrap the original text with a background-color span. The text stays the same, only a highlight is added. Example: <span style="background-color: #FFF176;">original text here</span>
-- **Translation**: Replace the English text inside each element with its translated version. The HTML structure stays exactly the same — only the text content changes. Do NOT add any extra translated sections.
-- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.`;
+- **Color coding**: Wrap text with a background-color span. Example: <span style="background-color: #FFF176;">text here</span>
+- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.${translationRule}`;
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
