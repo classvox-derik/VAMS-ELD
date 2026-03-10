@@ -3,7 +3,7 @@ import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "qwen/qwen3-32b";
+const MODEL = "mistralai/mistral-nemo";
 
 function isPlaceholder(): boolean {
   return !OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10;
