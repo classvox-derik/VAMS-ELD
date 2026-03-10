@@ -127,10 +127,8 @@ export async function POST(request: NextRequest) {
     const docs = google.docs({ version: "v1", auth });
     const drive = google.drive({ version: "v3", auth });
 
-    const [docResult, htmlResult] = await Promise.all([
-      docs.documents.get({ documentId: docId }),
-      drive.files.export({ fileId: docId, mimeType: "text/html" }, { responseType: "text" }),
-    ]);
+    // Always fetch the document structure (title + plain text)
+    const docResult = await docs.documents.get({ documentId: docId });
 
     const title = docResult.data.title ?? "Untitled";
     const docBody = docResult.data.body;
@@ -142,7 +140,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Plain text for validation and Gemini scaffold_actions
+    // Plain text for validation and AI scaffolding
     const content = extractText(docBody.content as Array<Record<string, unknown>>).trim();
 
     if (!content) {
@@ -152,11 +150,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Full HTML from Drive export — exact 1:1 replica of the Google Doc
-    const rawHtml = htmlResult.data as string;
-    const sourceHtml = extractHtmlBody(rawHtml);
-
-    console.log(`[Import] Imported "${title}" — plaintext: ${content.length} chars, HTML: ${sourceHtml.length} chars`);
+    // Try to get full HTML from Drive export — may fail for very large docs
+    let sourceHtml: string | null = null;
+    try {
+      const htmlResult = await drive.files.export(
+        { fileId: docId, mimeType: "text/html" },
+        { responseType: "text" }
+      );
+      const rawHtml = htmlResult.data as string;
+      sourceHtml = extractHtmlBody(rawHtml);
+      console.log(`[Import] Imported "${title}" — plaintext: ${content.length} chars, HTML: ${sourceHtml.length} chars`);
+    } catch (htmlErr) {
+      const errMsg = htmlErr instanceof Error ? htmlErr.message : String(htmlErr);
+      console.warn(`[Import] HTML export failed for "${title}" (will use plain text only):`, errMsg);
+    }
 
     return NextResponse.json({
       success: true,

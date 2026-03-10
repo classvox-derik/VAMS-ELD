@@ -342,6 +342,7 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
 
   const hasTranslation = scaffoldNames.some((n) => /translat|bilingual/i.test(n));
   const hasWordBank = includeWordBank;
+  const hasSentenceFrames = scaffoldNames.some((n) => /sentence frame/i.test(n));
 
   const metaContext = [
     `Assignment title: "${title}"`,
@@ -453,6 +454,18 @@ Use the same styling for both. Example structure:
   ...Spanish terms and definitions...
 </div>
 ` : ""}
+` : ""}${hasSentenceFrames && hasTranslation ? `## BILINGUAL SENTENCE FRAMES (Spanish Translation + Sentence Frames selected)
+Since both Sentence Frames and Spanish Translation are selected, each sentence frame box MUST include BOTH English and Spanish versions. Show the English sentence frames first, then a divider line, then the same frames translated to Spanish. Use the same styling/div for both. Example:
+<div class="sentence-frame" style="font-style: italic; color: #6b7280; margin: 1rem 0; padding: 0.75rem; background: #f3f4f6; border-radius: 6px; border-left: 3px solid #9ca3af;">
+  <strong>Sentence Frames:</strong><br/>
+  - I think ___ because ___.<br/>
+  - In my opinion, ___.<br/>
+  <hr style="margin: 0.5rem 0; border-color: #d1d5db;"/>
+  <strong>Marcos de Oraciones:</strong><br/>
+  - Yo pienso que ___ porque ___.<br/>
+  - En mi opinión, ___.<br/>
+</div>
+
 ` : ""}## Rules for teacher_instructions
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
