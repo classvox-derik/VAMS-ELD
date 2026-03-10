@@ -289,11 +289,50 @@ export async function generateScaffoldedAssignment(
   const prompt = buildPrompt(params, includeWordBank, includeActions);
   const schema = buildResponseSchema(includeWordBank, includeActions);
 
-  try {
-    const text = await callOpenRouter(prompt, schema);
-    const parsed = JSON.parse(text);
+  // Helper: extract scaffolded_html from a parsed JSON object, trying common key variants
+  function extractHtmlFromParsed(obj: Record<string, unknown>): string | null {
+    const html = obj.scaffolded_html ?? obj.scaffoldedHtml ?? obj.html ?? obj.output;
+    return typeof html === "string" && html.length > 50 ? html : null;
+  }
 
-    let scaffoldedHtml = parsed.scaffolded_html as string;
+  // Helper: try to extract JSON from raw text (handles markdown fences, leading text, etc.)
+  function extractJsonFromText(text: string): Record<string, unknown> | null {
+    // Strip markdown code fences
+    let cleaned = text.replace(/^```(?:json|html)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    // Try direct parse first
+    try {
+      const parsed = JSON.parse(cleaned);
+      if (typeof parsed === "object" && parsed !== null) return parsed as Record<string, unknown>;
+    } catch { /* continue */ }
+
+    // Find first { and last } to extract JSON object from surrounding text
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      try {
+        const parsed = JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+        if (typeof parsed === "object" && parsed !== null) return parsed as Record<string, unknown>;
+      } catch { /* continue */ }
+    }
+
+    return null;
+  }
+
+  const rawText = await callOpenRouter(prompt, schema);
+
+  console.log("[OpenRouter] Raw response length:", rawText.length, "first 200 chars:", rawText.slice(0, 200));
+
+  // Try to parse the JSON response
+  const parsed = extractJsonFromText(rawText);
+
+  if (parsed) {
+    let scaffoldedHtml = extractHtmlFromParsed(parsed);
+
+    if (!scaffoldedHtml) {
+      console.error("[OpenRouter] JSON parsed but no scaffolded_html found. Keys:", Object.keys(parsed));
+      throw new Error("AI response missing scaffolded_html field");
+    }
 
     // Strip any DOCTYPE/html/head/body tags the AI might have added
     scaffoldedHtml = scaffoldedHtml.replace(/<!DOCTYPE[^>]*>/gi, "");
@@ -312,55 +351,43 @@ export async function generateScaffoldedAssignment(
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[OpenRouter] Generation complete:", {
       model: MODEL,
-      includeActions,
-      sourceDocId: params.sourceDocId || "(none)",
+      scaffoldedHtmlLength: scaffoldedHtml.length,
+      hasWordBank: !!parsed.word_bank,
       scaffoldActionsReturned: scaffoldActions ? scaffoldActions.length : 0,
     });
 
     return {
       html: scaffoldedHtml,
-      wordBank: parsed.word_bank || null,
-      scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
-      teacherInstructions: parsed.teacher_instructions || null,
+      wordBank: (parsed.word_bank as { term: string; definition: string }[]) || null,
+      scaffoldsUsed: (parsed.scaffolds_used as string[]) || params.scaffoldNames,
+      teacherInstructions: (parsed.teacher_instructions as string) || null,
       isDemo: false,
       scaffoldActions,
     };
-  } catch (error) {
-    console.error("[OpenRouter] Structured output failed, falling back:", error);
-
-    // Fallback: no schema constraint, extract HTML from raw text
-    try {
-      const rawText = await callOpenRouter(prompt, null);
-      let html = rawText;
-
-      // Try parsing as JSON first
-      try {
-        const parsed = JSON.parse(html);
-        html = parsed.scaffolded_html || html;
-      } catch {
-        // Not JSON — strip markdown code fences if present
-        html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
-      }
-
-      // Restore base64 images from placeholders
-      for (const [key, src] of extractedImages) {
-        html = html.replaceAll(key, src);
-      }
-
-      return {
-        html: originalStyles ? `${originalStyles}\n${html}` : wrapWithBaseStyles(html),
-        wordBank: null,
-        scaffoldsUsed: params.scaffoldNames,
-        teacherInstructions: null,
-        isDemo: false,
-        scaffoldActions: null,
-      };
-    } catch (fallbackError) {
-      // Both attempts failed — re-throw original error
-      console.error("[OpenRouter] Fallback also failed:", fallbackError);
-      throw error;
-    }
   }
+
+  // JSON extraction failed entirely — try to use raw text as HTML (last resort)
+  console.error("[OpenRouter] Could not parse JSON from response. Raw text (first 500):", rawText.slice(0, 500));
+
+  // If the raw text looks like it contains HTML tags, use it directly
+  if (rawText.includes("<p") || rawText.includes("<div") || rawText.includes("<h")) {
+    let html = rawText.replace(/^```(?:json|html)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    for (const [key, src] of extractedImages) {
+      html = html.replaceAll(key, src);
+    }
+
+    return {
+      html: originalStyles ? `${originalStyles}\n${html}` : wrapWithBaseStyles(html),
+      wordBank: null,
+      scaffoldsUsed: params.scaffoldNames,
+      teacherInstructions: null,
+      isDemo: false,
+      scaffoldActions: null,
+    };
+  }
+
+  throw new Error("AI returned an unparseable response. Please try again.");
 }
 
 // ---------------------------------------------------------------------------
