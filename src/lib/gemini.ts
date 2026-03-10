@@ -213,15 +213,10 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
-  // If sourceHtml is provided, separate styles from body,
-  // then aggressively slim the body HTML to reduce token count.
-  // The AI gets a clean structural view; we re-attach styles to the output.
-  let originalStyles = "";
-  if (params.sourceHtml) {
-    const { styles, body } = extractStyles(params.sourceHtml);
-    originalStyles = styles;
-    params = { ...params, sourceHtml: slimHtml(body) };
-  }
+  // Strip sourceHtml from the AI call — Google Docs HTML is too large/bloated
+  // and causes provider errors. The AI works from plain text instead.
+  // sourceHtml is still used client-side for the original preview.
+  params = { ...params, sourceHtml: undefined };
 
   const prompt = buildPrompt(params, includeWordBank, includeActions);
   const schema = buildResponseSchema(includeWordBank, includeActions);
@@ -232,17 +227,11 @@ export async function generateScaffoldedAssignment(
 
     let scaffoldedHtml = parsed.scaffolded_html as string;
 
-    // Re-attach original Google Docs styles so the output renders identically
-    if (originalStyles) {
-      scaffoldedHtml = `<div class="google-doc-import">${originalStyles}${scaffoldedHtml}</div>`;
-    }
-
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[OpenRouter] Generation complete:", {
       model: MODEL,
       includeActions,
       sourceDocId: params.sourceDocId || "(none)",
-      hasSourceHtml: !!params.sourceHtml,
       scaffoldActionsReturned: scaffoldActions ? scaffoldActions.length : 0,
     });
 
@@ -269,10 +258,6 @@ export async function generateScaffoldedAssignment(
       } catch {
         // Not JSON — strip markdown code fences if present
         html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
-      }
-
-      if (originalStyles) {
-        html = `<div class="google-doc-import">${originalStyles}${html}</div>`;
       }
 
       return {
