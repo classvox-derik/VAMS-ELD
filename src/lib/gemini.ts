@@ -1,153 +1,143 @@
-import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
 import { getELDPromptContext } from "@/lib/eld-standards";
 import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types";
 
-const apiKey = process.env.GEMINI_API_KEY ?? "";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "qwen/qwen3-32b";
 
 function isPlaceholder(): boolean {
-  return !apiKey || apiKey === "placeholder_gemini_key" || apiKey.length < 10;
+  return !OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10;
 }
 
-/** Schema for a single scaffold action (flat shape for Gemini compatibility) */
-const scaffoldActionSchema: Schema = {
-  type: SchemaType.OBJECT,
+// ---------------------------------------------------------------------------
+// OpenAI-compatible JSON Schema for structured output
+// ---------------------------------------------------------------------------
+
+interface JsonSchema {
+  type: string;
+  properties?: Record<string, JsonSchema>;
+  items?: JsonSchema;
+  required?: string[];
+  description?: string;
+}
+
+const scaffoldActionSchema: JsonSchema = {
+  type: "object",
   properties: {
-    action_type: {
-      type: SchemaType.STRING,
-      description:
-        "One of: highlight_range, insert_after_paragraph, insert_divider_after_paragraph, append_section",
-    },
-    search_text: {
-      type: SchemaType.STRING,
-      description:
-        "For highlight_range: the exact verbatim text to highlight. Must match the original document text exactly.",
-    },
-    background_color: {
-      type: SchemaType.STRING,
-      description: "Hex color (e.g., '#FFF176') for highlights or section styling.",
-    },
-    category: {
-      type: SchemaType.STRING,
-      description:
-        "For highlight_range: what this highlight represents (topic_sentence, evidence, transition).",
-    },
-    paragraph_prefix: {
-      type: SchemaType.STRING,
-      description:
-        "For insert/divider actions: first 60+ characters of the target paragraph to uniquely identify it.",
-    },
-    insert_content: {
-      type: SchemaType.STRING,
-      description: "For insert_after_paragraph: the text content to insert.",
-    },
-    label: {
-      type: SchemaType.STRING,
-      description:
-        "For insert_divider_after_paragraph: optional divider label text (e.g., 'Section 2 of 4').",
-    },
-    heading: {
-      type: SchemaType.STRING,
-      description: "For append_section: the section heading.",
-    },
-    content: {
-      type: SchemaType.STRING,
-      description: "For append_section: the section body text.",
-    },
+    action_type: { type: "string", description: "One of: highlight_range, insert_after_paragraph, insert_divider_after_paragraph, append_section" },
+    search_text: { type: "string", description: "For highlight_range: the exact verbatim text to highlight." },
+    background_color: { type: "string", description: "Hex color (e.g., '#FFF176') for highlights or section styling." },
+    category: { type: "string", description: "For highlight_range: what this highlight represents (topic_sentence, evidence, transition)." },
+    paragraph_prefix: { type: "string", description: "For insert/divider actions: first 60+ characters of the target paragraph." },
+    insert_content: { type: "string", description: "For insert_after_paragraph: the text content to insert." },
+    label: { type: "string", description: "For insert_divider_after_paragraph: optional divider label text." },
+    heading: { type: "string", description: "For append_section: the section heading." },
+    content: { type: "string", description: "For append_section: the section body text." },
     items: {
-      type: SchemaType.ARRAY,
+      type: "array",
       items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          term: { type: SchemaType.STRING },
-          definition: { type: SchemaType.STRING },
-        },
+        type: "object",
+        properties: { term: { type: "string" }, definition: { type: "string" } },
         required: ["term", "definition"],
       },
       description: "For append_section word banks: term-definition pairs.",
     },
-    section_style: {
-      type: SchemaType.STRING,
-      description:
-        "For append_section: one of word_bank, sentence_frames, translation.",
-    },
-    style_italic: { type: SchemaType.BOOLEAN },
-    style_bold: { type: SchemaType.BOOLEAN },
-    style_font_size_pt: { type: SchemaType.NUMBER },
-    style_text_color: { type: SchemaType.STRING },
+    section_style: { type: "string", description: "For append_section: one of word_bank, sentence_frames, translation." },
+    style_italic: { type: "boolean" },
+    style_bold: { type: "boolean" },
+    style_font_size_pt: { type: "number" },
+    style_text_color: { type: "string" },
   },
   required: ["action_type"],
 };
 
-/** JSON schema for structured Gemini output */
-function buildResponseSchema(includeWordBank: boolean, includeActions: boolean): Schema {
-  const properties: Record<string, Schema> = {
-    scaffolded_html: {
-      type: SchemaType.STRING,
-      description:
-        "The full scaffolded assignment as clean HTML with inline CSS styles. Wrap in a single <div>.",
-    },
-    scaffolds_used: {
-      type: SchemaType.ARRAY,
-      items: { type: SchemaType.STRING },
-      description:
-        "List of scaffold technique names that were actually applied.",
-    },
-    teacher_instructions: {
-      type: SchemaType.STRING,
-      description:
-        "Brief instructions for the teacher on how to use this scaffolded assignment (2-3 sentences).",
-    },
+function buildResponseSchema(includeWordBank: boolean, includeActions: boolean): JsonSchema {
+  const properties: Record<string, JsonSchema> = {
+    scaffolded_html: { type: "string", description: "The full scaffolded assignment as clean HTML with inline CSS styles." },
+    scaffolds_used: { type: "array", items: { type: "string" }, description: "List of scaffold technique names applied." },
+    teacher_instructions: { type: "string", description: "Brief instructions for the teacher (2-3 sentences)." },
   };
-
   const required = ["scaffolded_html", "scaffolds_used", "teacher_instructions"];
 
   if (includeWordBank) {
     properties.word_bank = {
-      type: SchemaType.ARRAY,
+      type: "array",
       items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          term: { type: SchemaType.STRING },
-          definition: { type: SchemaType.STRING },
-        },
+        type: "object",
+        properties: { term: { type: "string" }, definition: { type: "string" } },
         required: ["term", "definition"],
       },
-      description:
-        "Key vocabulary terms with simple definitions appropriate for the EL level. 6-12 terms.",
+      description: "Key vocabulary terms with simple definitions. 6-12 terms.",
     };
     required.push("word_bank");
   }
 
   if (includeActions) {
     properties.scaffold_actions = {
-      type: SchemaType.ARRAY,
+      type: "array",
       items: scaffoldActionSchema,
-      description:
-        "Structured scaffold modifications for applying directly to the original Google Doc. Each action describes a targeted change to make.",
+      description: "Structured scaffold modifications for the original Google Doc.",
     };
     required.push("scaffold_actions");
   }
 
-  return {
-    type: SchemaType.OBJECT,
-    properties,
-    required,
-  };
+  return { type: "object", properties, required };
 }
 
-function getGeminiModel(includeWordBank: boolean, includeActions: boolean) {
-  if (isPlaceholder()) {
-    return null;
-  }
-  const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: buildResponseSchema(includeWordBank, includeActions),
-    },
-  });
+// ---------------------------------------------------------------------------
+// OpenRouter API call
+// ---------------------------------------------------------------------------
+
+interface OpenRouterResponse {
+  choices?: Array<{
+    message?: { content?: string };
+  }>;
+  error?: { message?: string; code?: string };
 }
+
+async function callOpenRouter(
+  prompt: string,
+  schema: JsonSchema | null,
+): Promise<string> {
+  const body: Record<string, unknown> = {
+    model: MODEL,
+    messages: [{ role: "user", content: prompt }],
+  };
+
+  if (schema) {
+    body.response_format = {
+      type: "json_schema",
+      json_schema: { name: "scaffold_response", strict: false, schema },
+    };
+  }
+
+  const res = await fetch(OPENROUTER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = (await res.json()) as OpenRouterResponse;
+
+  if (!res.ok || data.error) {
+    const msg = data.error?.message || `OpenRouter API error (${res.status})`;
+    throw new Error(msg);
+  }
+
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("OpenRouter returned an empty response");
+  }
+
+  return content;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 export interface GenerateParams {
   originalContent: string;
@@ -157,9 +147,9 @@ export interface GenerateParams {
   title: string;
   subject?: string;
   gradeLevel?: number;
-  /** When set, Gemini also produces scaffold_actions for clone-based export */
+  /** When set, also produces scaffold_actions for clone-based export */
   sourceDocId?: string;
-  /** Full HTML from Google Drive export — Gemini scaffolds on top of this HTML structure */
+  /** Full HTML from Google Drive export — scaffolds on top of this HTML structure */
   sourceHtml?: string;
 }
 
@@ -179,34 +169,32 @@ function extractStyles(html: string): { styles: string; body: string } {
 }
 
 export async function generateScaffoldedAssignment(
-  params: GenerateParams
+  params: GenerateParams,
 ): Promise<ScaffoldGenerationResult> {
   const includeWordBank = params.scaffoldNames.some((n) =>
-    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX)
+    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX),
   );
   const includeActions = !!params.sourceDocId;
-  const model = getGeminiModel(includeWordBank, includeActions);
 
-  if (!model) {
+  if (isPlaceholder()) {
     return buildMockResult(params);
   }
 
   // If sourceHtml is provided, separate styles from body.
-  // We send only the body HTML to Gemini (keeps prompt small) and
+  // We send only the body HTML (keeps prompt small) and
   // re-attach the styles to the output afterward.
   let originalStyles = "";
   if (params.sourceHtml) {
     const { styles, body } = extractStyles(params.sourceHtml);
     originalStyles = styles;
-    // Replace sourceHtml with body-only for prompt building
     params = { ...params, sourceHtml: body };
   }
 
   const prompt = buildPrompt(params, includeWordBank, includeActions);
+  const schema = buildResponseSchema(includeWordBank, includeActions);
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const text = await callOpenRouter(prompt, schema);
     const parsed = JSON.parse(text);
 
     let scaffoldedHtml = parsed.scaffolded_html as string;
@@ -217,12 +205,12 @@ export async function generateScaffoldedAssignment(
     }
 
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
-    console.log("[Gemini] Generation complete:", {
+    console.log("[OpenRouter] Generation complete:", {
+      model: MODEL,
       includeActions,
       sourceDocId: params.sourceDocId || "(none)",
       hasSourceHtml: !!params.sourceHtml,
       scaffoldActionsReturned: scaffoldActions ? scaffoldActions.length : 0,
-      actionTypes: scaffoldActions?.map((a) => a.action_type) || [],
     });
 
     return {
@@ -234,35 +222,45 @@ export async function generateScaffoldedAssignment(
       scaffoldActions,
     };
   } catch (error) {
-    // If JSON parsing fails, try extracting HTML from raw text
-    console.error("[Gemini] Structured output parsing failed, falling back:", error);
+    console.error("[OpenRouter] Structured output failed, falling back:", error);
 
-    const result = await getGeminiModelFallback()!.generateContent(prompt);
-    let html = result.response.text();
-    html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+    // Fallback: no schema constraint, extract HTML from raw text
+    try {
+      const rawText = await callOpenRouter(prompt, null);
+      let html = rawText;
 
-    // Re-attach styles for fallback too
-    if (originalStyles) {
-      html = `<div class="google-doc-import">${originalStyles}${html}</div>`;
+      // Try parsing as JSON first
+      try {
+        const parsed = JSON.parse(html);
+        html = parsed.scaffolded_html || html;
+      } catch {
+        // Not JSON — strip markdown code fences if present
+        html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+      }
+
+      if (originalStyles) {
+        html = `<div class="google-doc-import">${originalStyles}${html}</div>`;
+      }
+
+      return {
+        html,
+        wordBank: null,
+        scaffoldsUsed: params.scaffoldNames,
+        teacherInstructions: null,
+        isDemo: false,
+        scaffoldActions: null,
+      };
+    } catch (fallbackError) {
+      // Both attempts failed — re-throw original error
+      console.error("[OpenRouter] Fallback also failed:", fallbackError);
+      throw error;
     }
-
-    return {
-      html,
-      wordBank: null,
-      scaffoldsUsed: params.scaffoldNames,
-      teacherInstructions: null,
-      isDemo: false,
-      scaffoldActions: null,
-    };
   }
 }
 
-/** Fallback model without JSON schema constraints */
-function getGeminiModelFallback() {
-  if (isPlaceholder()) return null;
-  const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-}
+// ---------------------------------------------------------------------------
+// Prompt builder (unchanged logic)
+// ---------------------------------------------------------------------------
 
 function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeActions: boolean): string {
   const {
@@ -289,7 +287,6 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
     .filter(Boolean)
     .join("\n");
 
-  // Pull CA ELD Framework context for this level
   const eldContext = getELDPromptContext(elLevel);
 
   let actionsSection = "";
@@ -328,7 +325,6 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 `;
   }
 
-  // When sourceHtml is provided, Gemini should modify the HTML in-place
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
 - You are given the HTML body of the original Google Doc below. Your scaffolded_html output MUST start from this HTML and modify it IN-PLACE.
@@ -385,13 +381,19 @@ ${sourceHtml}
 
 ## Original Assignment Plain Text (for reference and scaffold_actions matching):
 ${originalContent}` : `## Original Assignment:
-${originalContent}`}`;
+${originalContent}`}
+
+IMPORTANT: Respond with valid JSON matching the required schema. Do not include any text outside the JSON object.`;
 }
+
+// ---------------------------------------------------------------------------
+// Mock / demo result (no API key configured)
+// ---------------------------------------------------------------------------
 
 function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
   const { originalContent, elLevel, scaffoldNames, title } = params;
   const includeWordBank = scaffoldNames.some((n) =>
-    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX)
+    n.startsWith(WORD_BANK_SCAFFOLD_PREFIX),
   );
 
   const scaffoldList = scaffoldNames
@@ -402,7 +404,7 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
     .split(/\n\n+/)
     .map(
       (p) =>
-        `<p style="margin: 0.75rem 0; line-height: 1.7;">${p.trim()}</p>`
+        `<p style="margin: 0.75rem 0; line-height: 1.7;">${p.trim()}</p>`,
     )
     .join("\n      ");
 
@@ -410,7 +412,7 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
     <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
       <strong style="color: #92400e;">Demo Preview</strong>
       <p style="margin: 0.5rem 0 0 0; color: #78350f; font-size: 0.875rem;">
-        This is a demo preview. Connect your Gemini API key in <code>.env.local</code> for real AI scaffolding.
+        This is a demo preview. Add your OPENROUTER_API_KEY to <code>.env.local</code> for real AI scaffolding.
       </p>
     </div>
 
@@ -451,7 +453,7 @@ function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {
       : null,
     scaffoldsUsed: scaffoldNames,
     teacherInstructions:
-      "This is a demo preview. Connect your Gemini API key for real scaffolding with teacher-specific instructions.",
+      "This is a demo preview. Add your OPENROUTER_API_KEY for real scaffolding with teacher-specific instructions.",
     isDemo: true,
     scaffoldActions: null,
   };
