@@ -177,28 +177,67 @@ function extractStyles(html: string): { styles: string; body: string } {
 
 /**
  * Aggressively slim Google Docs HTML for the AI prompt.
- * Strips redundant attributes (id, style on spans, data-*, empty spans)
- * while keeping semantic structure (p, h1-h6, table, img, ul, ol, li, b, i, u, a).
- * This can reduce token count by 60-80%.
+ * Extracts base64 images as placeholders (the biggest token sink),
+ * strips all wrapper elements (spans, divs), attributes, and structure
+ * leaving only semantic content (p, h1-h6, table, img, ul, ol, li, b, i, u, a).
+ * Typically reduces 400k+ token docs to <50k tokens.
  */
-function slimHtml(html: string): string {
-  let s = html;
-  // Remove all id attributes
-  s = s.replace(/\s+id="[^"]*"/gi, "");
-  // Remove all style attributes (styles come from the stylesheet we re-attach)
-  s = s.replace(/\s+style="[^"]*"/gi, "");
-  // Remove data-* attributes
-  s = s.replace(/\s+data-[a-z-]+="[^"]*"/gi, "");
-  // Remove class attributes (we re-attach the stylesheet, but AI doesn't need them)
-  s = s.replace(/\s+class="[^"]*"/gi, "");
-  // Remove empty spans: <span>text</span> → text
-  s = s.replace(/<span\s*>([\s\S]*?)<\/span>/gi, "$1");
-  // Remove Google's tracking spans and links
-  s = s.replace(/<a\s*>([\s\S]*?)<\/a>/gi, "$1");
-  // Collapse multiple whitespace/newlines
-  s = s.replace(/\n\s*\n/g, "\n");
-  s = s.replace(/>\s+</g, "> <");
-  return s.trim();
+interface SlimResult {
+  html: string;
+  images: Map<string, string>;
+}
+
+function slimHtml(rawHtml: string): SlimResult {
+  let s = rawHtml;
+  const images = new Map<string, string>();
+  let imgCount = 0;
+
+  // 1. Remove HTML comments
+  s = s.replace(/<!--[\s\S]*?-->/g, "");
+
+  // 2. Remove <head>...</head> entirely (styles extracted separately)
+  s = s.replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "");
+
+  // 3. Remove <html>, <body> wrappers
+  s = s.replace(/<\/?(html|body)[^>]*>/gi, "");
+
+  // 4. Replace base64 images with tiny placeholders (biggest token saver)
+  s = s.replace(/<img\s[^>]*?src="(data:image\/[^"]*)"[^>]*?\/?>/gi, (_match, src) => {
+    const key = `IMG_PH_${++imgCount}`;
+    images.set(key, src as string);
+    return `<img src="${key}">`;
+  });
+
+  // 5. Preserve src on remaining img tags, strip other attributes
+  s = s.replace(/<img\s[^>]*?src="([^"]*)"[^>]*?\/?>/gi, '<img src="$1">');
+
+  // 6. Preserve href on a tags, strip other attributes
+  s = s.replace(/<a\s[^>]*?href="([^"]*)"[^>]*?>/gi, '<a href="$1">');
+
+  // 7. Strip ALL attributes from all other tags
+  s = s.replace(/<(\/?)([a-z][a-z0-9]*)\s[^>]*>/gi, "<$1$2>");
+
+  // 8. Remove ALL span tags (Google wraps every text run in spans)
+  s = s.replace(/<\/?span>/gi, "");
+
+  // 9. Remove ALL div tags (keep content — divs are just wrappers in Google Docs)
+  s = s.replace(/<\/?div>/gi, "");
+
+  // 10. Remove empty paragraphs and list items
+  s = s.replace(/<p>\s*<\/p>/gi, "");
+  s = s.replace(/<li>\s*<\/li>/gi, "");
+
+  // 11. Remove empty links
+  s = s.replace(/<a>\s*<\/a>/gi, "");
+
+  // 12. Collapse whitespace
+  s = s.replace(/\s+/g, " ");
+  s = s.replace(/>\s*</g, ">\n<");
+
+  // 13. Remove blank lines
+  s = s.replace(/\n{2,}/g, "\n");
+
+  return { html: s.trim(), images };
 }
 
 /**
@@ -233,13 +272,16 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
-  // When sourceHtml is available, extract styles and slim the body to reduce tokens.
-  // The AI works with the slimmed body; we re-attach original styles to the output.
+  // When sourceHtml is available, extract styles, slim the body, and placeholder images.
+  // The AI works with the slimmed body; we restore images and styles on the output.
   let originalStyles = "";
+  let extractedImages = new Map<string, string>();
   if (params.sourceHtml) {
     const { styles, body } = extractStyles(params.sourceHtml);
     originalStyles = styles;
-    params = { ...params, sourceHtml: slimHtml(body) };
+    const { html: slimmed, images } = slimHtml(body);
+    extractedImages = images;
+    params = { ...params, sourceHtml: slimmed };
   }
 
   const prompt = buildPrompt(params, includeWordBank, includeActions);
@@ -249,11 +291,17 @@ export async function generateScaffoldedAssignment(
     const text = await callOpenRouter(prompt, schema);
     const parsed = JSON.parse(text);
 
-    // When sourceHtml is available, re-attach original styles to the AI's output.
-    // When working from plain text only, wrap with base styles for readability.
-    let scaffoldedHtml = originalStyles
-      ? `${originalStyles}\n${parsed.scaffolded_html as string}`
-      : wrapWithBaseStyles(parsed.scaffolded_html as string);
+    let scaffoldedHtml = parsed.scaffolded_html as string;
+
+    // Restore base64 images from placeholders
+    for (const [key, src] of extractedImages) {
+      scaffoldedHtml = scaffoldedHtml.replaceAll(key, src);
+    }
+
+    // Re-attach original styles, or wrap with base styles for plain text
+    scaffoldedHtml = originalStyles
+      ? `${originalStyles}\n${scaffoldedHtml}`
+      : wrapWithBaseStyles(scaffoldedHtml);
 
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[OpenRouter] Generation complete:", {
@@ -286,6 +334,11 @@ export async function generateScaffoldedAssignment(
       } catch {
         // Not JSON — strip markdown code fences if present
         html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+      }
+
+      // Restore base64 images from placeholders
+      for (const [key, src] of extractedImages) {
+        html = html.replaceAll(key, src);
       }
 
       return {
