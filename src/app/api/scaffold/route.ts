@@ -5,6 +5,9 @@ import { defaultScaffolds } from "@/lib/seed-scaffolds";
 import { scaffoldRequestSchema } from "@/lib/validations";
 import { checkRateLimit, checkGlobalRateLimit } from "@/lib/rate-limit";
 
+// Allow up to 3 minutes for AI generation (serverless environments like Vercel)
+export const maxDuration = 180;
+
 const DAILY_GLOBAL_LIMIT = parseInt(process.env.DAILY_GLOBAL_LIMIT ?? "250", 10);
 const DAILY_PER_USER_LIMIT = parseInt(process.env.DAILY_PER_USER_LIMIT ?? "10", 10);
 const UNLIMITED_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase());

@@ -101,7 +101,7 @@ async function callOpenRouter(
 ): Promise<string> {
   const body: Record<string, unknown> = {
     model: MODEL,
-    max_tokens: 32768,
+    max_tokens: 16384,
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -112,14 +112,28 @@ async function callOpenRouter(
     };
   }
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120_000); // 2 minute timeout
+
+  let res: Response;
+  try {
+    res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("AI generation timed out. The document may be too long. Please try with a shorter document.");
+    }
+    throw err;
+  }
+  clearTimeout(timeout);
 
   const rawText = await res.text();
   let data: OpenRouterResponse;
