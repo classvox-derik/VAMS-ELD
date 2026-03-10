@@ -366,37 +366,26 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
 - You are given a SIMPLIFIED version of the original Google Doc HTML below (attributes stripped to save space). Use it to understand the document structure and content.
-- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
+- Your output MUST match the original document's formatting, structure, and layout as closely as possible. Do NOT reformat, restyle, or reorganize the content.
 - Reproduce the document content faithfully using clean semantic HTML (p, h1-h6, ul, ol, li, table, tr, td, b, i, u, a, img tags).
 - PRESERVE all <img> tags and their src attributes exactly as given.
+- Apply ONLY the listed scaffolds as minimal, targeted modifications on top of the original content.
 - For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span>.
 - For translation scaffolds: translate ALL student-facing content. Translation IS the scaffold — replace the original language text while keeping scaffold labels in English.
 - For word banks, sentence frames, and other appended sections: add them AFTER the document content.
 - Use inline CSS styles throughout (the output will be wrapped with the original stylesheet separately).
 - Wrap the entire output in a single <div> element`
     : `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
-- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
-- Preserve the original assignment structure and meaning — do not remove content or summarize
-- EXCEPTION: If a bilingual/translation scaffold is requested, you MUST translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold — it replaces the original language for student-facing text while keeping scaffold labels in English.
-- For color coding scaffolds: you MUST wrap the relevant text with the specified highlight colors. Identify topic sentences, evidence, and transitions throughout the ENTIRE document, not just the first paragraph. Every paragraph should have at least some highlighted text.
-- Apply scaffolds by ADDING or MODIFYING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the content
-- Use inline CSS styles only (no class names that require external stylesheets)
-- Wrap the entire output in a single <div> element
-
-## Formatting & Typography Rules (CRITICAL — the output must look professional and print-ready)
-- Use a clean document layout: font-family: 'Georgia', 'Times New Roman', serif for body text; sans-serif for headings
-- Set font-size: 12pt for body text, appropriate sizes for headings (h1: 18pt, h2: 15pt, h3: 13pt)
-- Use line-height: 1.6 for body paragraphs for readability
-- Add proper margins between paragraphs (margin: 0.75em 0)
-- For numbered lists and bullet lists, use proper <ol> and <ul> tags with padding-left: 1.5em
-- For answer lines / blanks, use a solid underline: <span style="display: inline-block; border-bottom: 1px solid #000; min-width: 200px;">&nbsp;</span>
-- For tables, add borders and padding: border: 1px solid #999; border-collapse: collapse; padding: 8px 12px
-- Bold text should use <strong> or <b> tags. Italic should use <em> or <i> tags. Underline should use <u> tags.
-- Preserve ALL original formatting cues: if the original text has numbered items, render as <ol>; if it has bullets, render as <ul>; if it has headings, use appropriate <h1>-<h6> tags
-- The document title should be rendered as <h1> at the top with text-align: center and margin-bottom: 1em
-- Add a subtle top border under the title: border-bottom: 2px solid #333; padding-bottom: 0.5em
-- For any directions/instructions sections, style them distinctly: font-style: italic or with a left border
-- Do NOT output plain unstyled text — every element must have appropriate inline styles for a polished, printable document`;
+- Your PRIMARY goal is to reproduce the original document as faithfully as possible in HTML, then layer ONLY the selected scaffolds on top.
+- Match the original document's structure, order, formatting (bold, italic, underline), headings, lists, tables, and layout exactly.
+- Do NOT reformat, restyle, reorganize, or add any formatting that wasn't in the original (no centered titles, decorative borders, or style changes unless the original had them).
+- Preserve the original assignment content word-for-word — do not remove, summarize, or rewrite any content.
+- EXCEPTION: If a bilingual/translation scaffold is requested, translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold.
+- For color coding scaffolds: wrap the relevant text with the specified highlight colors using <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">. Identify topic sentences, evidence, and transitions throughout the ENTIRE document.
+- Apply scaffolds as minimal, targeted additions (highlights, appended sections) — do NOT restructure or restyle the document.
+- Use inline CSS styles only (no class names that require external stylesheets).
+- Wrap the entire output in a single <div> element.
+- Use semantic HTML: <p> for paragraphs, <ol>/<ul> for lists, <table> for tables, <b>/<i>/<u> for formatting, <h1>-<h6> for headings — matching what the original uses.`;
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
@@ -407,9 +396,9 @@ ${metaContext}
 ${eldContext}
 
 ## Instructions
-Apply the following scaffold modifications to the assignment below. Follow each scaffold's instructions precisely.
+Apply ONLY the scaffolds listed below — no others. Do NOT add scaffolds that are not in this list (no word banks, sentence starters, graphic organizers, etc. unless explicitly listed below). The ELD Framework Guidance above is background context only, NOT a list of scaffolds to apply.
 
-### Scaffolds to Apply:
+### Scaffolds to Apply (ONLY these):
 ${scaffoldInstructions}
 
 ${htmlRules}
