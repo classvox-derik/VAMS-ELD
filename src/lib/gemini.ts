@@ -120,10 +120,17 @@ async function callOpenRouter(
     body: JSON.stringify(body),
   });
 
-  const data = (await res.json()) as OpenRouterResponse;
+  const rawText = await res.text();
+  let data: OpenRouterResponse;
+  try {
+    data = JSON.parse(rawText) as OpenRouterResponse;
+  } catch {
+    throw new Error(`OpenRouter returned non-JSON (${res.status}): ${rawText.slice(0, 500)}`);
+  }
 
   if (!res.ok || data.error) {
-    const msg = data.error?.message || `OpenRouter API error (${res.status})`;
+    const msg = data.error?.message || `OpenRouter API error (${res.status}): ${rawText.slice(0, 500)}`;
+    console.error("[OpenRouter] API error:", res.status, rawText.slice(0, 1000));
     throw new Error(msg);
   }
 
