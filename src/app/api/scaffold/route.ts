@@ -207,10 +207,10 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : String(error);
     console.error("Scaffold generation error:", message, error);
 
-    // Surface Gemini quota/rate-limit errors clearly
+    // Surface quota/rate-limit errors clearly
     if (message.includes("429") || message.includes("quota")) {
       return NextResponse.json(
-        { error: "Gemini API quota exceeded. Please wait a few minutes or check your Google AI billing plan." },
+        { error: "AI API quota exceeded. Please wait a few minutes and try again." },
         { status: 429 }
       );
     }
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Failed to generate scaffolded assignment. Please try again.",
-        ...(process.env.NODE_ENV === "development" && { detail: message }),
+        detail: message,
       },
       { status: 500 }
     );
