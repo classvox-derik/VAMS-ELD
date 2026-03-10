@@ -101,6 +101,7 @@ async function callOpenRouter(
 ): Promise<string> {
   const body: Record<string, unknown> = {
     model: MODEL,
+    max_tokens: 16384,
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -484,7 +485,9 @@ ${sourceHtml}
 ${originalContent}` : `## Original Assignment:
 ${originalContent}`}
 
-IMPORTANT: Respond with valid JSON matching the required schema. Do not include any text outside the JSON object.`;
+CRITICAL: You MUST process the ENTIRE document from start to finish. NEVER truncate, abbreviate, or skip any part of the content. Do NOT write "rest of document continues" or similar — include every single paragraph, sentence, and element. The complete document must appear in scaffolded_html.
+
+Respond with valid JSON matching the required schema. Do not include any text outside the JSON object.`;
 }
 
 // ---------------------------------------------------------------------------
