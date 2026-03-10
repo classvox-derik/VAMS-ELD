@@ -193,8 +193,9 @@ function slimHtml(rawHtml: string): SlimResult {
   const images = new Map<string, string>();
   let imgCount = 0;
 
-  // 1. Remove HTML comments
+  // 1. Remove HTML comments and DOCTYPE
   s = s.replace(/<!--[\s\S]*?-->/g, "");
+  s = s.replace(/<!DOCTYPE[^>]*>/gi, "");
 
   // 2. Remove <head>...</head> entirely (styles extracted separately)
   s = s.replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "");
@@ -294,6 +295,10 @@ export async function generateScaffoldedAssignment(
 
     let scaffoldedHtml = parsed.scaffolded_html as string;
 
+    // Strip any DOCTYPE/html/head/body tags the AI might have added
+    scaffoldedHtml = scaffoldedHtml.replace(/<!DOCTYPE[^>]*>/gi, "");
+    scaffoldedHtml = scaffoldedHtml.replace(/<\/?(html|head|body)[^>]*>/gi, "");
+
     // Restore base64 images from placeholders
     for (const [key, src] of extractedImages) {
       scaffoldedHtml = scaffoldedHtml.replaceAll(key, src);
@@ -379,6 +384,7 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
     .join("\n");
 
   const hasTranslation = scaffoldNames.some((n) => /translat|bilingual/i.test(n));
+  const hasWordBank = includeWordBank;
 
   const metaContext = [
     `Assignment title: "${title}"`,
@@ -457,7 +463,7 @@ ${metaContext}
 ${eldContext}
 
 ## Instructions
-Apply ONLY the scaffolds listed below — no others. Do NOT add scaffolds that are not in this list (no word banks, sentence starters, graphic organizers, etc. unless explicitly listed below). The ELD Framework Guidance above is background context only, NOT a list of scaffolds to apply.
+Apply ONLY the scaffolds listed below. Do NOT add ANY other modifications such as: section dividers, chunking headers ("Section X of Y"), word banks, sentence starters, graphic organizers, vocabulary lists, or any other scaffold not explicitly listed below. If it is not in the list below, do NOT add it.
 
 ### Scaffolds to Apply (ONLY these):
 ${scaffoldInstructions}
@@ -469,12 +475,27 @@ ${htmlRules}
 
 ${includeWordBank ? `## Rules for word_bank
 - Select 6-12 academic or challenging vocabulary words from the assignment
-- The word_bank field must ALWAYS be in English (terms and definitions), even when a bilingual translation scaffold is applied
+- The word_bank JSON field must ALWAYS be in English (terms and definitions), even when a bilingual translation scaffold is applied
 - Definitions should be appropriate for the ${elLevel} EL level
 - For Emerging: use simple, everyday language definitions
 - For Expanding: use clear academic definitions
 - For Bridging: focus on nuanced/domain-specific terms
-
+${hasTranslation ? `
+## BILINGUAL WORD BANK (Spanish Translation + Word Bank selected)
+Since both Word Bank and Spanish Translation are selected, you MUST include TWO word bank sections in the scaffolded_html output:
+1. **English Word Bank** — titled "Word Bank" with English terms and English definitions
+2. **Spanish Word Bank** — titled "Banco de Palabras" with the SAME terms translated to Spanish and definitions in Spanish
+Place both word banks at the END of the document. The English word bank comes first, then the Spanish word bank immediately after.
+Use the same styling for both. Example structure:
+<div class="word-bank" style="border: 2px solid #2563eb; padding: 1.25rem; margin: 2rem 0; background: #eff6ff; border-radius: 8px;">
+  <h3 style="margin: 0 0 1rem 0; color: #1e40af; font-size: 1.125rem;">Word Bank</h3>
+  ...English terms and definitions...
+</div>
+<div class="word-bank" style="border: 2px solid #2563eb; padding: 1.25rem; margin: 2rem 0; background: #eff6ff; border-radius: 8px;">
+  <h3 style="margin: 0 0 1rem 0; color: #1e40af; font-size: 1.125rem;">Banco de Palabras</h3>
+  ...Spanish terms and definitions...
+</div>
+` : ""}
 ` : ""}## Rules for teacher_instructions
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds

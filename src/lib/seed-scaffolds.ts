@@ -8,7 +8,7 @@ const defaultScaffolds = [
     category: "color_coding",
     el_level_target: ["Emerging", "Expanding", "Bridging"],
     ai_prompt_template:
-      'Apply HTML with inline styles: topic sentences get <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px;">text</span>, evidence gets <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px;">text</span>, transition words get <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px;">text</span>. Identify and wrap appropriate text.',
+      'Color code text throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap topic sentences with <span style="background-color: #FFF176;">text</span> (yellow), evidence/supporting details with <span style="background-color: #AED581;">text</span> (green), and transition words/phrases with <span style="background-color: #90CAF9;">text</span> (blue). Every paragraph must have at least one highlighted element. Do NOT skip any paragraph.',
     is_default: true,
   },
   {
