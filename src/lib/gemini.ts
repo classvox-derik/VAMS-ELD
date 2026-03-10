@@ -10,81 +10,6 @@ function isPlaceholder(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// OpenAI-compatible JSON Schema for structured output
-// ---------------------------------------------------------------------------
-
-interface JsonSchema {
-  type: string;
-  properties?: Record<string, JsonSchema>;
-  items?: JsonSchema;
-  required?: string[];
-  description?: string;
-}
-
-const scaffoldActionSchema: JsonSchema = {
-  type: "object",
-  properties: {
-    action_type: { type: "string", description: "One of: highlight_range, insert_after_paragraph, insert_divider_after_paragraph, append_section" },
-    search_text: { type: "string", description: "For highlight_range: the exact verbatim text to highlight." },
-    background_color: { type: "string", description: "Hex color (e.g., '#FFF176') for highlights or section styling." },
-    category: { type: "string", description: "For highlight_range: what this highlight represents (topic_sentence, evidence, transition)." },
-    paragraph_prefix: { type: "string", description: "For insert/divider actions: first 60+ characters of the target paragraph." },
-    insert_content: { type: "string", description: "For insert_after_paragraph: the text content to insert." },
-    label: { type: "string", description: "For insert_divider_after_paragraph: optional divider label text." },
-    heading: { type: "string", description: "For append_section: the section heading." },
-    content: { type: "string", description: "For append_section: the section body text." },
-    items: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: { term: { type: "string" }, definition: { type: "string" } },
-        required: ["term", "definition"],
-      },
-      description: "For append_section word banks: term-definition pairs.",
-    },
-    section_style: { type: "string", description: "For append_section: one of word_bank, sentence_frames, translation." },
-    style_italic: { type: "boolean" },
-    style_bold: { type: "boolean" },
-    style_font_size_pt: { type: "number" },
-    style_text_color: { type: "string" },
-  },
-  required: ["action_type"],
-};
-
-function buildResponseSchema(includeWordBank: boolean, includeActions: boolean): JsonSchema {
-  const properties: Record<string, JsonSchema> = {
-    scaffolded_html: { type: "string", description: "The full scaffolded assignment as clean HTML with inline CSS styles." },
-    scaffolds_used: { type: "array", items: { type: "string" }, description: "List of scaffold technique names applied." },
-    teacher_instructions: { type: "string", description: "Brief instructions for the teacher (2-3 sentences)." },
-  };
-  const required = ["scaffolded_html", "scaffolds_used", "teacher_instructions"];
-
-  if (includeWordBank) {
-    properties.word_bank = {
-      type: "array",
-      items: {
-        type: "object",
-        properties: { term: { type: "string" }, definition: { type: "string" } },
-        required: ["term", "definition"],
-      },
-      description: "Key vocabulary terms with simple definitions. 6-12 terms.",
-    };
-    required.push("word_bank");
-  }
-
-  if (includeActions) {
-    properties.scaffold_actions = {
-      type: "array",
-      items: scaffoldActionSchema,
-      description: "Structured scaffold modifications for the original Google Doc.",
-    };
-    required.push("scaffold_actions");
-  }
-
-  return { type: "object", properties, required };
-}
-
-// ---------------------------------------------------------------------------
 // OpenRouter API call
 // ---------------------------------------------------------------------------
 
@@ -97,20 +22,12 @@ interface OpenRouterResponse {
 
 async function callOpenRouter(
   prompt: string,
-  schema: JsonSchema | null,
 ): Promise<string> {
   const body: Record<string, unknown> = {
     model: MODEL,
     max_tokens: 16384,
     messages: [{ role: "user", content: prompt }],
   };
-
-  if (schema) {
-    body.response_format = {
-      type: "json_schema",
-      json_schema: { name: "scaffold_response", strict: false, schema },
-    };
-  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 120_000); // 2 minute timeout
@@ -301,7 +218,6 @@ export async function generateScaffoldedAssignment(
   }
 
   const prompt = buildPrompt(params, includeWordBank, includeActions);
-  const schema = buildResponseSchema(includeWordBank, includeActions);
 
   // Helper: extract scaffolded_html from a parsed JSON object, trying common key variants
   function extractHtmlFromParsed(obj: Record<string, unknown>): string | null {
@@ -333,7 +249,7 @@ export async function generateScaffoldedAssignment(
     return null;
   }
 
-  const rawText = await callOpenRouter(prompt, schema);
+  const rawText = await callOpenRouter(prompt);
 
   console.log("[OpenRouter] Raw response length:", rawText.length, "first 200 chars:", rawText.slice(0, 200));
 
