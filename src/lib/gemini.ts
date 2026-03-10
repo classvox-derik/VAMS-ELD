@@ -233,6 +233,15 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
+  // When sourceHtml is available, extract styles and slim the body to reduce tokens.
+  // The AI works with the slimmed body; we re-attach original styles to the output.
+  let originalStyles = "";
+  if (params.sourceHtml) {
+    const { styles, body } = extractStyles(params.sourceHtml);
+    originalStyles = styles;
+    params = { ...params, sourceHtml: slimHtml(body) };
+  }
+
   const prompt = buildPrompt(params, includeWordBank, includeActions);
   const schema = buildResponseSchema(includeWordBank, includeActions);
 
@@ -240,10 +249,10 @@ export async function generateScaffoldedAssignment(
     const text = await callOpenRouter(prompt, schema);
     const parsed = JSON.parse(text);
 
-    // When sourceHtml is available, the AI modified it in-place — don't override its styles.
+    // When sourceHtml is available, re-attach original styles to the AI's output.
     // When working from plain text only, wrap with base styles for readability.
-    let scaffoldedHtml = params.sourceHtml
-      ? (parsed.scaffolded_html as string)
+    let scaffoldedHtml = originalStyles
+      ? `${originalStyles}\n${parsed.scaffolded_html as string}`
       : wrapWithBaseStyles(parsed.scaffolded_html as string);
 
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
@@ -280,7 +289,7 @@ export async function generateScaffoldedAssignment(
       }
 
       return {
-        html: params.sourceHtml ? html : wrapWithBaseStyles(html),
+        html: originalStyles ? `${originalStyles}\n${html}` : wrapWithBaseStyles(html),
         wordBank: null,
         scaffoldsUsed: params.scaffoldNames,
         teacherInstructions: null,
@@ -364,13 +373,13 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — modify the original HTML in-place)
-- You are given the ORIGINAL Google Doc HTML below. Modify it IN-PLACE — add scaffolds directly into this HTML.
-- PRESERVE everything: all tags, attributes, classes, inline styles, <style> blocks, <img> tags, and document structure.
-- Do NOT regenerate, reformat, restyle, or reorganize the HTML. Keep it exactly as-is except for scaffold additions.
+- You are given a SLIMMED version of the original Google Doc HTML below (style/class attributes removed to save tokens, but the structure is preserved). The original stylesheet will be re-attached automatically — do NOT add <style> blocks.
+- Modify the HTML IN-PLACE — add scaffolds directly into this HTML structure.
+- PRESERVE the document structure: all tags, <img> tags, and content order. Do NOT regenerate, reorganize, or restructure the HTML.
 - For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span> INSIDE existing elements.
-- For translation scaffolds: replace the text content inside existing elements with the translated text. Do NOT change the HTML tags or attributes.
+- For translation scaffolds: replace the text content inside existing elements with the translated text. Do NOT change the HTML tags.
 - For appended sections (word banks, sentence frames, etc.): add them at the END of the document, inside the outermost container element.
-- Return the FULL modified HTML including all original <style> blocks and attributes.`
+- Return the modified HTML body (no <style> blocks needed — they will be re-attached).`
     : `## Rules for scaffolded_html (CRITICAL — preserve the original, only add scaffolds)
 - Convert the original text to clean, minimal HTML that preserves its exact structure, order, and content word-for-word.
 - Do NOT add formatting, styling, or structure that wasn't in the original (no centered titles, decorative borders, font changes).
@@ -412,7 +421,7 @@ ${includeWordBank ? `## Rules for word_bank
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 ${actionsSection}
-${sourceHtml ? `## Original HTML (modify this in-place — return the full HTML with scaffolds added):
+${sourceHtml ? `## Original HTML (slimmed — modify in-place, add scaffolds only):
 ${sourceHtml}
 
 ## Original Plain Text (for reference and scaffold_actions text matching):
