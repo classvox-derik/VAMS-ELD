@@ -78,7 +78,7 @@ const defaultScaffolds = [
     category: "bilingual_support",
     el_level_target: ["Emerging", "Expanding", "Bridging"],
     ai_prompt_template:
-      "Translate ONLY the student-facing assignment content to Spanish — this includes the original assignment text, reading passages, questions, directions for students, and any text the student would read or respond to. DO NOT translate any teacher-facing or scaffold-generated elements. Keep ALL of the following in English: the assignment title, teacher instructions, scaffold labels and headings ('Word Bank', 'Sentence Frames:', 'Section X of Y', 'Compare & Contrast', 'Scaffolds Applied', etc.), section divider text, and Word Bank terms/definitions. Preserve all HTML structure, inline styles, and formatting. Keep proper nouns, names, and numbers unchanged. The translated student content should read naturally in Spanish. If a Word Bank section exists in the HTML, keep the original English word bank intact and add a second word bank directly below it with the heading 'Banco de Palabras' containing the same terms translated to Spanish with Spanish definitions.",
+      "Replace all English text in the document with its Spanish translation. Keep the exact same HTML structure and formatting — only change the text content. Keep proper nouns, names, and numbers unchanged. Do NOT add any extra sections, word banks, or content that was not in the original. The result should be the same document in Spanish.",
     is_default: true,
   },
 ];

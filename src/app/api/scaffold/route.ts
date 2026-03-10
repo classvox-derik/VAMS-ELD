@@ -7,6 +7,7 @@ import { checkRateLimit, checkGlobalRateLimit } from "@/lib/rate-limit";
 
 const DAILY_GLOBAL_LIMIT = parseInt(process.env.DAILY_GLOBAL_LIMIT ?? "250", 10);
 const DAILY_PER_USER_LIMIT = parseInt(process.env.DAILY_PER_USER_LIMIT ?? "10", 10);
+const UNLIMITED_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase());
 
 async function getAuthUser(request: NextRequest) {
   const response = NextResponse.next({ request });
@@ -40,8 +41,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const isUnlimited = UNLIMITED_EMAILS.includes(user.email.toLowerCase());
+
     // 1. Global RPM rate limit (protects OpenRouter rate limits)
-    if (!checkGlobalRateLimit(10)) {
+    if (!isUnlimited && !checkGlobalRateLimit(10)) {
       return NextResponse.json(
         { error: "Platform rate limit reached. Please wait a moment and try again." },
         { status: 429 }
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Per-user RPM (secondary protection)
-    if (!checkRateLimit(user.id, 5)) {
+    if (!isUnlimited && !checkRateLimit(user.id, 5)) {
       return NextResponse.json(
         { error: "Rate limit exceeded. Please wait a moment before generating again." },
         { status: 429 }
@@ -66,14 +69,14 @@ export async function POST(request: NextRequest) {
         getTodayUserUsage(user.id),
       ]);
 
-      if (globalUsed >= DAILY_GLOBAL_LIMIT) {
+      if (!isUnlimited && globalUsed >= DAILY_GLOBAL_LIMIT) {
         return NextResponse.json(
           { error: "Platform daily limit reached. Scaffold generation will reset at midnight Pacific time." },
           { status: 429 }
         );
       }
 
-      if (userUsed >= DAILY_PER_USER_LIMIT) {
+      if (!isUnlimited && userUsed >= DAILY_PER_USER_LIMIT) {
         return NextResponse.json(
           { error: `You've reached your daily limit of ${DAILY_PER_USER_LIMIT} scaffold generations. Resets at midnight Pacific time.` },
           { status: 429 }

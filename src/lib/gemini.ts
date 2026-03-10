@@ -426,22 +426,25 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — modify the original HTML in-place)
-- You are given a SLIMMED version of the original Google Doc HTML below (style/class attributes removed to save tokens, but the structure is preserved). The original stylesheet will be re-attached automatically — do NOT add <style> blocks.
-- Modify the HTML IN-PLACE — add scaffolds directly into this HTML structure.
-- PRESERVE the document structure: all tags, <img> tags, and content order. Do NOT regenerate, reorganize, or restructure the HTML.
-- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span> INSIDE existing elements.
-- For translation scaffolds: replace the text content inside existing elements with the translated text. Do NOT change the HTML tags.
-- For appended sections (word banks, sentence frames, etc.): add them at the END of the document, inside the outermost container element.
-- Return the modified HTML body (no <style> blocks needed — they will be re-attached).`
+- You are given a SLIMMED version of the original Google Doc HTML below. The original stylesheet will be re-attached automatically — do NOT add <style> blocks.
+- Modify the HTML IN-PLACE. PRESERVE all tags, <img> tags, and content order. Do NOT regenerate, reorganize, or restructure the HTML.
+- Do NOT add any extra sections, content, or scaffolds beyond what is listed above.
+
+### How each scaffold type modifies the document:
+- **Color coding**: Wrap the original text with a background-color span. The text stays the same, only a highlight is added. Example: <span style="background-color: #FFF176;">original text here</span>
+- **Translation**: Replace the English text inside each element with its translated version. The HTML tags and structure stay exactly the same — only the text content changes. Do NOT add any extra translated sections.
+- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.`
     : `## Rules for scaffolded_html (CRITICAL — preserve the original, only add scaffolds)
 - Convert the original text to clean, minimal HTML that preserves its exact structure, order, and content word-for-word.
-- Do NOT add formatting, styling, or structure that wasn't in the original (no centered titles, decorative borders, font changes).
-- Then add ONLY the requested scaffolds on top (highlights, appended sections, translations).
-- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span>.
-- For translation scaffolds: translate ALL student-facing content. Keep scaffold labels in English.
-- For appended sections (word banks, etc.): add at the END of the document.
+- Do NOT add formatting, styling, or structure that wasn't in the original.
+- Do NOT add any extra sections, content, or scaffolds beyond what is listed above.
 - Use inline CSS styles only. Wrap the entire output in a single <div> element.
-- Use semantic HTML matching the original: <p>, <ol>/<ul>, <table>, <b>/<i>/<u>, <h1>-<h6>.`;
+- Use semantic HTML matching the original: <p>, <ol>/<ul>, <table>, <b>/<i>/<u>, <h1>-<h6>.
+
+### How each scaffold type modifies the document:
+- **Color coding**: Wrap the original text with a background-color span. The text stays the same, only a highlight is added. Example: <span style="background-color: #FFF176;">original text here</span>
+- **Translation**: Replace the English text inside each element with its translated version. The HTML structure stays exactly the same — only the text content changes. Do NOT add any extra translated sections.
+- **Appended sections** (word banks, sentence frames, etc.): Add at the END of the document only.`;
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
