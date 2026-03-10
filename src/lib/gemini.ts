@@ -233,11 +233,6 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
-  // Strip sourceHtml from the AI call — Google Docs HTML is too large/bloated
-  // and causes provider errors. The AI works from plain text instead.
-  // sourceHtml is still used client-side for the original preview.
-  params = { ...params, sourceHtml: undefined };
-
   const prompt = buildPrompt(params, includeWordBank, includeActions);
   const schema = buildResponseSchema(includeWordBank, includeActions);
 
@@ -245,7 +240,11 @@ export async function generateScaffoldedAssignment(
     const text = await callOpenRouter(prompt, schema);
     const parsed = JSON.parse(text);
 
-    let scaffoldedHtml = wrapWithBaseStyles(parsed.scaffolded_html as string);
+    // When sourceHtml is available, the AI modified it in-place — don't override its styles.
+    // When working from plain text only, wrap with base styles for readability.
+    let scaffoldedHtml = params.sourceHtml
+      ? (parsed.scaffolded_html as string)
+      : wrapWithBaseStyles(parsed.scaffolded_html as string);
 
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[OpenRouter] Generation complete:", {
@@ -281,7 +280,7 @@ export async function generateScaffoldedAssignment(
       }
 
       return {
-        html: wrapWithBaseStyles(html),
+        html: params.sourceHtml ? html : wrapWithBaseStyles(html),
         wordBank: null,
         scaffoldsUsed: params.scaffoldNames,
         teacherInstructions: null,
@@ -364,28 +363,23 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
   }
 
   const htmlRules = sourceHtml
-    ? `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
-- You are given a SIMPLIFIED version of the original Google Doc HTML below (attributes stripped to save space). Use it to understand the document structure and content.
-- Your output MUST match the original document's formatting, structure, and layout as closely as possible. Do NOT reformat, restyle, or reorganize the content.
-- Reproduce the document content faithfully using clean semantic HTML (p, h1-h6, ul, ol, li, table, tr, td, b, i, u, a, img tags).
-- PRESERVE all <img> tags and their src attributes exactly as given.
-- Apply ONLY the listed scaffolds as minimal, targeted modifications on top of the original content.
+    ? `## Rules for scaffolded_html (CRITICAL — modify the original HTML in-place)
+- You are given the ORIGINAL Google Doc HTML below. Modify it IN-PLACE — add scaffolds directly into this HTML.
+- PRESERVE everything: all tags, attributes, classes, inline styles, <style> blocks, <img> tags, and document structure.
+- Do NOT regenerate, reformat, restyle, or reorganize the HTML. Keep it exactly as-is except for scaffold additions.
+- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span> INSIDE existing elements.
+- For translation scaffolds: replace the text content inside existing elements with the translated text. Do NOT change the HTML tags or attributes.
+- For appended sections (word banks, sentence frames, etc.): add them at the END of the document, inside the outermost container element.
+- Return the FULL modified HTML including all original <style> blocks and attributes.`
+    : `## Rules for scaffolded_html (CRITICAL — preserve the original, only add scaffolds)
+- Convert the original text to clean, minimal HTML that preserves its exact structure, order, and content word-for-word.
+- Do NOT add formatting, styling, or structure that wasn't in the original (no centered titles, decorative borders, font changes).
+- Then add ONLY the requested scaffolds on top (highlights, appended sections, translations).
 - For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span>.
-- For translation scaffolds: translate ALL student-facing content. Translation IS the scaffold — replace the original language text while keeping scaffold labels in English.
-- For word banks, sentence frames, and other appended sections: add them AFTER the document content.
-- Use inline CSS styles throughout (the output will be wrapped with the original stylesheet separately).
-- Wrap the entire output in a single <div> element`
-    : `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
-- Your PRIMARY goal is to reproduce the original document as faithfully as possible in HTML, then layer ONLY the selected scaffolds on top.
-- Match the original document's structure, order, formatting (bold, italic, underline), headings, lists, tables, and layout exactly.
-- Do NOT reformat, restyle, reorganize, or add any formatting that wasn't in the original (no centered titles, decorative borders, or style changes unless the original had them).
-- Preserve the original assignment content word-for-word — do not remove, summarize, or rewrite any content.
-- EXCEPTION: If a bilingual/translation scaffold is requested, translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold.
-- For color coding scaffolds: wrap the relevant text with the specified highlight colors using <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">. Identify topic sentences, evidence, and transitions throughout the ENTIRE document.
-- Apply scaffolds as minimal, targeted additions (highlights, appended sections) — do NOT restructure or restyle the document.
-- Use inline CSS styles only (no class names that require external stylesheets).
-- Wrap the entire output in a single <div> element.
-- Use semantic HTML: <p> for paragraphs, <ol>/<ul> for lists, <table> for tables, <b>/<i>/<u> for formatting, <h1>-<h6> for headings — matching what the original uses.`;
+- For translation scaffolds: translate ALL student-facing content. Keep scaffold labels in English.
+- For appended sections (word banks, etc.): add at the END of the document.
+- Use inline CSS styles only. Wrap the entire output in a single <div> element.
+- Use semantic HTML matching the original: <p>, <ol>/<ul>, <table>, <b>/<i>/<u>, <h1>-<h6>.`;
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
@@ -418,10 +412,10 @@ ${includeWordBank ? `## Rules for word_bank
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 ${actionsSection}
-${sourceHtml ? `## Original Assignment HTML (modify this in-place — preserve all tags, classes, and attributes):
+${sourceHtml ? `## Original HTML (modify this in-place — return the full HTML with scaffolds added):
 ${sourceHtml}
 
-## Original Assignment Plain Text (for reference and scaffold_actions matching):
+## Original Plain Text (for reference and scaffold_actions text matching):
 ${originalContent}` : `## Original Assignment:
 ${originalContent}`}
 
