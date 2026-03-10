@@ -88,7 +88,13 @@ export async function POST(request: NextRequest) {
 
     let cloneFallbackReason: string | null = null;
 
-    if (sourceDocId && scaffoldActions?.length > 0) {
+    // Skip clone path when translation scaffolds are applied — the clone path
+    // can only add highlights/inserts to the original doc, not replace text.
+    // The HTML path already contains the fully scaffolded content (translated + color coded).
+    const hasTranslation = Array.isArray(scaffoldsApplied) &&
+      scaffoldsApplied.some((s: string) => /translat|bilingual/i.test(s));
+
+    if (sourceDocId && scaffoldActions?.length > 0 && !hasTranslation) {
       try {
         const drive = google.drive({ version: "v3", auth });
 
