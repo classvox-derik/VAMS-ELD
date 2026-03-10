@@ -159,9 +159,24 @@ export interface GenerateParams {
   gradeLevel?: number;
   /** When set, Gemini also produces scaffold_actions for clone-based export */
   sourceDocId?: string;
+  /** Full HTML from Google Drive export — Gemini scaffolds on top of this HTML structure */
+  sourceHtml?: string;
 }
 
 const WORD_BANK_SCAFFOLD_PREFIX = "Word Bank";
+
+/**
+ * Extract <style> blocks from sourceHtml.
+ * Google's export wraps everything in a div with <style>...</style> blocks.
+ */
+function extractStyles(html: string): { styles: string; body: string } {
+  const styleBlocks: string[] = [];
+  const body = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, (match) => {
+    styleBlocks.push(match);
+    return "";
+  });
+  return { styles: styleBlocks.join("\n"), body: body.trim() };
+}
 
 export async function generateScaffoldedAssignment(
   params: GenerateParams
@@ -176,6 +191,17 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
+  // If sourceHtml is provided, separate styles from body.
+  // We send only the body HTML to Gemini (keeps prompt small) and
+  // re-attach the styles to the output afterward.
+  let originalStyles = "";
+  if (params.sourceHtml) {
+    const { styles, body } = extractStyles(params.sourceHtml);
+    originalStyles = styles;
+    // Replace sourceHtml with body-only for prompt building
+    params = { ...params, sourceHtml: body };
+  }
+
   const prompt = buildPrompt(params, includeWordBank, includeActions);
 
   try {
@@ -183,16 +209,24 @@ export async function generateScaffoldedAssignment(
     const text = result.response.text();
     const parsed = JSON.parse(text);
 
+    let scaffoldedHtml = parsed.scaffolded_html as string;
+
+    // Re-attach original Google Docs styles so the output renders identically
+    if (originalStyles) {
+      scaffoldedHtml = `<div class="google-doc-import">${originalStyles}${scaffoldedHtml}</div>`;
+    }
+
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[Gemini] Generation complete:", {
       includeActions,
       sourceDocId: params.sourceDocId || "(none)",
+      hasSourceHtml: !!params.sourceHtml,
       scaffoldActionsReturned: scaffoldActions ? scaffoldActions.length : 0,
       actionTypes: scaffoldActions?.map((a) => a.action_type) || [],
     });
 
     return {
-      html: parsed.scaffolded_html,
+      html: scaffoldedHtml,
       wordBank: parsed.word_bank || null,
       scaffoldsUsed: parsed.scaffolds_used || params.scaffoldNames,
       teacherInstructions: parsed.teacher_instructions || null,
@@ -206,6 +240,11 @@ export async function generateScaffoldedAssignment(
     const result = await getGeminiModelFallback()!.generateContent(prompt);
     let html = result.response.text();
     html = html.replace(/^```html?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    // Re-attach styles for fallback too
+    if (originalStyles) {
+      html = `<div class="google-doc-import">${originalStyles}${html}</div>`;
+    }
 
     return {
       html,
@@ -234,6 +273,7 @@ function buildPrompt(params: GenerateParams, includeWordBank: boolean, includeAc
     title,
     subject,
     gradeLevel,
+    sourceHtml,
   } = params;
 
   const scaffoldInstructions = scaffoldPrompts
@@ -288,6 +328,27 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 `;
   }
 
+  // When sourceHtml is provided, Gemini should modify the HTML in-place
+  const htmlRules = sourceHtml
+    ? `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
+- You are given the HTML body of the original Google Doc below. Your scaffolded_html output MUST start from this HTML and modify it IN-PLACE.
+- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
+- PRESERVE all existing HTML tags, attributes, class names, and structure exactly as they are. The class names reference a stylesheet that will be re-attached — do NOT remove or rename them.
+- PRESERVE all <img> tags and their src attributes exactly.
+- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span> INSIDE the existing paragraph/span elements.
+- For translation scaffolds: replace the text content INSIDE existing HTML tags with the translated text. Keep all HTML tags, class names, and attributes unchanged. Only change the visible text.
+- For word banks, sentence frames, and other appended sections: add them AFTER the existing document content, using inline styles (not class names).
+- Your output should be the complete modified HTML body (the same structure as the input but with scaffolds applied). Do NOT wrap it in an extra <div> — just return the modified body HTML.
+- Use inline CSS styles for any NEW elements you add (highlights, word banks, dividers, etc.)`
+    : `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
+- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
+- Preserve the original assignment structure and meaning — do not remove content or summarize
+- EXCEPTION: If a bilingual/translation scaffold is requested, you MUST translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold — it replaces the original language for student-facing text while keeping scaffold labels in English.
+- For color coding scaffolds: you MUST wrap the relevant text with the specified highlight colors. Identify topic sentences, evidence, and transitions throughout the ENTIRE document, not just the first paragraph. Every paragraph should have at least some highlighted text.
+- Apply scaffolds by ADDING or MODIFYING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the content
+- Use inline CSS styles only (no class names that require external stylesheets)
+- Wrap the entire output in a single <div> element`;
+
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
 ## Context
@@ -302,14 +363,7 @@ Apply the following scaffold modifications to the assignment below. Follow each 
 ### Scaffolds to Apply:
 ${scaffoldInstructions}
 
-## Rules for scaffolded_html (CRITICAL — follow ALL of these)
-- You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
-- Preserve the original assignment structure and meaning — do not remove content or summarize
-- EXCEPTION: If a bilingual/translation scaffold is requested, you MUST translate ALL student-facing content as that scaffold's instructions describe. Translation IS the scaffold — it replaces the original language for student-facing text while keeping scaffold labels in English.
-- For color coding scaffolds: you MUST wrap the relevant text with the specified highlight colors. Identify topic sentences, evidence, and transitions throughout the ENTIRE document, not just the first paragraph. Every paragraph should have at least some highlighted text.
-- Apply scaffolds by ADDING or MODIFYING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the content
-- Use inline CSS styles only (no class names that require external stylesheets)
-- Wrap the entire output in a single <div> element
+${htmlRules}
 - Make the output clean, readable, and well-structured for printing
 - Target the scaffolding complexity for ${elLevel}-level ELL students
 - If a scaffold instruction says to add something "before" or "after" content, place it logically relative to the relevant section
@@ -326,8 +380,12 @@ ${includeWordBank ? `## Rules for word_bank
 - Brief (2-3 sentences) guidance on implementing the scaffolded assignment
 - Include any verbal or physical scaffolds the teacher should add beyond the written scaffolds
 ${actionsSection}
-## Original Assignment:
-${originalContent}`;
+${sourceHtml ? `## Original Assignment HTML (modify this in-place — preserve all tags, classes, and attributes):
+${sourceHtml}
+
+## Original Assignment Plain Text (for reference and scaffold_actions matching):
+${originalContent}` : `## Original Assignment:
+${originalContent}`}`;
 }
 
 function buildMockResult(params: GenerateParams): ScaffoldGenerationResult {

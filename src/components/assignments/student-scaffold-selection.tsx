@@ -183,6 +183,7 @@ export function StudentScaffoldSelection({
           studentIds: !isSingle ? levelStudents.map((s) => s.id) : undefined,
           studentName,
           sourceDocId,
+          sourceHtml,
         });
 
         storeAndNavigate(result, studentName, level);
@@ -201,6 +202,7 @@ export function StudentScaffoldSelection({
               studentIds: levelStudents.map((s) => s.id),
               studentName: `Batch: ${totalStudents} students (${levels.map(([l]) => l).join(", ")})`,
               sourceDocId,
+              sourceHtml,
               skipUsageLog: idx > 0,
             })
           )
@@ -267,6 +269,7 @@ export function StudentScaffoldSelection({
     studentIds?: string[];
     studentName?: string;
     sourceDocId?: string;
+    sourceHtml?: string;
     skipUsageLog?: boolean;
   }) {
     const response = await fetch("/api/scaffold", {
