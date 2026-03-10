@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Global RPM rate limit (protects Gemini free tier 10 RPM)
+    // 1. Global RPM rate limit (protects OpenRouter rate limits)
     if (!checkGlobalRateLimit(10)) {
       return NextResponse.json(
         { error: "Platform rate limit reached. Please wait a moment and try again." },

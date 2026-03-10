@@ -3,7 +3,7 @@ import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "google/gemini-2.5-flash";
+const MODEL = "anthropic/claude-3.5-haiku";
 
 function isPlaceholder(): boolean {
   return !OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10;
@@ -201,6 +201,26 @@ function slimHtml(html: string): string {
   return s.trim();
 }
 
+/**
+ * Wrap AI-generated HTML with a base stylesheet for polished rendering.
+ */
+function wrapWithBaseStyles(html: string): string {
+  const baseStyles = `<style>
+.scaffold-output { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #1a1a1a; max-width: 800px; margin: 0 auto; }
+.scaffold-output h1 { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18pt; text-align: center; border-bottom: 2px solid #333; padding-bottom: 0.5em; margin: 0 0 1em 0; }
+.scaffold-output h2 { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15pt; margin: 1.5em 0 0.5em 0; color: #1e3a5f; }
+.scaffold-output h3 { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13pt; margin: 1.2em 0 0.4em 0; color: #2c5282; }
+.scaffold-output p { margin: 0.75em 0; }
+.scaffold-output ol, .scaffold-output ul { padding-left: 1.5em; margin: 0.75em 0; }
+.scaffold-output li { margin: 0.3em 0; }
+.scaffold-output table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+.scaffold-output th, .scaffold-output td { border: 1px solid #999; padding: 8px 12px; text-align: left; }
+.scaffold-output th { background: #f0f0f0; font-weight: bold; }
+.scaffold-output img { max-width: 100%; height: auto; }
+</style>`;
+  return `<div class="scaffold-output">${baseStyles}${html}</div>`;
+}
+
 export async function generateScaffoldedAssignment(
   params: GenerateParams,
 ): Promise<ScaffoldGenerationResult> {
@@ -225,7 +245,7 @@ export async function generateScaffoldedAssignment(
     const text = await callOpenRouter(prompt, schema);
     const parsed = JSON.parse(text);
 
-    let scaffoldedHtml = parsed.scaffolded_html as string;
+    let scaffoldedHtml = wrapWithBaseStyles(parsed.scaffolded_html as string);
 
     const scaffoldActions = (parsed.scaffold_actions as ScaffoldAction[]) || null;
     console.log("[OpenRouter] Generation complete:", {
@@ -261,7 +281,7 @@ export async function generateScaffoldedAssignment(
       }
 
       return {
-        html,
+        html: wrapWithBaseStyles(html),
         wordBank: null,
         scaffoldsUsed: params.scaffoldNames,
         teacherInstructions: null,
@@ -361,7 +381,22 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 - For color coding scaffolds: you MUST wrap the relevant text with the specified highlight colors. Identify topic sentences, evidence, and transitions throughout the ENTIRE document, not just the first paragraph. Every paragraph should have at least some highlighted text.
 - Apply scaffolds by ADDING or MODIFYING HTML elements (highlights, section dividers, word banks, sentence frames, etc.) around or alongside the content
 - Use inline CSS styles only (no class names that require external stylesheets)
-- Wrap the entire output in a single <div> element`;
+- Wrap the entire output in a single <div> element
+
+## Formatting & Typography Rules (CRITICAL — the output must look professional and print-ready)
+- Use a clean document layout: font-family: 'Georgia', 'Times New Roman', serif for body text; sans-serif for headings
+- Set font-size: 12pt for body text, appropriate sizes for headings (h1: 18pt, h2: 15pt, h3: 13pt)
+- Use line-height: 1.6 for body paragraphs for readability
+- Add proper margins between paragraphs (margin: 0.75em 0)
+- For numbered lists and bullet lists, use proper <ol> and <ul> tags with padding-left: 1.5em
+- For answer lines / blanks, use a solid underline: <span style="display: inline-block; border-bottom: 1px solid #000; min-width: 200px;">&nbsp;</span>
+- For tables, add borders and padding: border: 1px solid #999; border-collapse: collapse; padding: 8px 12px
+- Bold text should use <strong> or <b> tags. Italic should use <em> or <i> tags. Underline should use <u> tags.
+- Preserve ALL original formatting cues: if the original text has numbered items, render as <ol>; if it has bullets, render as <ul>; if it has headings, use appropriate <h1>-<h6> tags
+- The document title should be rendered as <h1> at the top with text-align: center and margin-bottom: 1em
+- Add a subtle top border under the title: border-bottom: 2px solid #333; padding-bottom: 0.5em
+- For any directions/instructions sections, style them distinctly: font-style: italic or with a left border
+- Do NOT output plain unstyled text — every element must have appropriate inline styles for a polished, printable document`;
 
   return `You are an expert ELD (English Language Development) scaffolding specialist for California middle school teachers, aligned with the 2012 CA ELD Standards and ELA/ELD Framework.
 
