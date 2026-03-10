@@ -95,15 +95,7 @@ export const CA_ELD_LEVELS: Record<ELLevel, LevelProfile> = {
         description: "Allow students to take notes in their native language",
       },
     ],
-    promptContext: `This student is at the EMERGING level of English proficiency and needs SUBSTANTIAL scaffolding support. Apply these CA ELD Framework strategies:
-- Use visuals (pictures, diagrams, realia) to make content comprehensible
-- Provide sentence starters and frames (e.g., "I see __ because __", "The main idea is __")
-- Include a word bank with simple definitions for all academic vocabulary
-- Simplify sentence structures — use shorter sentences and common vocabulary
-- Add graphic organizers to structure thinking
-- Allow native language notes where appropriate
-- Pre-teach vocabulary with visual supports
-The goal is making grade-level content ACCESSIBLE, not dumbing it down.`,
+    promptContext: `This student is at the EMERGING level of English proficiency (substantial support needed). They have limited English vocabulary, understand simple sentences, and benefit from visual and native language support. They are developing basic reading comprehension and can produce short phrases or simple sentences. Keep language simple and accessible while preserving grade-level content.`,
   },
 
   Expanding: {
@@ -176,14 +168,7 @@ The goal is making grade-level content ACCESSIBLE, not dumbing it down.`,
         description: "Use gallery walks for collaborative analysis and feedback",
       },
     ],
-    promptContext: `This student is at the EXPANDING level of English proficiency and needs MODERATE scaffolding support. Apply these CA ELD Framework strategies:
-- Use anchor charts and word maps to build academic vocabulary
-- Unpack complex sentences to show how academic language works
-- Provide moderately modified text with key vocabulary highlighted
-- Include sentence frames for academic discourse (not basic starters)
-- Add tiered response options with varying language complexity
-- Structure collaborative work (Think-Write-Pair-Share)
-The goal is building ACADEMIC LANGUAGE proficiency while engaging with age-appropriate content.`,
+    promptContext: `This student is at the EXPANDING level of English proficiency (moderate support needed). They can engage with age-appropriate content, understand most academic language with some support, and produce multi-sentence responses. They are building academic vocabulary and complex sentence structures.`,
   },
 
   Bridging: {
@@ -236,13 +221,7 @@ The goal is building ACADEMIC LANGUAGE proficiency while engaging with age-appro
         description: "Use collaborative writing (e.g., Google Docs) with structured roles",
       },
     ],
-    promptContext: `This student is at the BRIDGING level of English proficiency and needs LIGHT scaffolding support. Apply these CA ELD Framework strategies:
-- Provide complex sentence frames for academic analysis (cause-effect, comparison, argumentation)
-- Focus on nuanced, domain-specific vocabulary rather than basic word banks
-- Include self-assessment checklists for monitoring academic language use
-- Add peer editing prompts with language-focused criteria
-- Structure higher-order thinking activities (debates, analysis)
-The goal is developing INDEPENDENCE with grade-level academic language and complex text structures.`,
+    promptContext: `This student is at the BRIDGING level of English proficiency (light support needed). They are approaching grade-level independence, can engage with complex texts, and produce detailed academic responses. They are refining nuanced academic language, register, and complex sentence structures.`,
   },
 };
 
