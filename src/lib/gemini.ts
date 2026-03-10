@@ -3,7 +3,7 @@ import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "anthropic/claude-3.5-haiku";
+const MODEL = "anthropic/claude-haiku-4.5";
 
 function isPlaceholder(): boolean {
   return !OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10;
@@ -101,7 +101,7 @@ async function callOpenRouter(
 ): Promise<string> {
   const body: Record<string, unknown> = {
     model: MODEL,
-    max_tokens: 16384,
+    max_tokens: 32768,
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -507,7 +507,11 @@ ${sourceHtml}
 ${originalContent}` : `## Original Assignment:
 ${originalContent}`}
 
-CRITICAL: You MUST process the ENTIRE document from start to finish. NEVER truncate, abbreviate, or skip any part of the content. Do NOT write "rest of document continues" or similar — include every single paragraph, sentence, and element. The complete document must appear in scaffolded_html.
+CRITICAL RULES — VIOLATION OF ANY OF THESE IS A FAILURE:
+1. You MUST output the ENTIRE document with scaffolds applied. NEVER truncate, abbreviate, or skip any part.
+2. NEVER use placeholder text like "[full Spanish translation...]", "[rest of document...]", "[content continues...]", or ANY bracketed descriptions. Every single word of the original document must appear (translated if translation is selected, or verbatim if not).
+3. The scaffolded_html field must contain REAL, COMPLETE HTML — not a description of what it should contain.
+4. Process every paragraph, heading, list item, table cell, and sentence from start to finish.
 
 Respond with valid JSON matching the required schema. Do not include any text outside the JSON object.`;
 }
