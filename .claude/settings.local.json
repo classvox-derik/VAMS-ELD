@@ -31,7 +31,8 @@
       "WebFetch(domain:vamseld.com)",
       "Bash(npx supabase:*)",
       "Bash(npx:*)",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "Bash(python3:*)"
     ]
   }
 }

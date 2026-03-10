@@ -175,6 +175,32 @@ function extractStyles(html: string): { styles: string; body: string } {
   return { styles: styleBlocks.join("\n"), body: body.trim() };
 }
 
+/**
+ * Aggressively slim Google Docs HTML for the AI prompt.
+ * Strips redundant attributes (id, style on spans, data-*, empty spans)
+ * while keeping semantic structure (p, h1-h6, table, img, ul, ol, li, b, i, u, a).
+ * This can reduce token count by 60-80%.
+ */
+function slimHtml(html: string): string {
+  let s = html;
+  // Remove all id attributes
+  s = s.replace(/\s+id="[^"]*"/gi, "");
+  // Remove all style attributes (styles come from the stylesheet we re-attach)
+  s = s.replace(/\s+style="[^"]*"/gi, "");
+  // Remove data-* attributes
+  s = s.replace(/\s+data-[a-z-]+="[^"]*"/gi, "");
+  // Remove class attributes (we re-attach the stylesheet, but AI doesn't need them)
+  s = s.replace(/\s+class="[^"]*"/gi, "");
+  // Remove empty spans: <span>text</span> → text
+  s = s.replace(/<span\s*>([\s\S]*?)<\/span>/gi, "$1");
+  // Remove Google's tracking spans and links
+  s = s.replace(/<a\s*>([\s\S]*?)<\/a>/gi, "$1");
+  // Collapse multiple whitespace/newlines
+  s = s.replace(/\n\s*\n/g, "\n");
+  s = s.replace(/>\s+</g, "> <");
+  return s.trim();
+}
+
 export async function generateScaffoldedAssignment(
   params: GenerateParams,
 ): Promise<ScaffoldGenerationResult> {
@@ -187,14 +213,14 @@ export async function generateScaffoldedAssignment(
     return buildMockResult(params);
   }
 
-  // If sourceHtml is provided, separate styles from body.
-  // We send only the body HTML (keeps prompt small) and
-  // re-attach the styles to the output afterward.
+  // If sourceHtml is provided, separate styles from body,
+  // then aggressively slim the body HTML to reduce token count.
+  // The AI gets a clean structural view; we re-attach styles to the output.
   let originalStyles = "";
   if (params.sourceHtml) {
     const { styles, body } = extractStyles(params.sourceHtml);
     originalStyles = styles;
-    params = { ...params, sourceHtml: body };
+    params = { ...params, sourceHtml: slimHtml(body) };
   }
 
   const prompt = buildPrompt(params, includeWordBank, includeActions);
@@ -334,15 +360,15 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 
   const htmlRules = sourceHtml
     ? `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
-- You are given the HTML body of the original Google Doc below. Your scaffolded_html output MUST start from this HTML and modify it IN-PLACE.
+- You are given a SIMPLIFIED version of the original Google Doc HTML below (attributes stripped to save space). Use it to understand the document structure and content.
 - You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
-- PRESERVE all existing HTML tags, attributes, class names, and structure exactly as they are. The class names reference a stylesheet that will be re-attached — do NOT remove or rename them.
-- PRESERVE all <img> tags and their src attributes exactly.
-- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span> INSIDE the existing paragraph/span elements.
-- For translation scaffolds: replace the text content INSIDE existing HTML tags with the translated text. Keep all HTML tags, class names, and attributes unchanged. Only change the visible text.
-- For word banks, sentence frames, and other appended sections: add them AFTER the existing document content, using inline styles (not class names).
-- Your output should be the complete modified HTML body (the same structure as the input but with scaffolds applied). Do NOT wrap it in an extra <div> — just return the modified body HTML.
-- Use inline CSS styles for any NEW elements you add (highlights, word banks, dividers, etc.)`
+- Reproduce the document content faithfully using clean semantic HTML (p, h1-h6, ul, ol, li, table, tr, td, b, i, u, a, img tags).
+- PRESERVE all <img> tags and their src attributes exactly as given.
+- For color coding scaffolds: wrap target text with <span style="background-color: #COLOR; padding: 2px 4px; border-radius: 2px;">text</span>.
+- For translation scaffolds: translate ALL student-facing content. Translation IS the scaffold — replace the original language text while keeping scaffold labels in English.
+- For word banks, sentence frames, and other appended sections: add them AFTER the document content.
+- Use inline CSS styles throughout (the output will be wrapped with the original stylesheet separately).
+- Wrap the entire output in a single <div> element`
     : `## Rules for scaffolded_html (CRITICAL — follow ALL of these)
 - You MUST apply EVERY scaffold listed above. Do not skip any scaffold. Each one must be visibly present in the output.
 - Preserve the original assignment structure and meaning — do not remove content or summarize
