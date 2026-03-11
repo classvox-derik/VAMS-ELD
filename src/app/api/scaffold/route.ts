@@ -165,7 +165,24 @@ export async function POST(request: NextRequest) {
       libraryPruned = pruned;
       libraryAtLimit = pruned === 0 && totalAfter === 50;
     } catch (err) {
-      console.error("Failed to store differentiated assignment:", err);
+      const saveError = err instanceof Error ? err.message : String(err);
+      console.error("Failed to store differentiated assignment:", saveError, err);
+      // Include in response so client can surface the actual reason
+      return NextResponse.json({
+        success: true,
+        libraryAtLimit: false,
+        libraryPruned: 0,
+        outputHtml: result.html,
+        wordBank: result.wordBank,
+        scaffoldsUsed: result.scaffoldsUsed,
+        teacherInstructions: result.teacherInstructions,
+        isDemo: result.isDemo,
+        scaffoldsApplied: scaffoldNames,
+        scaffoldActions: result.scaffoldActions || null,
+        storedId: null,
+        saveError,
+        updatedUsage: undefined,
+      });
     }
 
     // Log usage analytic with real teacher ID (skip for batch sub-calls)

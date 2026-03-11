@@ -355,7 +355,9 @@ export function StudentScaffoldSelection({
     dispatchUsageUpdate(data);
 
     if (!savedToLibrary) {
-      toast.warning("Generation complete, but couldn't save to library. Your result is available for this session only.");
+      const reason = (data.saveError as string) || "unknown error";
+      console.error("[Library save failed]", reason);
+      toast.warning(`Generation complete, but couldn't save to library: ${reason}`);
     } else {
       toast.success(
         data.isDemo
