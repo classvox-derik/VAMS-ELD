@@ -44,6 +44,8 @@ interface ScaffoldResult {
   // Batch mode
   isBatch?: boolean;
   levels?: BatchLevel[];
+  /** Whether the result was successfully saved to the library DB */
+  savedToLibrary?: boolean;
 }
 
 interface BatchLevel {
@@ -141,6 +143,7 @@ function ScaffoldResultContent() {
           teacherInstructions: data.teacher_instructions,
           sourceDocId: data.source_doc_id,
           scaffoldActions: data.scaffold_actions,
+          savedToLibrary: true,
         });
         setNotes(data.teacher_notes ?? "");
       } catch {
@@ -432,9 +435,9 @@ function ScaffoldResultContent() {
                 Status
               </p>
               <div className="mt-1 flex items-center gap-1.5">
-                <BookOpen className="h-3.5 w-3.5 text-green-600" />
-                <span className="text-xs font-medium text-green-600">
-                  Saved to Library
+                <BookOpen className={`h-3.5 w-3.5 ${result.savedToLibrary !== false ? "text-green-600" : "text-amber-600"}`} />
+                <span className={`text-xs font-medium ${result.savedToLibrary !== false ? "text-green-600" : "text-amber-600"}`}>
+                  {result.savedToLibrary !== false ? "Saved to Library" : "Not saved"}
                 </span>
               </div>
             </div>

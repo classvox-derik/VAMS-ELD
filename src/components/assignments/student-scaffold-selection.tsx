@@ -245,9 +245,14 @@ export function StudentScaffoldSelection({
         // Dispatch usage update from last result (most up-to-date count)
         dispatchUsageUpdate(results[results.length - 1]);
 
-        toast.success(
-          `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
-        );
+        const batchSaveFailed = results.some((r) => !r.storedId);
+        if (batchSaveFailed) {
+          toast.warning("Generation complete, but couldn't save to library. Your results are available for this session only.");
+        } else {
+          toast.success(
+            `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
+          );
+        }
 
         // Show library limit toast for the last result (most up-to-date count)
         showLibraryLimitToast(results[results.length - 1]);
@@ -316,6 +321,7 @@ export function StudentScaffoldSelection({
     studentName: string,
     elLevel: ELLevel
   ) {
+    const savedToLibrary = !!data.storedId;
     const resultId = (data.storedId as string) || crypto.randomUUID();
     const generatedAt = new Date().toISOString();
 
@@ -338,6 +344,7 @@ export function StudentScaffoldSelection({
           generatedAt,
           sourceDocId: sourceDocId || undefined,
           scaffoldActions: data.scaffoldActions || undefined,
+          savedToLibrary,
         })
       );
     } catch {
@@ -347,11 +354,15 @@ export function StudentScaffoldSelection({
     // Dispatch usage update so sidebar counter updates immediately
     dispatchUsageUpdate(data);
 
-    toast.success(
-      data.isDemo
-        ? "Demo preview generated! Connect Gemini API key for real results."
-        : "Scaffolded assignment generated successfully!"
-    );
+    if (!savedToLibrary) {
+      toast.warning("Generation complete, but couldn't save to library. Your result is available for this session only.");
+    } else {
+      toast.success(
+        data.isDemo
+          ? "Demo preview generated! Connect Gemini API key for real results."
+          : "Scaffolded assignment generated successfully!"
+      );
+    }
 
     showLibraryLimitToast(data);
 
