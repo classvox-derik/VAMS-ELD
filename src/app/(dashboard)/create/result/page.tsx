@@ -323,8 +323,6 @@ function ScaffoldResultContent() {
                           scaffoldsApplied: lvl.scaffoldsApplied,
                           wordBank: lvl.wordBank,
                           teacherInstructions: lvl.teacherInstructions,
-                          sourceDocId: result.sourceDocId,
-                          scaffoldActions: lvl.scaffoldActions,
                         })
                       }
                       className="gap-1.5"
@@ -531,8 +529,6 @@ function ScaffoldResultContent() {
                   scaffoldsApplied: result.scaffoldsApplied,
                   wordBank: result.wordBank,
                   teacherInstructions: result.teacherInstructions,
-                  sourceDocId: result.sourceDocId,
-                  scaffoldActions: result.scaffoldActions,
                 })
               }
               className="gap-1.5"
