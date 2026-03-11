@@ -6,6 +6,11 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.5.0",
+    date: "2026-03-11",
+    description: "Chunking scaffold updated — now intelligently adapts section count to document length and breaks long paragraphs within sections. Available for all EL levels.",
+  },
+  {
     version: "v1.4.0",
     date: "2026-03-11",
     description: "Sentence Frames scaffold updated — now generates context-aware starters tailored to each specific question type (opinion, summary, analysis, comparison, cause/effect) instead of generic frames.",

@@ -16,10 +16,6 @@ interface ExportParams {
   scaffoldsApplied: string[];
   wordBank?: { term: string; definition: string }[] | null;
   teacherInstructions?: string | null;
-  /** Google Doc ID for format-preserving clone+apply export */
-  sourceDocId?: string;
-  /** Structured scaffold actions for clone+apply export */
-  scaffoldActions?: unknown[] | null;
 }
 
 export function useGoogleDocsExport() {
@@ -67,25 +63,12 @@ export function useGoogleDocsExport() {
           throw new Error(data.message || data.error || "Export failed");
         }
 
-        if (data.exportMethod === "clone_and_apply") {
-          toast.success("Exported to Google Docs (formatting preserved)!", {
-            action: {
-              label: "Open",
-              onClick: () => window.open(data.docUrl, "_blank"),
-            },
-          });
-        } else {
-          toast.success("Exported to Google Docs!", {
-            action: {
-              label: "Open",
-              onClick: () => window.open(data.docUrl, "_blank"),
-            },
-          });
-          // Show warning if clone path was available but failed
-          if (data.cloneFallbackReason) {
-            toast.warning(data.cloneFallbackReason, { duration: 8000 });
-          }
-        }
+        toast.success("Exported to Google Docs!", {
+          action: {
+            label: "Open",
+            onClick: () => window.open(data.docUrl, "_blank"),
+          },
+        });
 
         return data.docUrl;
       } catch (error) {
