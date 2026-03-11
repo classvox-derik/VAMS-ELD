@@ -74,6 +74,47 @@ export async function getDifferentiatedAssignmentsByTeacher(
   return (data as DifferentiatedAssignment[]) ?? [];
 }
 
+/**
+ * Enforce a per-teacher library limit. If the teacher has more than `limit`
+ * assignments, the oldest ones are deleted until the count is at or below `limit`.
+ * Returns how many were pruned and the new total.
+ */
+export async function enforceLibraryLimit(
+  teacherId: string,
+  limit: number = 50
+): Promise<{ totalAfter: number; pruned: number }> {
+  const supabase = createClient();
+
+  const { count } = await supabase
+    .from("differentiated_assignments")
+    .select("*", { count: "exact", head: true })
+    .eq("teacher_id", teacherId);
+
+  const total = count ?? 0;
+
+  if (total <= limit) {
+    return { totalAfter: total, pruned: 0 };
+  }
+
+  const deleteCount = total - limit;
+  const { data: toDelete } = await supabase
+    .from("differentiated_assignments")
+    .select("id")
+    .eq("teacher_id", teacherId)
+    .order("created_at", { ascending: true })
+    .limit(deleteCount);
+
+  if (!toDelete || toDelete.length === 0) return { totalAfter: total, pruned: 0 };
+
+  const ids = toDelete.map((r) => r.id);
+  await supabase
+    .from("differentiated_assignments")
+    .delete()
+    .in("id", ids);
+
+  return { totalAfter: limit, pruned: ids.length };
+}
+
 export async function deleteDifferentiatedAssignment(
   id: string,
   teacherId: string

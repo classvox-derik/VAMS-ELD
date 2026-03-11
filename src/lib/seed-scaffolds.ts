@@ -22,22 +22,13 @@ const defaultScaffolds = [
     is_default: true,
   },
   {
-    name: "Sentence Frames: Opinion Writing",
+    name: "Sentence Frames",
     description:
-      "Provides sentence starters for opinion/argument responses",
+      "Provides context-aware sentence starters tailored to each question type (opinion, summary, analysis, comparison, etc.)",
     category: "sentence_frames",
     el_level_target: ["Emerging", "Expanding"],
     ai_prompt_template:
-      'Before any writing prompt or question, insert: <div class="sentence-frame" style="font-style: italic; color: #6b7280; margin: 1rem 0; padding: 0.75rem; background: #f3f4f6; border-radius: 6px; border-left: 3px solid #9ca3af;"><strong>Sentence Frames:</strong><br/>- I think ___ because ___.<br/>- In my opinion, ___.<br/>- I agree/disagree with ___ because ___.</div>',
-    is_default: true,
-  },
-  {
-    name: "Sentence Frames: Summary Writing",
-    description: "Provides sentence starters for summarizing text",
-    category: "sentence_frames",
-    el_level_target: ["Emerging", "Expanding"],
-    ai_prompt_template:
-      'Before summary prompts, insert: <div class="sentence-frame" style="font-style: italic; color: #6b7280; margin: 1rem 0; padding: 0.75rem; background: #f3f4f6; border-radius: 6px; border-left: 3px solid #9ca3af;"><strong>Sentence Frames:</strong><br/>- The main idea is ___.<br/>- First, ___. Then, ___. Finally, ___.<br/>- This text is about ___.</div>',
+      'For each question or writing prompt in the assignment, analyze what type of response it requires, then insert tailored sentence starters immediately before it using this HTML: <div class="sentence-frame" style="font-style: italic; color: #6b7280; margin: 1rem 0; padding: 0.75rem; background: #f3f4f6; border-radius: 6px; border-left: 3px solid #9ca3af;"><strong>Sentence Starters:</strong><br/>[3-5 starters tailored to the specific question]</div>. Choose starters based on the question type — Opinion/argument ("Do you agree?", "What do you think?", "Should..."): use "I think ___ because ___.", "In my opinion, ___.", "I agree/disagree because ___.", "One reason I believe ___ is ___.", "The evidence shows ___."; Summary/main idea ("What is this text about?", "Summarize..."): use "The main idea is ___.", "This text is mostly about ___.", "First, ___. Then, ___. Finally, ___.", "The author explains ___.", "In summary, ___."; Analysis/evidence ("What does this show?", "How does...?", "Why did..."): use "According to the text, ___.", "This shows that ___.", "The evidence suggests ___.", "This is important because ___.", "___ happened because ___."; Comparison ("How are ___ and ___ similar/different?"): use "___ and ___ are similar because ___.", "Unlike ___, ___ is ___.", "Both ___ and ___ ___.", "One difference is ___.", "One similarity is ___."; Cause/effect ("What caused...?", "What happened as a result?"): use "___ happened because ___.", "As a result of ___, ___.", "This caused ___.", "The effect of ___ was ___."; If the question type is unclear, use: "Based on the text, ___.", "I noticed that ___.", "One example is ___.", "This is important because ___.", "I can conclude that ___." Always select the starters most relevant to the specific question — never use a generic one-size-fits-all set when the question clearly calls for a specific response type.',
     is_default: true,
   },
   {

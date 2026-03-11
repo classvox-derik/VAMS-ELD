@@ -230,13 +230,17 @@ export function StudentScaffoldSelection({
           originalContent: content,
           generatedAt,
           sourceDocId: sourceDocId || undefined,
-          sourceHtml: sourceHtml || undefined,
+          // sourceHtml intentionally omitted — too large for sessionStorage quota
         };
 
-        sessionStorage.setItem(
-          `scaffold-result-${resultId}`,
-          JSON.stringify(batchResult)
-        );
+        try {
+          sessionStorage.setItem(
+            `scaffold-result-${resultId}`,
+            JSON.stringify(batchResult)
+          );
+        } catch {
+          // Quota exceeded — result page will fall back to DB fetch
+        }
 
         // Dispatch usage update from last result (most up-to-date count)
         dispatchUsageUpdate(results[results.length - 1]);
@@ -244,6 +248,9 @@ export function StudentScaffoldSelection({
         toast.success(
           `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
         );
+
+        // Show library limit toast for the last result (most up-to-date count)
+        showLibraryLimitToast(results[results.length - 1]);
 
         router.push(`/create/result?id=${resultId}`);
       }
@@ -292,6 +299,18 @@ export function StudentScaffoldSelection({
     return data;
   }
 
+  function showLibraryLimitToast(data: Record<string, unknown>) {
+    if (data.libraryPruned && (data.libraryPruned as number) > 0) {
+      toast.warning("Your library is full — the oldest saved assignment was removed to make room.", {
+        duration: 6000,
+      });
+    } else if (data.libraryAtLimit) {
+      toast.info("You've reached 50 saved assignments. From now on, the oldest will be automatically removed as new ones are generated.", {
+        duration: 8000,
+      });
+    }
+  }
+
   function storeAndNavigate(
     data: Record<string, unknown>,
     studentName: string,
@@ -301,25 +320,29 @@ export function StudentScaffoldSelection({
     const generatedAt = new Date().toISOString();
 
     // Store in sessionStorage for immediate display on result page
-    sessionStorage.setItem(
-      `scaffold-result-${resultId}`,
-      JSON.stringify({
-        outputHtml: data.outputHtml,
-        wordBank: data.wordBank,
-        scaffoldsUsed: data.scaffoldsUsed,
-        teacherInstructions: data.teacherInstructions,
-        isDemo: data.isDemo,
-        scaffoldsApplied: data.scaffoldsApplied,
-        assignmentTitle,
-        elLevel,
-        studentName,
-        originalContent: content,
-        generatedAt,
-        sourceDocId: sourceDocId || undefined,
-        scaffoldActions: data.scaffoldActions || undefined,
-        sourceHtml: sourceHtml || undefined,
-      })
-    );
+    // sourceHtml intentionally omitted — too large for sessionStorage quota
+    try {
+      sessionStorage.setItem(
+        `scaffold-result-${resultId}`,
+        JSON.stringify({
+          outputHtml: data.outputHtml,
+          wordBank: data.wordBank,
+          scaffoldsUsed: data.scaffoldsUsed,
+          teacherInstructions: data.teacherInstructions,
+          isDemo: data.isDemo,
+          scaffoldsApplied: data.scaffoldsApplied,
+          assignmentTitle,
+          elLevel,
+          studentName,
+          originalContent: content,
+          generatedAt,
+          sourceDocId: sourceDocId || undefined,
+          scaffoldActions: data.scaffoldActions || undefined,
+        })
+      );
+    } catch {
+      // Quota exceeded — result page will fall back to DB fetch
+    }
 
     // Dispatch usage update so sidebar counter updates immediately
     dispatchUsageUpdate(data);
@@ -329,6 +352,8 @@ export function StudentScaffoldSelection({
         ? "Demo preview generated! Connect Gemini API key for real results."
         : "Scaffolded assignment generated successfully!"
     );
+
+    showLibraryLimitToast(data);
 
     router.push(`/create/result?id=${resultId}`);
   }

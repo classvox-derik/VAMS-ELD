@@ -421,7 +421,7 @@ ${metaContext}
 ${eldContext}
 
 ## Instructions
-Apply ONLY the scaffolds listed below. Do NOT add ANY other modifications such as: section dividers, chunking headers ("Section X of Y"), word banks, sentence starters, graphic organizers, vocabulary lists, or any other scaffold not explicitly listed below. If it is not in the list below, do NOT add it.
+Apply ONLY the scaffolds listed below. Do NOT add ANY other modifications such as: section dividers, chunking headers ("Section X of Y"), word banks, sentence starters, sentence frames, graphic organizers, vocabulary lists, or any other scaffold not explicitly listed below. If it is not in the list below, do NOT add it.${!hasSentenceFrames ? "\n\n**CRITICAL: Sentence Frames is NOT selected. Do NOT insert any sentence starters, sentence frames, or writing frames anywhere in the document under any circumstances.**" : ""}
 
 ### Scaffolds to Apply (ONLY these):
 ${scaffoldInstructions}
@@ -455,15 +455,15 @@ Use the same styling for both. Example structure:
 </div>
 ` : ""}
 ` : ""}${hasSentenceFrames && hasTranslation ? `## BILINGUAL SENTENCE FRAMES (Spanish Translation + Sentence Frames selected)
-Since both Sentence Frames and Spanish Translation are selected, each sentence frame box MUST include BOTH English and Spanish versions. Show the English sentence frames first, then a divider line, then the same frames translated to Spanish. Use the same styling/div for both. Example:
+Since both Sentence Frames and Spanish Translation are selected, each sentence starter box MUST include BOTH English and Spanish versions. Show the English starters first, then a divider line, then the same starters translated to Spanish. Generate the starters based on the question type (as instructed by the Sentence Frames scaffold), then translate them. Use the same styling/div for both. Example structure:
 <div class="sentence-frame" style="font-style: italic; color: #6b7280; margin: 1rem 0; padding: 0.75rem; background: #f3f4f6; border-radius: 6px; border-left: 3px solid #9ca3af;">
-  <strong>Sentence Frames:</strong><br/>
-  - I think ___ because ___.<br/>
-  - In my opinion, ___.<br/>
+  <strong>Sentence Starters:</strong><br/>
+  - [English starter 1]<br/>
+  - [English starter 2]<br/>
   <hr style="margin: 0.5rem 0; border-color: #d1d5db;"/>
-  <strong>Marcos de Oraciones:</strong><br/>
-  - Yo pienso que ___ porque ___.<br/>
-  - En mi opinión, ___.<br/>
+  <strong>Comienzos de Oraciones:</strong><br/>
+  - [Spanish translation of starter 1]<br/>
+  - [Spanish translation of starter 2]<br/>
 </div>
 
 ` : ""}## Rules for teacher_instructions

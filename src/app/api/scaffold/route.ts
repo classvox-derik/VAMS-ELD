@@ -136,8 +136,10 @@ export async function POST(request: NextRequest) {
 
     // Store in database with all library fields (graceful failure)
     let storedId: string | null = null;
+    let libraryAtLimit = false;
+    let libraryPruned = 0;
     try {
-      const { createDifferentiatedAssignment } = await import(
+      const { createDifferentiatedAssignment, enforceLibraryLimit } = await import(
         "@/lib/queries/differentiated-assignments"
       );
       const stored = await createDifferentiatedAssignment({
@@ -157,6 +159,11 @@ export async function POST(request: NextRequest) {
         scaffold_actions: result.scaffoldActions || undefined,
       });
       storedId = stored.id;
+
+      // Enforce 50-entry library limit per teacher
+      const { totalAfter, pruned } = await enforceLibraryLimit(user.id, 50);
+      libraryPruned = pruned;
+      libraryAtLimit = pruned === 0 && totalAfter === 50;
     } catch (err) {
       console.error("Failed to store differentiated assignment:", err);
     }
@@ -198,6 +205,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      libraryAtLimit,
+      libraryPruned,
       outputHtml: result.html,
       wordBank: result.wordBank,
       scaffoldsUsed: result.scaffoldsUsed,
