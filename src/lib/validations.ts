@@ -48,6 +48,18 @@ export const scaffoldRequestSchema = z.object({
   sourceHtml: z.string().optional(),
   /** Skip usage logging for batch calls after the first (counts as 1 generation) */
   skipUsageLog: z.boolean().optional(),
+  /** Color coding sub-options (mode + word type selections) */
+  colorCodingOptions: z
+    .object({
+      mode: z.enum(["parts_of_speech", "easier_to_read"]),
+      wordTypes: z.object({
+        nouns: z.boolean(),
+        verbs: z.boolean(),
+        adjectives: z.boolean(),
+        vocabulary: z.boolean(),
+      }),
+    })
+    .optional(),
 });
 
 export type StudentFormValues = z.infer<typeof studentSchema>;

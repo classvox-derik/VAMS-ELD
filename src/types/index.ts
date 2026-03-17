@@ -169,6 +169,26 @@ export const SCAFFOLD_CATEGORIES: ScaffoldCategory[] = [
   "visual_organizers",
 ];
 
+export type ColorCodingMode = "parts_of_speech" | "easier_to_read";
+
+export interface ColorCodingWordTypes {
+  nouns: boolean;
+  verbs: boolean;
+  adjectives: boolean;
+  vocabulary: boolean;
+}
+
+export interface ColorCodingOptions {
+  mode: ColorCodingMode;
+  /** Which word types to highlight (only used when mode is "parts_of_speech") */
+  wordTypes: ColorCodingWordTypes;
+}
+
+export const DEFAULT_COLOR_CODING_OPTIONS: ColorCodingOptions = {
+  mode: "parts_of_speech",
+  wordTypes: { nouns: true, verbs: true, adjectives: true, vocabulary: true },
+};
+
 export const GRADES = [5, 6, 7, 8] as const;
 export type Grade = (typeof GRADES)[number];
 

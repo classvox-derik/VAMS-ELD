@@ -5,8 +5,46 @@ import { defaultScaffolds } from "@/lib/seed-scaffolds";
 import { scaffoldRequestSchema } from "@/lib/validations";
 import { checkRateLimit, checkGlobalRateLimit } from "@/lib/rate-limit";
 
+import type { ColorCodingOptions } from "@/types";
+
 // Allow up to 3 minutes for AI generation (serverless environments like Vercel)
 export const maxDuration = 180;
+
+function buildColorCodingPrompt(options: ColorCodingOptions): string {
+  if (options.mode === "easier_to_read") {
+    return 'Color code text throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap topic sentences/main ideas with <span style="background-color: #FFF176;">text</span> (yellow), evidence/supporting details with <span style="background-color: #AED581;">text</span> (green), and transition words/phrases with <span style="background-color: #90CAF9;">text</span> (blue). Every paragraph must have at least one highlighted element. Do NOT skip any paragraph. Include a color key at the end: Yellow = Main Ideas, Green = Evidence/Details, Blue = Transitions.';
+  }
+
+  // Parts of speech mode — build based on selected word types
+  const types: string[] = [];
+  if (options.wordTypes.nouns) {
+    types.push('nouns with <span style="background-color: #90CAF9;">word</span> (blue)');
+  }
+  if (options.wordTypes.verbs) {
+    types.push('verbs with <span style="background-color: #AED581;">word</span> (green)');
+  }
+  if (options.wordTypes.adjectives) {
+    types.push('adjectives with <span style="background-color: #FFCC80;">word</span> (orange)');
+  }
+  if (options.wordTypes.vocabulary) {
+    types.push('vocabulary bank words with <span style="background-color: #FFF176;">word</span> (yellow)');
+  }
+
+  const wrapInstructions = types.join(", ");
+
+  const keyParts: string[] = [];
+  if (options.wordTypes.nouns) keyParts.push("Blue = Nouns");
+  if (options.wordTypes.verbs) keyParts.push("Green = Verbs");
+  if (options.wordTypes.adjectives) keyParts.push("Orange = Adjectives");
+  if (options.wordTypes.vocabulary) keyParts.push("Yellow = Vocabulary Words");
+
+  let priorityNote = "";
+  if (options.wordTypes.vocabulary && (options.wordTypes.nouns || options.wordTypes.verbs || options.wordTypes.adjectives)) {
+    priorityNote = " If a word is both a vocabulary bank word and another part of speech, use yellow (vocabulary bank takes priority).";
+  }
+
+  return `Color code specific word types throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap ${wrapInstructions}.${priorityNote} Every paragraph must have at least one highlighted element. Do NOT skip any paragraph. Include a color key at the end: ${keyParts.join(", ")}.`;
+}
 
 const DAILY_GLOBAL_LIMIT = parseInt(process.env.DAILY_GLOBAL_LIMIT ?? "250", 10);
 const DAILY_PER_USER_LIMIT = parseInt(process.env.DAILY_PER_USER_LIMIT ?? "10", 10);
@@ -102,7 +140,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId, sourceHtml, skipUsageLog } = parsed.data;
+    const { content, title, subject, gradeLevel, elLevel, scaffoldNames: requestedNames, studentName, sourceDocId, sourceHtml, skipUsageLog, colorCodingOptions } = parsed.data;
 
     // Look up scaffolds by name instead of fragile indices
     const selectedScaffolds = defaultScaffolds.filter((s) =>
@@ -116,9 +154,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const scaffoldPrompts = selectedScaffolds.map(
-      (s) => s.ai_prompt_template
-    );
+    const scaffoldPrompts = selectedScaffolds.map((s) => {
+      // Override color coding prompt based on user options
+      if (s.category === "color_coding" && colorCodingOptions) {
+        return buildColorCodingPrompt(colorCodingOptions);
+      }
+      return s.ai_prompt_template;
+    });
     const scaffoldNames = selectedScaffolds.map((s) => s.name);
 
     // Generate scaffolded assignment (returns structured JSON from Gemini)

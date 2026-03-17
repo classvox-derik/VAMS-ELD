@@ -17,7 +17,8 @@ import { StudentSelector, type StudentSelection } from "./student-selector";
 import { ScaffoldPicker } from "./scaffold-picker";
 import { getAllStudents } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
-import type { Student, ELLevel } from "@/types";
+import type { Student, ELLevel, ColorCodingOptions } from "@/types";
+import { DEFAULT_COLOR_CODING_OPTIONS } from "@/types";
 
 interface StudentScaffoldSelectionProps {
   assignmentTitle: string;
@@ -48,6 +49,9 @@ export function StudentScaffoldSelection({
   const [selection, setSelection] = useState<StudentSelection | null>(null);
   const [selectedScaffoldNames, setSelectedScaffoldNames] = useState<Set<string>>(
     new Set()
+  );
+  const [colorCodingOptions, setColorCodingOptions] = useState<ColorCodingOptions>(
+    DEFAULT_COLOR_CODING_OPTIONS
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -164,6 +168,13 @@ export function StudentScaffoldSelection({
       const scaffoldNames = Array.from(selectedScaffoldNames);
       const levels = Array.from(batchLevels.entries());
 
+      // Include color coding options if a color coding scaffold is selected
+      const hasColorCoding = scaffoldNames.some((name) => {
+        const scaffold = defaultScaffolds.find((s) => s.name === name);
+        return scaffold?.category === "color_coding";
+      });
+      const ccOptions = hasColorCoding ? colorCodingOptions : undefined;
+
       if (levels.length === 1) {
         const [level, levelStudents] = levels[0];
         const isSingle = levelStudents.length === 1;
@@ -184,6 +195,7 @@ export function StudentScaffoldSelection({
           studentName,
           sourceDocId,
           sourceHtml,
+          colorCodingOptions: ccOptions,
         });
 
         storeAndNavigate(result, studentName, level);
@@ -204,6 +216,7 @@ export function StudentScaffoldSelection({
               sourceDocId,
               sourceHtml,
               skipUsageLog: idx > 0,
+              colorCodingOptions: ccOptions,
             })
           )
         );
@@ -283,6 +296,7 @@ export function StudentScaffoldSelection({
     sourceDocId?: string;
     sourceHtml?: string;
     skipUsageLog?: boolean;
+    colorCodingOptions?: ColorCodingOptions;
   }) {
     const response = await fetch("/api/scaffold", {
       method: "POST",
@@ -397,6 +411,8 @@ export function StudentScaffoldSelection({
           onToggle={handleToggleScaffold}
           onSelectAll={handleSelectAllScaffolds}
           onClearAll={handleClearAllScaffolds}
+          colorCodingOptions={colorCodingOptions}
+          onColorCodingOptionsChange={setColorCodingOptions}
         />
       )}
 
