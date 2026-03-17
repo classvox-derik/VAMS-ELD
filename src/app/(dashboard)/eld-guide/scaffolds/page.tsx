@@ -318,23 +318,24 @@ function EmergingTab() {
         {/* Color Coding */}
         <ScaffoldSection
           icon={Palette}
-          title="Color Coding: Main Ideas & Evidence"
-          description="Color coding helps Emerging students visually distinguish between different parts of a text — topic sentences, supporting evidence, and transitions. At this level, use bold, high-contrast highlighting and limit to 2-3 colors to avoid overwhelming students."
+          title="Color Coding: Parts of Speech"
+          description="Color coding helps Emerging students visually identify different word types — nouns, verbs, adjectives, and vocabulary words. At this level, use bold, high-contrast highlighting to build awareness of how different word types function in sentences."
           whenToUse={[
-            "Reading passages with main ideas and supporting details",
-            "Informational texts where students need to identify text structure",
-            "Before asking students to write their own paragraphs (model the structure)",
-            "When students struggle to distinguish between key ideas and supporting details",
+            "Reading passages where students need to identify parts of speech",
+            "Building vocabulary awareness and word-type recognition",
+            "Before asking students to write their own sentences (model word types)",
+            "When students struggle to distinguish between nouns, verbs, and adjectives",
           ]}
           exampleBefore={`<p>The water cycle is a continuous process that moves water through the environment. First, the sun heats water in oceans and lakes, causing it to evaporate into the air. Then, the water vapor rises and cools, forming clouds through condensation. Finally, when the clouds become heavy enough, precipitation falls as rain or snow back to Earth.</p>`}
-          exampleAfter={`<p><span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">The water cycle is a continuous process that moves water through the environment.</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">First,</span> the sun heats water in oceans and lakes, causing it to <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">evaporate into the air.</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">Then,</span> the water vapor rises and cools, <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">forming clouds through condensation.</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">Finally,</span> when the clouds become heavy enough, <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">precipitation falls as rain or snow back to Earth.</span></p><p style="margin-top: 12px; font-size: 0.8rem; color: #555;"><strong>Key:</strong> <span style="background-color: #FFF176; padding: 2px 6px; border-radius: 2px;">Yellow = Main Idea</span>&nbsp; <span style="background-color: #AED581; padding: 2px 6px; border-radius: 2px;">Green = Evidence/Details</span>&nbsp; <span style="background-color: #90CAF9; padding: 2px 6px; border-radius: 2px;">Blue = Transitions</span></p>`}
+          exampleAfter={`<p>The <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">water cycle</span> is a <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">continuous</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">process</span> that <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">moves</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">water</span> through the <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">environment</span>. First, the <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">sun</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">heats</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">water</span> in <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">oceans</span> and <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">lakes</span>, causing it to <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">evaporate</span> into the <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">air</span>. Then, the <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">water vapor</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">rises</span> and <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">cools</span>, forming <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">clouds</span> through <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">condensation</span>. Finally, when the <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">clouds</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">become</span> <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">heavy</span> enough, <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">precipitation</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">falls</span> as <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">rain</span> or <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">snow</span> back to <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">Earth</span>.</p><p style="margin-top: 12px; font-size: 0.8rem; color: #555;"><strong>Key:</strong> <span style="background-color: #90CAF9; padding: 2px 6px; border-radius: 2px;">Blue = Nouns</span>&nbsp; <span style="background-color: #AED581; padding: 2px 6px; border-radius: 2px;">Green = Verbs</span>&nbsp; <span style="background-color: #FFCC80; padding: 2px 6px; border-radius: 2px;">Orange = Adjectives</span>&nbsp; <span style="background-color: #FFF176; padding: 2px 6px; border-radius: 2px;">Yellow = Vocabulary Words</span></p>`}
           template={`COLOR CODING TEMPLATE — Emerging Level
 ==========================================
 
 Instructions: Highlight or underline using these colors:
-  - YELLOW = Main Idea (the most important sentence)
-  - GREEN  = Evidence / Supporting Details
-  - BLUE   = Transition Words (First, Then, Finally, etc.)
+  - BLUE   = Nouns (people, places, things, ideas)
+  - GREEN  = Verbs (action words)
+  - ORANGE = Adjectives (describing words)
+  - YELLOW = Vocabulary Words (words from the word bank)
 
 Title: _______________________________________
 
@@ -343,17 +344,19 @@ Passage:
 
 Student Task:
 1. Read the passage one time all the way through.
-2. Find the MAIN IDEA sentence. Highlight it YELLOW.
-3. Find EVIDENCE or DETAILS. Highlight them GREEN.
-4. Find TRANSITION WORDS. Highlight them BLUE.
+2. Find the NOUNS. Highlight them BLUE.
+3. Find the VERBS. Highlight them GREEN.
+4. Find the ADJECTIVES. Highlight them ORANGE.
+5. Find VOCABULARY WORDS from the word bank. Highlight them YELLOW.
 
 Reflection:
-- The main idea is: ___________________________
-- One detail that supports it is: ______________`}
+- One noun I found is: ___________________________
+- One verb I found is: ___________________________
+- One adjective I found is: ______________________`}
           tips={[
-            "Limit to 2-3 colors maximum for Emerging students",
             "Always include a color key at the bottom of the page",
-            "Model the first highlight together as a class before independent work",
+            "Model the first few highlights together as a class before independent work",
+            "Vocabulary bank words take priority — if a word is both a noun and a vocabulary word, highlight it yellow",
             "Consider providing pre-highlighted examples first, then have students try on a new passage",
           ]}
         />
@@ -736,47 +739,50 @@ function ExpandingTab() {
         {/* Color Coding */}
         <ScaffoldSection
           icon={Palette}
-          title="Color Coding: Claims, Evidence & Reasoning"
-          description="At the Expanding level, color coding shifts from basic main idea identification to analyzing argument structure. Students highlight claims, evidence, and reasoning (CER) to understand how authors build arguments. This supports analytical reading and prepares students for argumentative writing."
+          title="Color Coding: Parts of Speech"
+          description="At the Expanding level, color coding continues to reinforce word-type awareness with more complex academic texts. Students identify nouns, verbs, adjectives, and vocabulary words in context, building toward stronger academic writing by understanding how different word types function in sophisticated sentences."
           whenToUse={[
-            "Argumentative or persuasive texts",
-            "Science lab reports or explanations using CER format",
-            "Before students write their own argument paragraphs",
-            "When analyzing author's purpose and rhetorical strategies",
+            "Academic texts with complex sentence structures",
+            "Before students write their own argument or analysis paragraphs",
+            "When building academic vocabulary and word-type fluency",
+            "When analyzing author's word choice and rhetorical strategies",
           ]}
           exampleBefore={`<p>Many scientists believe that climate change is the most serious challenge facing our planet. According to NASA, global temperatures have risen by 1.1°C since the late 1800s. This matters because even small temperature changes can cause major shifts in weather patterns, sea levels, and ecosystems. If temperatures continue to rise, we could see more extreme weather events and rising sea levels that threaten coastal cities.</p>`}
-          exampleAfter={`<p><span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">Many scientists believe that climate change is the most serious challenge facing our planet.</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">According to NASA, global temperatures have risen by 1.1°C since the late 1800s.</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">This matters because even small temperature changes can cause major shifts in weather patterns, sea levels, and ecosystems.</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">If temperatures continue to rise, we could see more extreme weather events and rising sea levels that threaten coastal cities.</span></p><p style="margin-top: 12px; font-size: 0.8rem; color: #555;"><strong>Key:</strong> <span style="background-color: #FFF176; padding: 2px 6px; border-radius: 2px;">Yellow = Claim</span>&nbsp; <span style="background-color: #AED581; padding: 2px 6px; border-radius: 2px;">Green = Evidence</span>&nbsp; <span style="background-color: #90CAF9; padding: 2px 6px; border-radius: 2px;">Blue = Reasoning</span></p>`}
-          template={`COLOR CODING: CLAIMS, EVIDENCE & REASONING — Expanding Level
+          exampleAfter={`<p>Many <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">scientists</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">believe</span> that <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">climate change</span> is the most <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">serious</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">challenge</span> facing our <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">planet</span>. According to NASA, <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">global</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">temperatures</span> have <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">risen</span> by 1.1°C since the late 1800s. This <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">matters</span> because even <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">small</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">temperature</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">changes</span> can <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">cause</span> <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">major</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">shifts</span> in <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">weather patterns</span>, <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">sea levels</span>, and <span style="background-color: #FFF176; padding: 2px 4px; border-radius: 2px; color: #000;">ecosystems</span>. If <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">temperatures</span> <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">continue</span> to <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">rise</span>, we could <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">see</span> more <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">extreme</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">weather events</span> and <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">rising</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">sea levels</span> that <span style="background-color: #AED581; padding: 2px 4px; border-radius: 2px; color: #000;">threaten</span> <span style="background-color: #FFCC80; padding: 2px 4px; border-radius: 2px; color: #000;">coastal</span> <span style="background-color: #90CAF9; padding: 2px 4px; border-radius: 2px; color: #000;">cities</span>.</p><p style="margin-top: 12px; font-size: 0.8rem; color: #555;"><strong>Key:</strong> <span style="background-color: #90CAF9; padding: 2px 6px; border-radius: 2px;">Blue = Nouns</span>&nbsp; <span style="background-color: #AED581; padding: 2px 6px; border-radius: 2px;">Green = Verbs</span>&nbsp; <span style="background-color: #FFCC80; padding: 2px 6px; border-radius: 2px;">Orange = Adjectives</span>&nbsp; <span style="background-color: #FFF176; padding: 2px 6px; border-radius: 2px;">Yellow = Vocabulary Words</span></p>`}
+          template={`COLOR CODING: PARTS OF SPEECH — Expanding Level
 =============================================================
 
 Instructions: Highlight or underline using these colors:
-  - YELLOW = Claim (the author's main argument or position)
-  - GREEN  = Evidence (facts, data, quotes that support the claim)
-  - BLUE   = Reasoning (explains WHY the evidence matters)
+  - BLUE   = Nouns (people, places, things, ideas)
+  - GREEN  = Verbs (action words and linking verbs)
+  - ORANGE = Adjectives (describing words)
+  - YELLOW = Vocabulary Words (words from the word bank)
 
 Title: _______________________________________
 Author: ______________________________________
 
 After highlighting, answer:
-1. What is the author's main CLAIM?
-   _____________________________________________
-
-2. What EVIDENCE does the author use? (List 2-3)
+1. List 3 NOUNS that are important to the text:
    a. _________________________________________
    b. _________________________________________
    c. _________________________________________
 
-3. How does the author explain WHY the evidence
-   supports the claim? (REASONING)
+2. List 3 VERBS the author uses:
+   a. _________________________________________
+   b. _________________________________________
+   c. _________________________________________
+
+3. What ADJECTIVES does the author use to make
+   the writing more descriptive?
    _____________________________________________
    _____________________________________________
 
-4. How strong is this argument? Why?
+4. Which VOCABULARY WORDS were new to you?
    _____________________________________________
    _____________________________________________`}
           tips={[
-            "Teach the CER (Claim, Evidence, Reasoning) framework explicitly before using this scaffold",
-            "Some sentences may contain both evidence and reasoning — discuss gray areas",
+            "Remind students that vocabulary bank words take priority — highlight them yellow even if they are also a noun or verb",
+            "Some words can function as different parts of speech depending on context — discuss these as a class",
             "Have students compare their highlighting with a partner to discuss differences",
           ]}
         />

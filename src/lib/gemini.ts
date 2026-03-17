@@ -365,7 +365,7 @@ You MUST generate a scaffold_actions array. Each action describes a precise modi
 1. **highlight_range**: Find exact text in the original and apply a background color.
    - search_text MUST be an exact, verbatim substring from the original assignment text (case-sensitive, including punctuation)
    - Keep search_text to a phrase or single sentence (not an entire paragraph)
-   - background_color must be a hex color string (e.g., "#FFF176" for yellow, "#AED581" for green, "#90CAF9" for blue)
+   - background_color must be a hex color string (e.g., "#90CAF9" for blue/nouns, "#AED581" for green/verbs, "#FFCC80" for orange/adjectives, "#FFF176" for yellow/vocabulary words)
 
 2. **insert_after_paragraph**: Insert new content after an identified paragraph.
    - paragraph_prefix must be the first 60+ characters of the target paragraph, exact match

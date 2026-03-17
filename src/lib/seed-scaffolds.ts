@@ -2,13 +2,13 @@ import { createClient } from "@/lib/supabase";
 
 const defaultScaffolds = [
   {
-    name: "Color Coding: Main Ideas & Evidence",
+    name: "Color Coding: Parts of Speech",
     description:
-      "Highlights topic sentences in yellow, evidence in green, transitions in blue",
+      "Highlights nouns in blue, verbs in green, adjectives in orange, and vocabulary bank words in yellow",
     category: "color_coding",
     el_level_target: ["Emerging", "Expanding", "Bridging"],
     ai_prompt_template:
-      'Color code text throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap topic sentences with <span style="background-color: #FFF176;">text</span> (yellow), evidence/supporting details with <span style="background-color: #AED581;">text</span> (green), and transition words/phrases with <span style="background-color: #90CAF9;">text</span> (blue). Every paragraph must have at least one highlighted element. Do NOT skip any paragraph.',
+      'Color code specific word types throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap nouns with <span style="background-color: #90CAF9;">word</span> (blue), verbs with <span style="background-color: #AED581;">word</span> (green), adjectives with <span style="background-color: #FFCC80;">word</span> (orange), and vocabulary bank words with <span style="background-color: #FFF176;">word</span> (yellow). If a word is both a vocabulary bank word and another part of speech, use yellow (vocabulary bank takes priority). Every paragraph must have at least one highlighted element. Do NOT skip any paragraph. Include a color key at the end of the document.',
     is_default: true,
   },
   {
