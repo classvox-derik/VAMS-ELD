@@ -176,55 +176,62 @@ export async function POST(request: NextRequest) {
       sourceHtml: sourceHtml || undefined,
     });
 
-    // Store in database with all library fields (graceful failure)
-    let storedId: string | null = null;
+    // Store in database — every generation must be saved to the library
+    let storedId: string;
     let libraryAtLimit = false;
     let libraryPruned = 0;
-    try {
-      const { createDifferentiatedAssignment, enforceLibraryLimit } = await import(
-        "@/lib/queries/differentiated-assignments"
-      );
-      const stored = await createDifferentiatedAssignment({
-        assignment_id: body.assignmentId || "draft",
-        teacher_id: user.id,
-        student_id: body.studentId || undefined,
-        student_name: studentName || undefined,
-        assignment_title: title,
-        el_level: elLevel,
-        scaffolds_applied: scaffoldNames,
-        output_html: result.html,
-        original_content: content,
-        word_bank: result.wordBank,
-        teacher_instructions: result.teacherInstructions,
-        is_demo: result.isDemo,
-        source_doc_id: sourceDocId || undefined,
-        scaffold_actions: result.scaffoldActions || undefined,
-      });
-      storedId = stored.id;
 
-      // Enforce 50-entry library limit per teacher
+    const { createDifferentiatedAssignment, enforceLibraryLimit } = await import(
+      "@/lib/queries/differentiated-assignments"
+    );
+
+    // Attempt save with one retry on transient failures
+    let lastSaveError: unknown;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const stored = await createDifferentiatedAssignment({
+          assignment_id: body.assignmentId || "draft",
+          teacher_id: user.id,
+          student_id: body.studentId || undefined,
+          student_name: studentName || undefined,
+          assignment_title: title,
+          el_level: elLevel,
+          scaffolds_applied: scaffoldNames,
+          output_html: result.html,
+          original_content: content,
+          word_bank: result.wordBank,
+          teacher_instructions: result.teacherInstructions,
+          is_demo: result.isDemo,
+          source_doc_id: sourceDocId || undefined,
+          scaffold_actions: result.scaffoldActions || undefined,
+        });
+        storedId = stored.id;
+        lastSaveError = null;
+        break;
+      } catch (err) {
+        lastSaveError = err;
+        if (attempt === 0) {
+          console.warn("Library save attempt 1 failed, retrying:", err);
+        }
+      }
+    }
+
+    if (lastSaveError || !storedId!) {
+      const saveError = lastSaveError instanceof Error ? lastSaveError.message : String(lastSaveError);
+      console.error("Failed to save to library after 2 attempts:", saveError, lastSaveError);
+      return NextResponse.json(
+        { error: `Generation succeeded but failed to save to library: ${saveError}` },
+        { status: 500 }
+      );
+    }
+
+    // Enforce 50-entry library limit per teacher
+    try {
       const { totalAfter, pruned } = await enforceLibraryLimit(user.id, 50);
       libraryPruned = pruned;
       libraryAtLimit = pruned === 0 && totalAfter === 50;
     } catch (err) {
-      const saveError = err instanceof Error ? err.message : String(err);
-      console.error("Failed to store differentiated assignment:", saveError, err);
-      // Include in response so client can surface the actual reason
-      return NextResponse.json({
-        success: true,
-        libraryAtLimit: false,
-        libraryPruned: 0,
-        outputHtml: result.html,
-        wordBank: result.wordBank,
-        scaffoldsUsed: result.scaffoldsUsed,
-        teacherInstructions: result.teacherInstructions,
-        isDemo: result.isDemo,
-        scaffoldsApplied: scaffoldNames,
-        scaffoldActions: result.scaffoldActions || null,
-        storedId: null,
-        saveError,
-        updatedUsage: undefined,
-      });
+      console.error("Failed to enforce library limit (non-critical):", err);
     }
 
     // Log usage analytic with real teacher ID (skip for batch sub-calls)

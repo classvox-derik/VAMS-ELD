@@ -222,7 +222,7 @@ export function StudentScaffoldSelection({
         );
 
         // Use the first result's storedId as the primary ID for navigation
-        const resultId = results[0].storedId || crypto.randomUUID();
+        const resultId = results[0].storedId as string;
         const generatedAt = new Date().toISOString();
 
         const batchResult = {
@@ -243,6 +243,7 @@ export function StudentScaffoldSelection({
           originalContent: content,
           generatedAt,
           sourceDocId: sourceDocId || undefined,
+          savedToLibrary: true,
           // sourceHtml intentionally omitted — too large for sessionStorage quota
         };
 
@@ -258,14 +259,9 @@ export function StudentScaffoldSelection({
         // Dispatch usage update from last result (most up-to-date count)
         dispatchUsageUpdate(results[results.length - 1]);
 
-        const batchSaveFailed = results.some((r) => !r.storedId);
-        if (batchSaveFailed) {
-          toast.warning("Generation complete, but couldn't save to library. Your results are available for this session only.");
-        } else {
-          toast.success(
-            `Generated scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
-          );
-        }
+        toast.success(
+          `Generated & saved scaffolded versions for ${levels.length} level(s) (${totalStudents} students)`
+        );
 
         // Show library limit toast for the last result (most up-to-date count)
         showLibraryLimitToast(results[results.length - 1]);
@@ -335,8 +331,7 @@ export function StudentScaffoldSelection({
     studentName: string,
     elLevel: ELLevel
   ) {
-    const savedToLibrary = !!data.storedId;
-    const resultId = (data.storedId as string) || crypto.randomUUID();
+    const resultId = data.storedId as string;
     const generatedAt = new Date().toISOString();
 
     // Store in sessionStorage for immediate display on result page
@@ -358,7 +353,7 @@ export function StudentScaffoldSelection({
           generatedAt,
           sourceDocId: sourceDocId || undefined,
           scaffoldActions: data.scaffoldActions || undefined,
-          savedToLibrary,
+          savedToLibrary: true,
         })
       );
     } catch {
@@ -368,17 +363,11 @@ export function StudentScaffoldSelection({
     // Dispatch usage update so sidebar counter updates immediately
     dispatchUsageUpdate(data);
 
-    if (!savedToLibrary) {
-      const reason = (data.saveError as string) || "unknown error";
-      console.error("[Library save failed]", reason);
-      toast.warning(`Generation complete, but couldn't save to library: ${reason}`);
-    } else {
-      toast.success(
-        data.isDemo
-          ? "Demo preview generated! Connect Gemini API key for real results."
-          : "Scaffolded assignment generated successfully!"
-      );
-    }
+    toast.success(
+      data.isDemo
+        ? "Demo preview generated! Connect Gemini API key for real results."
+        : "Scaffolded assignment generated & saved to library!"
+    );
 
     showLibraryLimitToast(data);
 

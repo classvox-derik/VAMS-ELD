@@ -33,7 +33,8 @@
       "Bash(npx:*)",
       "WebFetch(domain:developers.google.com)",
       "Bash(python3:*)",
-      "WebFetch(domain:openrouter.ai)"
+      "WebFetch(domain:openrouter.ai)",
+      "Bash(ls -la /c/VAMS-ELD/src/app/\\\\\\(dashboard\\\\\\)/dashboard/)"
     ]
   }
 }
