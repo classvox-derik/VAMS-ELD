@@ -27,6 +27,7 @@ import {
   Shield,
   Landmark,
   ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -2209,48 +2210,58 @@ function GuidesTab() {
                 description:
                   "The full California ELD Standards document, including proficiency level descriptors and standard progressions.",
                 source: "California Department of Education",
+                url: "https://www.cde.ca.gov/sp/el/er/eldstandards.asp",
               },
               {
                 title: "ELA/ELD Framework",
                 description:
                   "The comprehensive California ELA/ELD Framework with guidance on curriculum, instruction, and assessment for both ELA and ELD.",
                 source: "California Department of Education",
+                url: "https://www.cde.ca.gov/ci/rl/cf/elaeldfrmwrksbeadopted.asp",
               },
               {
                 title: "English Learner Roadmap Policy",
                 description:
                   "The State Board of Education policy document guiding EL programs with four key principles for serving English Learners.",
                 source: "California State Board of Education",
+                url: "https://www.cde.ca.gov/sp/el/rm/",
               },
               {
                 title: "ELPAC Practice & Training Tests",
                 description:
                   "Free practice and training tests from CDE/ETS for all grade spans. Helps students become familiar with the test format.",
                 source: "CDE / Educational Testing Service",
+                url: "https://www.elpac.org/resources/practice-and-training-tests/",
               },
               {
                 title: "EL Roadmap Toolkits",
                 description:
                   "Implementation toolkits for districts and schools to put the EL Roadmap principles into practice across all content areas.",
                 source: "Californians Together / SEAL",
+                url: "https://www.californianstogether.org/english-learner-roadmap-toolkits/",
               },
               {
                 title: "Improving Education for Multilingual and English Learner Students: Research to Practice",
                 description:
                   "CDE research publication providing evidence-based guidance on effective instructional practices for English Learners.",
                 source: "California Department of Education",
+                url: "https://www.cde.ca.gov/sp/el/er/improvingmleleducation.asp",
               },
             ].map((resource) => (
-              <div
+              <a
                 key={resource.title}
-                className="flex items-start gap-3 rounded-lg border border-eld-almond-silk/30 p-3 dark:border-gray-700/50"
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 rounded-lg border border-eld-almond-silk/30 p-3 dark:border-gray-700/50 transition-colors hover:bg-eld-almond-silk/10 dark:hover:bg-eld-dusty-grape/10 hover:border-eld-almond-silk/50 dark:hover:border-gray-600/60 group"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-eld-almond-silk/20 dark:bg-eld-dusty-grape/20">
                   <FileText className="h-4 w-4 text-eld-space-indigo dark:text-eld-almond-silk" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-foreground text-sm">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-foreground text-sm flex items-center gap-1.5">
                     {resource.title}
+                    <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </h4>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {resource.description}
@@ -2259,7 +2270,7 @@ function GuidesTab() {
                     Source: {resource.source}
                   </p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </CardContent>
