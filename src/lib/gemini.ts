@@ -25,7 +25,7 @@ async function callOpenRouter(
 ): Promise<string> {
   const body: Record<string, unknown> = {
     model: MODEL,
-    max_tokens: 16384,
+    max_tokens: 32768,
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -246,7 +246,78 @@ export async function generateScaffoldedAssignment(
       } catch { /* continue */ }
     }
 
+    // Last resort: extract individual JSON string fields via regex
+    // This handles truncated responses where the JSON is incomplete
+    const partial = extractFieldsFromTruncatedJson(cleaned);
+    if (partial) return partial;
+
     return null;
+  }
+
+  /**
+   * Extract known JSON string fields from a potentially truncated JSON response.
+   * Manually parses JSON string values to handle escaped quotes correctly.
+   * This recovers scaffolded_html even when scaffold_actions is cut off.
+   */
+  function extractFieldsFromTruncatedJson(text: string): Record<string, unknown> | null {
+    const result: Record<string, unknown> = {};
+
+    for (const key of ["scaffolded_html", "teacher_instructions"]) {
+      const needle = `"${key}"`;
+      const keyIdx = text.indexOf(needle);
+      if (keyIdx === -1) continue;
+
+      // Find the colon after the key, then the opening quote of the value
+      const afterKey = text.indexOf(":", keyIdx + needle.length);
+      if (afterKey === -1) continue;
+      const openQuote = text.indexOf('"', afterKey + 1);
+      if (openQuote === -1) continue;
+
+      // Walk the string value, handling escaped characters
+      let i = openQuote + 1;
+      let value = "";
+      while (i < text.length) {
+        if (text[i] === "\\") {
+          // Escaped character — consume the next char
+          i++;
+          if (i >= text.length) break;
+          if (text[i] === "n") value += "\n";
+          else if (text[i] === "t") value += "\t";
+          else if (text[i] === '"') value += '"';
+          else if (text[i] === "\\") value += "\\";
+          else if (text[i] === "/") value += "/";
+          else value += text[i];
+        } else if (text[i] === '"') {
+          // End of string value
+          break;
+        } else {
+          value += text[i];
+        }
+        i++;
+      }
+
+      if (value.length > 50) {
+        result[key] = value;
+      }
+    }
+
+    // Try to extract word_bank array
+    const wbMatch = text.match(/"word_bank"\s*:\s*(\[[\s\S]*?\])\s*[,}]/);
+    if (wbMatch) {
+      try {
+        result.word_bank = JSON.parse(wbMatch[1]);
+      } catch { /* skip */ }
+    }
+
+    // Try to extract scaffolds_used array
+    const suMatch = text.match(/"scaffolds_used"\s*:\s*(\[[\s\S]*?\])\s*[,}]/);
+    if (suMatch) {
+      try {
+        result.scaffolds_used = JSON.parse(suMatch[1]);
+      } catch { /* skip */ }
+    }
+
+    return result.scaffolded_html ? result : null;
   }
 
   const rawText = await callOpenRouter(prompt);
