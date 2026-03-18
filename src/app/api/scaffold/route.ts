@@ -211,14 +211,29 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         lastSaveError = err;
         if (attempt === 0) {
-          console.warn("Library save attempt 1 failed, retrying:", err);
+          console.warn("Library save attempt 1 failed, retrying:", JSON.stringify(err));
         }
       }
     }
 
     if (lastSaveError || !storedId!) {
-      const saveError = lastSaveError instanceof Error ? lastSaveError.message : String(lastSaveError);
-      console.error("Failed to save to library after 2 attempts:", saveError, lastSaveError);
+      // Serialize the error — could be PostgrestError, Error, or plain object
+      let saveError: string;
+      if (lastSaveError instanceof Error) {
+        saveError = lastSaveError.message;
+      } else if (typeof lastSaveError === "string") {
+        saveError = lastSaveError;
+      } else {
+        try {
+          const obj = lastSaveError as Record<string, unknown>;
+          saveError = (typeof obj?.message === "string" && obj.message)
+            || (typeof obj?.code === "string" && obj.code)
+            || JSON.stringify(lastSaveError);
+        } catch {
+          saveError = "Unknown database error";
+        }
+      }
+      console.error("Failed to save to library after 2 attempts:", saveError, JSON.stringify(lastSaveError, null, 2));
       return NextResponse.json(
         { error: `Generation succeeded but failed to save to library: ${saveError}` },
         { status: 500 }
