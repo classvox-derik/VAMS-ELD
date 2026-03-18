@@ -53,6 +53,17 @@ const defaultScaffolds = [
     comingSoon: true,
   },
   {
+    name: "Visual Aid: AI Image Generation",
+    description:
+      "Generates a contextual image based on the assignment content using Nano Banana 2 to serve as a visual aid for comprehension",
+    category: "visual_aids",
+    el_level_target: ["Emerging", "Expanding", "Bridging"],
+    ai_prompt_template:
+      "Analyze the assignment content and generate a descriptive image prompt that captures the key concepts, then use Nano Banana 2 to create a visual aid image and insert it at the top of the document.",
+    is_default: true,
+    comingSoon: true,
+  },
+  {
     name: "Bilingual Support: Spanish Translation",
     description:
       "Translates assignment content to Spanish while keeping scaffold labels in English",
