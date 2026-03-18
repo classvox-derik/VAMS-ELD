@@ -6,11 +6,17 @@ import type { DifferentiatedAssignment, ELLevel, ScaffoldAction } from "@/types"
  * source_doc_id and scaffold_actions require migration 007 —
  * once applied, add them here and to the insert below.
  */
+/**
+ * Exact columns in the differentiated_assignments table.
+ * Must match the database schema — no extra, no missing.
+ */
 const BASE_COLUMNS = [
   "id", "assignment_id", "teacher_id", "student_id", "student_name",
   "assignment_title", "el_level", "scaffolds_applied", "output_html",
   "original_content", "word_bank", "teacher_instructions", "is_demo",
-  "teacher_notes", "source_doc_id", "scaffold_actions", "created_at", "updated_at",
+  "teacher_notes", "source_doc_id", "scaffold_actions",
+  "parent_note", "parent_note_sent_at", "google_doc_id", "google_doc_url", "pdf_url",
+  "created_at",
 ].join(", ");
 
 export async function createDifferentiatedAssignment(data: {
