@@ -6,6 +6,11 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.7.0",
+    date: "2026-03-19",
+    description: "Added Privacy Policy and Terms of Service pages — accessible from the footer. Required for Google OAuth compliance and user transparency.",
+  },
+  {
     version: "v1.6.0",
     date: "2026-03-17",
     description: "Color Coding scaffold enhanced — choose between \"Parts of Speech\" mode (nouns, verbs, adjectives, vocabulary words) or \"Easier to Read\" mode (main ideas, evidence, transitions). In Parts of Speech mode, select exactly which word types to highlight.",

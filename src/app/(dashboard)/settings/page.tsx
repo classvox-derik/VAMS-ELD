@@ -299,7 +299,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/google-auth/callback`}
             </div>
             <div className="flex justify-between py-3 border-b border-eld-almond-silk/40 dark:border-gray-800">
               <span className="text-muted-foreground">Version</span>
-              <span className="font-medium">1.6.0</span>
+              <span className="font-medium">1.7.0</span>
             </div>
             <div className="flex justify-between py-3">
               <span className="text-muted-foreground">School</span>
