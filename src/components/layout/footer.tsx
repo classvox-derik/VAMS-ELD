@@ -7,12 +7,28 @@ export function Footer() {
         <p className="text-theme-xs text-white/70">
           &copy; {new Date().getFullYear()} Valor Academy Middle School &mdash; ELD Scaffolding Platform
         </p>
-        <Link
-          href="/bug-report"
-          className="text-theme-xs text-white/50 underline-offset-2 transition-colors hover:text-white/80 hover:underline"
-        >
-          Report a Bug
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/privacy"
+            className="text-theme-xs text-white/50 underline-offset-2 transition-colors hover:text-white/80 hover:underline"
+          >
+            Privacy Policy
+          </Link>
+          <span className="text-white/30">|</span>
+          <Link
+            href="/terms"
+            className="text-theme-xs text-white/50 underline-offset-2 transition-colors hover:text-white/80 hover:underline"
+          >
+            Terms of Service
+          </Link>
+          <span className="text-white/30">|</span>
+          <Link
+            href="/bug-report"
+            className="text-theme-xs text-white/50 underline-offset-2 transition-colors hover:text-white/80 hover:underline"
+          >
+            Report a Bug
+          </Link>
+        </div>
       </div>
     </footer>
   );
