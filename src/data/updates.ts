@@ -6,6 +6,16 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.7.2",
+    date: "2026-03-20",
+    description: "Fixed PDF import and export reliability — PDF uploads no longer fail silently on repeated use (resolved a memory leak in the parser). PDF downloads are now guaranteed to work on all deployments by pinning the PDF generation library as a direct dependency. Removed an unused legacy dependency (html2pdf.js).",
+  },
+  {
+    version: "v1.7.1",
+    date: "2026-03-20",
+    description: "Fixed Parts of Speech color coding accuracy — the AI now follows strict grammatical rules to correctly identify nouns, verbs, and adjectives based on how each word functions in its sentence. Gerunds used as subjects (e.g., \"Swimming is fun\") are now correctly tagged as nouns instead of verbs. Words acting as adjectives (e.g., \"school\" in \"school bus\") are no longer mis-tagged as nouns. Adverbs like \"quickly\" are no longer confused with adjectives. Additionally, selecting a subset of word types (e.g., only Nouns and Adjectives) no longer causes the AI to highlight unselected types.",
+  },
+  {
     version: "v1.7.0",
     date: "2026-03-19",
     description: "Added Privacy Policy and Terms of Service pages — accessible from the footer. Required for Google OAuth compliance and user transparency.",

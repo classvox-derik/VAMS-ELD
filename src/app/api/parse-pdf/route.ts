@@ -21,17 +21,21 @@ export async function POST(request: Request) {
     const uint8 = new Uint8Array(arrayBuffer);
 
     const parser = new PDFParse({ data: uint8 });
-    const result = await parser.getText();
-    const text = result.text.trim();
+    try {
+      const result = await parser.getText();
+      const text = result.text.trim();
 
-    if (!text) {
-      return NextResponse.json(
-        { error: "Could not extract text from PDF. The file may be image-based." },
-        { status: 422 }
-      );
+      if (!text) {
+        return NextResponse.json(
+          { error: "Could not extract text from PDF. The file may be image-based." },
+          { status: 422 }
+        );
+      }
+
+      return NextResponse.json({ text });
+    } finally {
+      await parser.destroy();
     }
-
-    return NextResponse.json({ text });
   } catch (error) {
     console.error("PDF parse error:", error);
     return NextResponse.json(

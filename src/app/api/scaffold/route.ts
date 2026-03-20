@@ -17,20 +17,26 @@ function buildColorCodingPrompt(options: ColorCodingOptions): string {
 
   // Parts of speech mode — build based on selected word types
   const types: string[] = [];
+  const rules: string[] = [];
   if (options.wordTypes.nouns) {
     types.push('nouns with <span style="background-color: #90CAF9;">word</span> (blue)');
+    rules.push('NOUNS (blue #90CAF9): Only highlight words functioning as nouns in context — people, places, things, or ideas. Include proper nouns and pronouns only if they are the subject/object. Do NOT highlight words that look like nouns but are functioning as adjectives (e.g., "school" in "school bus" is an adjective, not a noun). Gerunds ("-ing" words) are nouns ONLY when they are the subject or object of a sentence (e.g., "Swimming is fun" — "Swimming" is a noun), NOT when they describe ongoing action (e.g., "She is swimming" — "swimming" is a verb).');
   }
   if (options.wordTypes.verbs) {
     types.push('verbs with <span style="background-color: #AED581;">word</span> (green)');
+    rules.push('VERBS (green #AED581): Highlight action words and linking verbs (is, are, was, were, become, seem). Include the FULL verb phrase (e.g., "was running", "had been eaten", "will go"). Do NOT highlight infinitives used as nouns (e.g., "To read is fun" — "To read" is a noun phrase, not a verb).');
   }
   if (options.wordTypes.adjectives) {
     types.push('adjectives with <span style="background-color: #FFCC80;">word</span> (orange)');
+    rules.push('ADJECTIVES (orange #FFCC80): Highlight words that describe or modify a noun. Include predicate adjectives (e.g., "The sky is blue" — "blue" is an adjective). Do NOT highlight adverbs that modify verbs (e.g., "runs quickly" — "quickly" is an adverb, NOT an adjective). Articles (a, an, the) are NOT adjectives — do not highlight them.');
   }
   if (options.wordTypes.vocabulary) {
     types.push('vocabulary bank words with <span style="background-color: #FFF176;">word</span> (yellow)');
+    rules.push('VOCABULARY WORDS (yellow #FFF176): Highlight academic or challenging vocabulary that would be difficult for an ELL student at this level. These are content-specific or Tier 2/3 academic words.');
   }
 
   const wrapInstructions = types.join(", ");
+  const posRules = rules.join("\n");
 
   const keyParts: string[] = [];
   if (options.wordTypes.nouns) keyParts.push("Blue = Nouns");
@@ -43,7 +49,14 @@ function buildColorCodingPrompt(options: ColorCodingOptions): string {
     priorityNote = " If a word is both a vocabulary bank word and another part of speech, use yellow (vocabulary bank takes priority).";
   }
 
-  return `Color code specific word types throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap ${wrapInstructions}.${priorityNote} Every paragraph must have at least one highlighted element. Do NOT skip any paragraph. Include a color key at the end: ${keyParts.join(", ")}.`;
+  return `Color code specific word types throughout the ENTIRE document, in EVERY paragraph from start to finish. Wrap ${wrapInstructions}.${priorityNote} Every paragraph must have at least one highlighted element. Do NOT skip any paragraph. ONLY use the colors listed here — do NOT use any other highlight colors.
+
+PART-OF-SPEECH IDENTIFICATION RULES (follow these strictly):
+${posRules}
+
+CRITICAL: Identify each word's part of speech based on how it FUNCTIONS in the sentence, not just what it looks like. Many English words can be multiple parts of speech depending on context (e.g., "run" can be a noun or verb, "light" can be a noun, verb, or adjective). Always consider the grammatical role in the specific sentence.
+
+Include a color key at the end: ${keyParts.join(", ")}.`;
 }
 
 const DAILY_GLOBAL_LIMIT = parseInt(process.env.DAILY_GLOBAL_LIMIT ?? "250", 10);
