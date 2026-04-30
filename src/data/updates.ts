@@ -6,6 +6,11 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.7.3",
+    date: "2026-04-30",
+    description: "Database Update — Removed recently reclassified (RFEP) students from the database to keep rosters up to date.",
+  },
+  {
     version: "v1.7.2",
     date: "2026-03-20",
     description: "Fixed PDF import and export reliability — PDF uploads no longer fail silently on repeated use (resolved a memory leak in the parser). PDF downloads are now guaranteed to work on all deployments by pinning the PDF generation library as a direct dependency. Removed an unused legacy dependency (html2pdf.js).",
