@@ -6,6 +6,11 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.7.4",
+    date: "2026-04-30",
+    description: "AI Model Upgrade — Switched the primary scaffolding model to Claude Sonnet 4.6 for improved contextual understanding and translation accuracy.",
+  },
+  {
     version: "v1.7.3",
     date: "2026-04-30",
     description: "Database Update — Removed recently reclassified (RFEP) students from the database to keep rosters up to date.",

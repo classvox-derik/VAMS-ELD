@@ -3,7 +3,7 @@ import type { ELLevel, ScaffoldGenerationResult, ScaffoldAction } from "@/types"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "anthropic/claude-haiku-4.5";
+const MODEL = "anthropic/claude-4.6-sonnet";
 
 function isPlaceholder(): boolean {
   return !OPENROUTER_API_KEY || OPENROUTER_API_KEY.length < 10;
