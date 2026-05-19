@@ -212,7 +212,7 @@ export function StudentsTable({
                 <SortButton field="elpac_level">25/26 Level</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="overall_level">State Level</SortButton>
+                <SortButton field="overall_level">24/25 Overall Score</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
                 Oral
@@ -336,7 +336,7 @@ export function StudentsTable({
                 <span>Level: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_level || "-" : "-"}</span>
               </div>
               <div className="flex gap-3 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">State Levels:</span>
+                <span className="font-medium text-foreground">24/25 Scores:</span>
                 <span>Overall: {student.overall_level || "-"}</span>
                 <span>Oral: {student.oral_language_level || "-"}</span>
                 <span>Written: {student.written_language_level || "-"}</span>

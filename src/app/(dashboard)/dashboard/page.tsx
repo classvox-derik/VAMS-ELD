@@ -101,9 +101,6 @@ export default async function DashboardPage() {
         {/* ELPAC scores banner */}
         <div className="flex items-center justify-between rounded-2xl border border-eld-space-indigo/20 bg-gradient-to-br from-eld-space-indigo/5 to-transparent p-5 dark:from-eld-space-indigo/10 dark:border-eld-space-indigo/30">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-space-indigo text-white shadow-sm dark:bg-eld-almond-silk dark:text-eld-space-indigo font-bold text-xl">
-              E
-            </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{elpacTotal}</p>
               <p className="text-sm text-muted-foreground">25/26 ELPAC Scores</p>
