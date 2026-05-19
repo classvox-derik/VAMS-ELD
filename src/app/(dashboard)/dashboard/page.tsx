@@ -106,7 +106,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{elpacTotal}</p>
-              <p className="text-sm text-muted-foreground">ELPAC Scores Loaded</p>
+              <p className="text-sm text-muted-foreground">25/26 ELPAC Scores</p>
             </div>
           </div>
           <div className="text-right hidden sm:block">

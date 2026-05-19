@@ -9,8 +9,9 @@ import { Select } from "@/components/ui/select";
 import { ELBadge } from "./el-badge";
 import type { Student, ELLevel } from "@/types";
 import { EL_LEVELS, GRADES } from "@/types";
+import elpacScoresData from "@/data/elpac-scores.json";
 
-type SortField = "name" | "grade" | "el_level" | "homeroom" | "overall_level";
+type SortField = "name" | "grade" | "el_level" | "homeroom" | "overall_level" | "elpac_score" | "elpac_level";
 type SortDirection = "asc" | "desc";
 
 interface StudentsTableProps {
@@ -75,11 +76,19 @@ export function StudentsTable({
 
     // Sort
     result.sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
+      let aVal: any = a[sortField];
+      let bVal: any = b[sortField];
+
+      if (sortField === "elpac_score" || sortField === "elpac_level") {
+        const aElpac = a.ssid ? (elpacScoresData as any)[a.ssid] : null;
+        const bElpac = b.ssid ? (elpacScoresData as any)[b.ssid] : null;
+        aVal = aElpac ? aElpac[sortField] : 0;
+        bVal = bElpac ? bElpac[sortField] : 0;
+      }
+
       const comparison =
-        typeof aVal === "string"
-          ? aVal.localeCompare(bVal as string)
+        typeof aVal === "string" && typeof bVal === "string"
+          ? aVal.localeCompare(bVal)
           : (aVal as number) - (bVal as number);
       return sortDirection === "asc" ? comparison : -comparison;
     });
@@ -197,7 +206,13 @@ export function StudentsTable({
                 <SortButton field="el_level">EL Level</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="overall_level">Overall</SortButton>
+                <SortButton field="elpac_score">25/26 Score</SortButton>
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                <SortButton field="elpac_level">25/26 Level</SortButton>
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                <SortButton field="overall_level">State Level</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
                 Oral
@@ -215,7 +230,7 @@ export function StudentsTable({
           <tbody>
             {filteredAndSorted.length === 0 ? (
               <tr>
-                <td colSpan={isAdmin ? 8 : 7} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                <td colSpan={isAdmin ? 10 : 9} className="px-4 py-12 text-center text-sm text-muted-foreground">
                   {students.length === 0
                     ? isAdmin
                       ? "No students yet. Click \"Add Student\" to begin."
@@ -244,6 +259,16 @@ export function StudentsTable({
                   <td className="px-4 py-3 text-sm">{student.homeroom}</td>
                   <td className="px-4 py-3">
                     <ELBadge level={student.el_level} />
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_score || "-"}
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_level ? (
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-eld-space-indigo text-white text-xs font-bold shadow-sm">
+                        {(elpacScoresData as any)[student.ssid].elpac_level}
+                      </span>
+                    ) : "-"}
                   </td>
                   <td className="px-4 py-3 text-center text-sm font-medium">{student.overall_level || "-"}</td>
                   <td className="px-4 py-3 text-center text-sm">{student.oral_language_level || "-"}</td>
@@ -305,7 +330,13 @@ export function StudentsTable({
               <div className="text-sm text-muted-foreground">
                 Grade {student.grade} &middot; {student.homeroom}
               </div>
+              <div className="flex gap-3 text-xs text-muted-foreground pt-1">
+                <span className="font-medium text-foreground">25/26 ELPAC:</span>
+                <span>Score: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_score || "-" : "-"}</span>
+                <span>Level: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_level || "-" : "-"}</span>
+              </div>
               <div className="flex gap-3 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">State Levels:</span>
                 <span>Overall: {student.overall_level || "-"}</span>
                 <span>Oral: {student.oral_language_level || "-"}</span>
                 <span>Written: {student.written_language_level || "-"}</span>

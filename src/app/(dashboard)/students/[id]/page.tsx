@@ -160,7 +160,7 @@ export default function StudentDetailPage() {
       {studentElpac && (
         <Card className="overflow-hidden border-eld-space-indigo/20 bg-gradient-to-br from-eld-space-indigo/5 to-transparent dark:from-eld-space-indigo/10 dark:border-eld-space-indigo/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Overall ELPAC Performance</CardTitle>
+            <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">2025/2026 Overall ELPAC Performance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-center gap-6">

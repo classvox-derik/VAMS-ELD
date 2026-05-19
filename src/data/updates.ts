@@ -6,6 +6,11 @@ export interface Update {
 
 const updates: Update[] = [
   {
+    version: "v1.8.0",
+    date: "2026-05-19",
+    description: "ELPAC Scores Integration — Added 2025/2026 ELPAC overall scale scores and performance levels to the dashboard and student profiles. You can now easily track and categorize students by their latest ELPAC performance.",
+  },
+  {
     version: "v1.7.4",
     date: "2026-04-30",
     description: "AI Model Upgrade — Switched the primary scaffolding model to Claude Sonnet 4.6 for improved contextual understanding and translation accuracy.",
