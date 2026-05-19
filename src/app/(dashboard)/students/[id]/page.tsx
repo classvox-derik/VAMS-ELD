@@ -186,22 +186,41 @@ export default function StudentDetailPage() {
               </div>
 
               {/* Domains Section */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border/50">
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground uppercase">Listening</span>
-                  <span className="text-sm font-semibold mt-1">{studentElpac.listening || "N/A"}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/50">
+                {/* Oral Language */}
+                <div className="flex flex-col gap-3 p-4 rounded-lg bg-eld-dusty-grape/5 dark:bg-eld-dusty-grape/10 border border-eld-dusty-grape/10">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Oral Language Score</span>
+                    <span className="text-xl font-bold">{studentElpac.oral_score || "N/A"}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-muted-foreground uppercase">Listening</span>
+                      <span className="text-sm font-medium mt-1">{studentElpac.listening || "N/A"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-muted-foreground uppercase">Speaking</span>
+                      <span className="text-sm font-medium mt-1">{studentElpac.speaking || "N/A"}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground uppercase">Speaking</span>
-                  <span className="text-sm font-semibold mt-1">{studentElpac.speaking || "N/A"}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground uppercase">Reading</span>
-                  <span className="text-sm font-semibold mt-1">{studentElpac.reading || "N/A"}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground uppercase">Writing</span>
-                  <span className="text-sm font-semibold mt-1">{studentElpac.writing || "N/A"}</span>
+
+                {/* Written Language */}
+                <div className="flex flex-col gap-3 p-4 rounded-lg bg-eld-almond-silk/30 dark:bg-eld-almond-silk/5 border border-eld-almond-silk/40 dark:border-eld-almond-silk/10">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Written Language Score</span>
+                    <span className="text-xl font-bold">{studentElpac.written_score || "N/A"}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-muted-foreground uppercase">Reading</span>
+                      <span className="text-sm font-medium mt-1">{studentElpac.reading || "N/A"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-muted-foreground uppercase">Writing</span>
+                      <span className="text-sm font-medium mt-1">{studentElpac.writing || "N/A"}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
