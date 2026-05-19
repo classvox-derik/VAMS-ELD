@@ -23,6 +23,8 @@ export interface Student {
   overall_level: number;
   oral_language_level: number;
   written_language_level: number;
+  elpac_score?: number;
+  elpac_level?: number;
   primary_language: string;
   custom_scaffolds: string[];
   notes?: string;
