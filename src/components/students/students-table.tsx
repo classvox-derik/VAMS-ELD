@@ -10,8 +10,9 @@ import { ELBadge } from "./el-badge";
 import type { Student, ELLevel } from "@/types";
 import { EL_LEVELS, GRADES } from "@/types";
 import elpacScoresData from "@/data/elpac-scores.json";
+import { getElpacLevel } from "@/lib/elpac-ranges";
 
-type SortField = "name" | "grade" | "el_level" | "homeroom" | "overall_level" | "elpac_score" | "elpac_level";
+type SortField = "name" | "grade" | "el_level" | "homeroom" | "elpac_score" | "oral_score" | "written_score";
 type SortDirection = "asc" | "desc";
 
 interface StudentsTableProps {
@@ -79,7 +80,7 @@ export function StudentsTable({
       let aVal: any = a[sortField];
       let bVal: any = b[sortField];
 
-      if (sortField === "elpac_score" || sortField === "elpac_level") {
+      if (sortField === "elpac_score" || sortField === "oral_score" || sortField === "written_score") {
         const aElpac = a.ssid ? (elpacScoresData as any)[a.ssid] : null;
         const bElpac = b.ssid ? (elpacScoresData as any)[b.ssid] : null;
         aVal = aElpac ? aElpac[sortField] : 0;
@@ -206,10 +207,13 @@ export function StudentsTable({
                 <SortButton field="el_level">EL Level</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="elpac_score">25/26 Score</SortButton>
+                <SortButton field="elpac_score">Overall Score</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="elpac_level">Overall Level</SortButton>
+                <SortButton field="oral_score">Oral Score</SortButton>
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
+                <SortButton field="written_score">Written Score</SortButton>
               </th>
               {isAdmin && (
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
@@ -252,13 +256,27 @@ export function StudentsTable({
                     <ELBadge level={student.el_level} />
                   </td>
                   <td className="px-4 py-3 text-center text-sm">
-                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_score || "-"}
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_score ? (
+                      <div className="flex flex-col items-center">
+                        <span className="font-semibold">{(elpacScoresData as any)[student.ssid].elpac_score}</span>
+                        <span className="text-xs text-muted-foreground">L{getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].elpac_score) || "?"}</span>
+                      </div>
+                    ) : "-"}
                   </td>
                   <td className="px-4 py-3 text-center text-sm">
-                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_level ? (
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-eld-space-indigo text-white text-xs font-bold shadow-sm">
-                        {(elpacScoresData as any)[student.ssid].elpac_level}
-                      </span>
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.oral_score ? (
+                      <div className="flex flex-col items-center">
+                        <span className="font-semibold">{(elpacScoresData as any)[student.ssid].oral_score}</span>
+                        <span className="text-xs text-muted-foreground">L{getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].oral_score) || "?"}</span>
+                      </div>
+                    ) : "-"}
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.written_score ? (
+                      <div className="flex flex-col items-center">
+                        <span className="font-semibold">{(elpacScoresData as any)[student.ssid].written_score}</span>
+                        <span className="text-xs text-muted-foreground">L{getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].written_score) || "?"}</span>
+                      </div>
                     ) : "-"}
                   </td>
                   {isAdmin && (
@@ -318,10 +336,32 @@ export function StudentsTable({
               <div className="text-sm text-muted-foreground">
                 Grade {student.grade} &middot; {student.homeroom}
               </div>
-              <div className="flex gap-3 text-xs text-muted-foreground pt-1">
-                <span className="font-medium text-foreground">25/26 ELPAC:</span>
-                <span>Score: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_score || "-" : "-"}</span>
-                <span>Overall Level: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_level || "-" : "-"}</span>
+              <div className="flex flex-col gap-1 text-xs text-muted-foreground pt-2 border-t border-border/40 mt-2">
+                <div className="font-medium text-foreground">25/26 ELPAC Scores:</div>
+                <div className="flex justify-between">
+                  <span>Overall:</span>
+                  <span className="font-medium text-foreground">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.elpac_score
+                      ? `${(elpacScoresData as any)[student.ssid].elpac_score} (L${getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].elpac_score)})`
+                      : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Oral:</span>
+                  <span className="font-medium text-foreground">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.oral_score
+                      ? `${(elpacScoresData as any)[student.ssid].oral_score} (L${getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].oral_score)})`
+                      : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Written:</span>
+                  <span className="font-medium text-foreground">
+                    {student.ssid && (elpacScoresData as any)[student.ssid]?.written_score
+                      ? `${(elpacScoresData as any)[student.ssid].written_score} (L${getElpacLevel(student.grade, (elpacScoresData as any)[student.ssid].written_score)})`
+                      : "-"}
+                  </span>
+                </div>
               </div>
               {isAdmin && (
                 <div className="flex items-center gap-1 pt-1">
