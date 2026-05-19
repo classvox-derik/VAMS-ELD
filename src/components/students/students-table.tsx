@@ -77,14 +77,17 @@ export function StudentsTable({
 
     // Sort
     result.sort((a, b) => {
-      let aVal: any = a[sortField];
-      let bVal: any = b[sortField];
+      let aVal: any;
+      let bVal: any;
 
       if (sortField === "elpac_score" || sortField === "oral_score" || sortField === "written_score") {
         const aElpac = a.ssid ? (elpacScoresData as any)[a.ssid] : null;
         const bElpac = b.ssid ? (elpacScoresData as any)[b.ssid] : null;
         aVal = aElpac ? aElpac[sortField] : 0;
         bVal = bElpac ? bElpac[sortField] : 0;
+      } else {
+        aVal = (a as any)[sortField];
+        bVal = (b as any)[sortField];
       }
 
       const comparison =
