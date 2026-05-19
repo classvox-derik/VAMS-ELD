@@ -209,16 +209,7 @@ export function StudentsTable({
                 <SortButton field="elpac_score">25/26 Score</SortButton>
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="elpac_level">25/26 Level</SortButton>
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                <SortButton field="overall_level">24/25 Overall Score</SortButton>
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                Oral
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
-                Written
+                <SortButton field="elpac_level">Overall Level</SortButton>
               </th>
               {isAdmin && (
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-eld-dusty-grape dark:text-gray-400">
@@ -230,7 +221,7 @@ export function StudentsTable({
           <tbody>
             {filteredAndSorted.length === 0 ? (
               <tr>
-                <td colSpan={isAdmin ? 10 : 9} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                <td colSpan={isAdmin ? 7 : 6} className="px-4 py-12 text-center text-sm text-muted-foreground">
                   {students.length === 0
                     ? isAdmin
                       ? "No students yet. Click \"Add Student\" to begin."
@@ -270,9 +261,6 @@ export function StudentsTable({
                       </span>
                     ) : "-"}
                   </td>
-                  <td className="px-4 py-3 text-center text-sm font-medium">{student.overall_level || "-"}</td>
-                  <td className="px-4 py-3 text-center text-sm">{student.oral_language_level || "-"}</td>
-                  <td className="px-4 py-3 text-center text-sm">{student.written_language_level || "-"}</td>
                   {isAdmin && (
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
@@ -333,13 +321,7 @@ export function StudentsTable({
               <div className="flex gap-3 text-xs text-muted-foreground pt-1">
                 <span className="font-medium text-foreground">25/26 ELPAC:</span>
                 <span>Score: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_score || "-" : "-"}</span>
-                <span>Level: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_level || "-" : "-"}</span>
-              </div>
-              <div className="flex gap-3 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">24/25 Scores:</span>
-                <span>Overall: {student.overall_level || "-"}</span>
-                <span>Oral: {student.oral_language_level || "-"}</span>
-                <span>Written: {student.written_language_level || "-"}</span>
+                <span>Overall Level: {student.ssid ? (elpacScoresData as any)[student.ssid]?.elpac_level || "-" : "-"}</span>
               </div>
               {isAdmin && (
                 <div className="flex items-center gap-1 pt-1">
