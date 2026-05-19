@@ -163,23 +163,45 @@ export default function StudentDetailPage() {
             <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">2025/2026 Overall ELPAC Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Scale Score</span>
-                <span className="text-4xl font-bold text-foreground mt-1">{studentElpac.elpac_score}</span>
-              </div>
-              <div className="hidden sm:block h-12 w-px bg-border" />
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Overall Level</span>
-                <div className="flex items-center gap-3 mt-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-eld-space-indigo text-white font-bold text-lg dark:bg-eld-almond-silk dark:text-eld-space-indigo shadow-sm">
-                    {studentElpac.elpac_level}
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-wrap items-center gap-6">
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground">Scale Score</span>
+                  <span className="text-4xl font-bold text-foreground mt-1">{studentElpac.elpac_score}</span>
+                </div>
+                <div className="hidden sm:block h-12 w-px bg-border" />
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground">Overall Level</span>
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-eld-space-indigo text-white font-bold text-lg dark:bg-eld-almond-silk dark:text-eld-space-indigo shadow-sm">
+                      {studentElpac.elpac_level}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">
+                      {studentElpac.elpac_level === 4 ? "Well Developed" :
+                       studentElpac.elpac_level === 3 ? "Moderately Developed" :
+                       studentElpac.elpac_level === 2 ? "Somewhat Developed" : "Beginning to Develop"}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">
-                    {studentElpac.elpac_level === 4 ? "Well Developed" :
-                     studentElpac.elpac_level === 3 ? "Moderately Developed" :
-                     studentElpac.elpac_level === 2 ? "Somewhat Developed" : "Beginning to Develop"}
-                  </span>
+                </div>
+              </div>
+
+              {/* Domains Section */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border/50">
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Listening</span>
+                  <span className="text-sm font-semibold mt-1">{studentElpac.listening || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Speaking</span>
+                  <span className="text-sm font-semibold mt-1">{studentElpac.speaking || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Reading</span>
+                  <span className="text-sm font-semibold mt-1">{studentElpac.reading || "N/A"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground uppercase">Writing</span>
+                  <span className="text-sm font-semibold mt-1">{studentElpac.writing || "N/A"}</span>
                 </div>
               </div>
             </div>

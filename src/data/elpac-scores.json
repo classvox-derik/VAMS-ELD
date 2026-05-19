@@ -4,685 +4,1077 @@
     "grade": 6,
     "ssid": "1095350174",
     "elpac_score": 1578,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "1097486550": {
     "name": "Alexis Barrios",
     "grade": 8,
     "ssid": "1097486550",
     "elpac_score": 1553,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "1136498005": {
     "name": "Elijah Cervantes Tellez",
     "grade": 6,
     "ssid": "1136498005",
     "elpac_score": 1522,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "1249979449": {
     "name": "Caleb Aguilar Chavez",
     "grade": 6,
     "ssid": "1249979449",
     "elpac_score": 1564,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "1270083047": {
     "name": "Steven Campos Vasquez",
     "grade": 7,
     "ssid": "1270083047",
     "elpac_score": 1578,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "1335168347": {
     "name": "Kevin Prudencio",
     "grade": 7,
     "ssid": "1335168347",
     "elpac_score": 1541,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "1627050396": {
     "name": "Kevin Zamora Machado",
     "grade": 7,
     "ssid": "1627050396",
     "elpac_score": 1580,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "1771360288": {
     "name": "Belen Barbosa",
     "grade": 7,
     "ssid": "1771360288",
     "elpac_score": 1586,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "1787343401": {
     "name": "Jacob Villalobos Molina",
     "grade": 5,
     "ssid": "1787343401",
     "elpac_score": 1492,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "2074202807": {
     "name": "Alexis Cerna Velasquez",
     "grade": 5,
     "ssid": "2074202807",
     "elpac_score": 1496,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Beginning to Develop",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "2185913261": {
     "name": "Sofia Fuentes Martinez",
     "grade": 5,
     "ssid": "2185913261",
     "elpac_score": 1528,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "2235872610": {
     "name": "Gilmer Zabala Ramos",
     "grade": 6,
     "ssid": "2235872610",
     "elpac_score": 1527,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "2247007724": {
     "name": "Emmalee Gutierrez",
     "grade": 8,
     "ssid": "2247007724",
     "elpac_score": 1528,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "2281077437": {
     "name": "Angel Villatoro",
     "grade": 8,
     "ssid": "2281077437",
     "elpac_score": 1536,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "2323319883": {
     "name": "Leonardo Alvarez",
     "grade": 6,
     "ssid": "2323319883",
     "elpac_score": 1644,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "2385987491": {
     "name": "Gabriel Romero",
     "grade": 8,
     "ssid": "2385987491",
     "elpac_score": 1560,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "2536649076": {
     "name": "Adriana Hernandez",
     "grade": 5,
     "ssid": "2536649076",
     "elpac_score": 1516,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "2563756547": {
     "name": "Jason Zepeda",
     "grade": 6,
     "ssid": "2563756547",
     "elpac_score": 1590,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "2655671591": {
     "name": "Andrea Padilla",
     "grade": 7,
     "ssid": "2655671591",
     "elpac_score": 1758,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "2967720805": {
     "name": "Jeffrey Soc Duarte",
     "grade": 6,
     "ssid": "2967720805",
     "elpac_score": 1575,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "2970858598": {
     "name": "Eric Clemente",
     "grade": 7,
     "ssid": "2970858598",
     "elpac_score": 1598,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3197699234": {
     "name": "Oscar Duque Gonzalez",
     "grade": 5,
     "ssid": "3197699234",
     "elpac_score": 1524,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3210835173": {
     "name": "Abdel Palma Mendoza",
     "grade": 7,
     "ssid": "3210835173",
     "elpac_score": 1494,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "3234782406": {
     "name": "Sofia Valles Jaco",
     "grade": 5,
     "ssid": "3234782406",
     "elpac_score": 1411,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Beginning to Develop",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "3244119243": {
     "name": "Matthew Garcia",
     "grade": 7,
     "ssid": "3244119243",
     "elpac_score": 1596,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "3345067732": {
     "name": "Pablo Morales",
     "grade": 5,
     "ssid": "3345067732",
     "elpac_score": 1546,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3600165418": {
     "name": "Samantha Rodriguez",
     "grade": 7,
     "ssid": "3600165418",
     "elpac_score": 1540,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3623626315": {
     "name": "David Alejandro",
     "grade": 8,
     "ssid": "3623626315",
     "elpac_score": 1512,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3731567411": {
     "name": "Coraline Pineda",
     "grade": 8,
     "ssid": "3731567411",
     "elpac_score": 1552,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3757008205": {
     "name": "Logan Rodriguez Ponciano",
     "grade": 6,
     "ssid": "3757008205",
     "elpac_score": 1545,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "3811658556": {
     "name": "Martin Suarez Angulo",
     "grade": 6,
     "ssid": "3811658556",
     "elpac_score": 1603,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "3934420229": {
     "name": "Destiny Arana Vazquez",
     "grade": 5,
     "ssid": "3934420229",
     "elpac_score": 1477,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4003500892": {
     "name": "Alexandra Hernandez",
     "grade": 6,
     "ssid": "4003500892",
     "elpac_score": 1564,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4112459627": {
     "name": "Daniel Soriano",
     "grade": 8,
     "ssid": "4112459627",
     "elpac_score": 1512,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4294421245": {
     "name": "Isaac Arroyo",
     "grade": 7,
     "ssid": "4294421245",
     "elpac_score": 1589,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4547883745": {
     "name": "Nicole Vasquez",
     "grade": 5,
     "ssid": "4547883745",
     "elpac_score": 1554,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "4582894274": {
     "name": "Stephanie Melendez",
     "grade": 5,
     "ssid": "4582894274",
     "elpac_score": 1542,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "4660464936": {
     "name": "Dulce Flores Fernandez",
     "grade": 5,
     "ssid": "4660464936",
     "elpac_score": 1500,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4713951453": {
     "name": "Robert Jimenez",
     "grade": 5,
     "ssid": "4713951453",
     "elpac_score": 1480,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "5911884540": {
     "name": "Neymar Sacayon Gonzalez",
     "grade": 5,
     "ssid": "5911884540",
     "elpac_score": 1508,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Well Developed",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "5963573744": {
     "name": "Alexander Reyes Luna",
     "grade": 5,
     "ssid": "5963573744",
     "elpac_score": 1560,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "6294172285": {
     "name": "Jaime Cano Silva",
     "grade": 5,
     "ssid": "6294172285",
     "elpac_score": 1594,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "6846608430": {
     "name": "Cristina Segovia Garcia",
     "grade": 5,
     "ssid": "6846608430",
     "elpac_score": 1483,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "7069462874": {
     "name": "David Barco",
     "grade": 5,
     "ssid": "7069462874",
     "elpac_score": 1559,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "7076749037": {
     "name": "Gael Hernandez Chavez",
     "grade": 5,
     "ssid": "7076749037",
     "elpac_score": 1478,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7093566077": {
     "name": "Fernanda Fuentes",
     "grade": 5,
     "ssid": "7093566077",
     "elpac_score": 1541,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "7425244225": {
     "name": "Bella Pacheco",
     "grade": 5,
     "ssid": "7425244225",
     "elpac_score": 1543,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7431251264": {
     "name": "Victor Prudencio",
     "grade": 5,
     "ssid": "7431251264",
     "elpac_score": 1508,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7431813123": {
     "name": "Ariana Jimenez",
     "grade": 5,
     "ssid": "7431813123",
     "elpac_score": 1460,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7634928982": {
     "name": "Nicolle Mejia",
     "grade": 5,
     "ssid": "7634928982",
     "elpac_score": 1668,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Well Developed"
   },
   "7726495983": {
     "name": "Jacob Amezcua",
     "grade": 5,
     "ssid": "7726495983",
     "elpac_score": 1521,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "8497622801": {
     "name": "Mariana Leal Hernandez",
     "grade": 5,
     "ssid": "8497622801",
     "elpac_score": 1483,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Beginning to Develop",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "8722926325": {
     "name": "Ayleen Huerta Hernandez",
     "grade": 5,
     "ssid": "8722926325",
     "elpac_score": 1492,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "8787288262": {
     "name": "Diego Martinez",
     "grade": 5,
     "ssid": "8787288262",
     "elpac_score": 1573,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "9051329395": {
     "name": "Sarah Guevara Flores",
     "grade": 5,
     "ssid": "9051329395",
     "elpac_score": 1498,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Beginning to Develop"
   },
   "9919493998": {
     "name": "Bryana Del Cid",
     "grade": 5,
     "ssid": "9919493998",
     "elpac_score": 1486,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "4392299441": {
     "name": "Livana Cruz Sandoval",
     "grade": 6,
     "ssid": "4392299441",
     "elpac_score": 1502,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4807640790": {
     "name": "Melanie Rivera Godines",
     "grade": 6,
     "ssid": "4807640790",
     "elpac_score": 1548,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5013003374": {
     "name": "Cristina De La Torre Garcia",
     "grade": 6,
     "ssid": "5013003374",
     "elpac_score": 1575,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5978094974": {
     "name": "Clesmin Gonzalez Villatoro",
     "grade": 6,
     "ssid": "5978094974",
     "elpac_score": 1392,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Beginning to Develop",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "6632210362": {
     "name": "Jocelyn Ayala Pulido",
     "grade": 6,
     "ssid": "6632210362",
     "elpac_score": 1529,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7009683028": {
     "name": "Shadani Sandoval Reyes",
     "grade": 6,
     "ssid": "7009683028",
     "elpac_score": 1608,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Well Developed"
   },
   "7577282880": {
     "name": "Sergio Gonzalez De La Cruz",
     "grade": 6,
     "ssid": "7577282880",
     "elpac_score": 1604,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "7736305882": {
     "name": "Kimberly Ordonez Hernandez",
     "grade": 6,
     "ssid": "7736305882",
     "elpac_score": 1566,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7912079932": {
     "name": "Elizabeth Raymundo Rivera",
     "grade": 6,
     "ssid": "7912079932",
     "elpac_score": 1521,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "9036841285": {
     "name": "Nathalie Cruz",
     "grade": 6,
     "ssid": "9036841285",
     "elpac_score": 1624,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Well Developed"
   },
   "9612585538": {
     "name": "Pedro Cifuentes Miranda",
     "grade": 6,
     "ssid": "9612585538",
     "elpac_score": 1745,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "9761859246": {
     "name": "Yeshaya Martinez Amaya",
     "grade": 6,
     "ssid": "9761859246",
     "elpac_score": 1441,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "4345510410": {
     "name": "Michael Martinez-Rojas",
     "grade": 7,
     "ssid": "4345510410",
     "elpac_score": 1558,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4370317626": {
     "name": "Neymar Gutierrez-Garcia",
     "grade": 7,
     "ssid": "4370317626",
     "elpac_score": 1572,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "5187430889": {
     "name": "Cristy Gallegos Nieto",
     "grade": 7,
     "ssid": "5187430889",
     "elpac_score": 1577,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5204173004": {
     "name": "Liliana Casiano Lopez",
     "grade": 7,
     "ssid": "5204173004",
     "elpac_score": 1586,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5532005463": {
     "name": "Ariana Guerrero Murcia",
     "grade": 7,
     "ssid": "5532005463",
     "elpac_score": 1570,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5907682978": {
     "name": "Jacob Armas-Sanchez",
     "grade": 7,
     "ssid": "5907682978",
     "elpac_score": 1608,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5952443837": {
     "name": "Larissa Morales",
     "grade": 7,
     "ssid": "5952443837",
     "elpac_score": 1584,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5972565420": {
     "name": "Mathew Rivera",
     "grade": 7,
     "ssid": "5972565420",
     "elpac_score": 1588,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "6290340535": {
     "name": "Jacob Mejia",
     "grade": 7,
     "ssid": "6290340535",
     "elpac_score": 1548,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "6672097890": {
     "name": "Nathanael Baez",
     "grade": 7,
     "ssid": "6672097890",
     "elpac_score": 1509,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "7540122418": {
     "name": "Jose Gerardo Martinez",
     "grade": 7,
     "ssid": "7540122418",
     "elpac_score": 1494,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "8194424455": {
     "name": "Ana Gabriela Alvarado De Rosas",
     "grade": 7,
     "ssid": "8194424455",
     "elpac_score": 1505,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "8631256173": {
     "name": "Jesus Martinez Gomez",
     "grade": 7,
     "ssid": "8631256173",
     "elpac_score": 1642,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Well Developed"
   },
   "9537905564": {
     "name": "Gerson Sensente Manchan",
     "grade": 7,
     "ssid": "9537905564",
     "elpac_score": 1521,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4308451356": {
     "name": "Haily Sotarriba",
     "grade": 8,
     "ssid": "4308451356",
     "elpac_score": 1522,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "4329473602": {
     "name": "Karla Sandoval",
     "grade": 8,
     "ssid": "4329473602",
     "elpac_score": 1568,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "4681908988": {
     "name": "Erick Gonzalez Garcia",
     "grade": 8,
     "ssid": "4681908988",
     "elpac_score": 1481,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Beginning to Develop",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "5125568692": {
     "name": "Andrea Gutierrez",
     "grade": 8,
     "ssid": "5125568692",
     "elpac_score": 1560,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Well Developed",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "5588345643": {
     "name": "Jonathan Pineda Hernandez",
     "grade": 8,
     "ssid": "5588345643",
     "elpac_score": 1549,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Well Developed",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5661994656": {
     "name": "Sophie Guardado",
     "grade": 8,
     "ssid": "5661994656",
     "elpac_score": 1582,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "5691914065": {
     "name": "Alexander Lopez",
     "grade": 8,
     "ssid": "5691914065",
     "elpac_score": 1526,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "6474241225": {
     "name": "Chelsea Santos Ruiz",
     "grade": 8,
     "ssid": "6474241225",
     "elpac_score": 1458,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Beginning to Develop",
+    "reading": "Somewhat/Moderately",
+    "writing": "Beginning to Develop"
   },
   "6731748742": {
     "name": "Ashley Gonzalez Arellano",
     "grade": 8,
     "ssid": "6731748742",
     "elpac_score": 1642,
-    "elpac_level": 4
+    "elpac_level": 4,
+    "listening": "Well Developed",
+    "speaking": "Well Developed",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "7055622134": {
     "name": "Axel Bracamontes",
     "grade": 8,
     "ssid": "7055622134",
     "elpac_score": 1574,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "7928847450": {
     "name": "Rigo Vasquez Ambriz",
     "grade": 8,
     "ssid": "7928847450",
     "elpac_score": 1468,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Beginning to Develop"
   },
   "7932543581": {
     "name": "Miguel Trinidad",
     "grade": 8,
     "ssid": "7932543581",
     "elpac_score": 1484,
-    "elpac_level": 1
+    "elpac_level": 1,
+    "listening": "Beginning to Develop",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "8441226595": {
     "name": "Jaimy Palacios Monge",
     "grade": 8,
     "ssid": "8441226595",
     "elpac_score": 1569,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Well Developed",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Well Developed",
+    "writing": "Somewhat/Moderately"
   },
   "8460953155": {
     "name": "Jessica Ramos",
     "grade": 8,
     "ssid": "8460953155",
     "elpac_score": 1507,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Beginning to Develop",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   },
   "9106674513": {
     "name": "Melanie Rivas Tecun",
     "grade": 8,
     "ssid": "9106674513",
     "elpac_score": 1526,
-    "elpac_level": 2
+    "elpac_level": 2,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Well Developed",
+    "reading": "Beginning to Develop",
+    "writing": "Somewhat/Moderately"
   },
   "9402719894": {
     "name": "Lizbeth Cerda Alejo",
     "grade": 8,
     "ssid": "9402719894",
     "elpac_score": 1556,
-    "elpac_level": 3
+    "elpac_level": 3,
+    "listening": "Somewhat/Moderately",
+    "speaking": "Somewhat/Moderately",
+    "reading": "Somewhat/Moderately",
+    "writing": "Somewhat/Moderately"
   }
 }
