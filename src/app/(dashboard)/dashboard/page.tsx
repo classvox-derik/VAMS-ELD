@@ -14,6 +14,7 @@ import type { ELLevel } from "@/types";
 import { DashboardGreeting } from "@/components/dashboard/greeting";
 import { AIUsageCard } from "@/components/dashboard/ai-usage-card";
 import { UpdatesCard } from "@/components/dashboard/updates-card";
+import elpacScoresData from "@/data/elpac-scores.json";
 
 const levelStyles: Record<ELLevel, string> = {
   Emerging: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
@@ -67,6 +68,14 @@ async function getStudentStats() {
 export default async function DashboardPage() {
   const stats = await getStudentStats();
 
+  const elpacScoresList = Object.values(elpacScoresData);
+  const elpacTotal = elpacScoresList.length;
+  const elpacLevelCounts = elpacScoresList.reduce((acc, score: any) => {
+    const level = score.elpac_level;
+    if (level) acc[level] = (acc[level] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
+
   return (
     <div className="space-y-8">
       <div>
@@ -76,14 +85,43 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Total students banner */}
-      <div className="flex items-center gap-3 rounded-2xl border border-eld-almond-silk/40 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
-          <Users className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
+      {/* Overview banners */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Total students banner */}
+        <div className="flex items-center gap-3 rounded-2xl border border-eld-almond-silk/40 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-almond-silk/30">
+            <Users className="h-6 w-6 text-eld-space-indigo dark:text-eld-almond-silk" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+            <p className="text-sm text-muted-foreground">Total ELD Students</p>
+          </div>
         </div>
-        <div>
-          <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-          <p className="text-sm text-muted-foreground">Total ELD Students</p>
+
+        {/* ELPAC scores banner */}
+        <div className="flex items-center justify-between rounded-2xl border border-eld-space-indigo/20 bg-gradient-to-br from-eld-space-indigo/5 to-transparent p-5 dark:from-eld-space-indigo/10 dark:border-eld-space-indigo/30">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eld-space-indigo text-white shadow-sm dark:bg-eld-almond-silk dark:text-eld-space-indigo font-bold text-xl">
+              E
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">{elpacTotal}</p>
+              <p className="text-sm text-muted-foreground">ELPAC Scores Loaded</p>
+            </div>
+          </div>
+          <div className="text-right hidden sm:block">
+            <p className="text-xs text-muted-foreground mb-1">Performance Levels</p>
+            <div className="flex gap-1.5">
+              {[4, 3, 2, 1].map(level => (
+                <div key={level} className="flex flex-col items-center">
+                  <span className="text-[10px] font-medium leading-none mb-1 text-muted-foreground">L{level}</span>
+                  <div className="h-6 w-6 rounded-full bg-eld-space-indigo/10 text-eld-space-indigo dark:bg-gray-800 dark:text-eld-almond-silk flex items-center justify-center text-xs font-semibold">
+                    {elpacLevelCounts[level] || 0}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

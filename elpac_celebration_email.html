@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELPAC Scores Are In</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f2f3f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1e293b;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .email-wrapper {
+            max-width: 660px;
+            margin: 32px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        /* ── Header ── */
+        .header {
+            background: #0e3a5c;
+            padding: 40px 44px 36px;
+            color: #ffffff;
+        }
+
+        .header-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #d4a836;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 15px;
+            color: rgba(255,255,255,0.78);
+            font-weight: 400;
+        }
+
+        .accent-line {
+            height: 3px;
+            background: #d4a836;
+        }
+
+        /* ── Body ── */
+        .body {
+            padding: 40px 44px 44px;
+        }
+
+        @media (max-width: 600px) {
+            .body { padding: 28px 22px 32px; }
+            .header { padding: 32px 22px 28px; }
+            .header h1 { font-size: 22px; }
+            .student-grid { grid-template-columns: 1fr !important; }
+        }
+
+        .salutation {
+            font-size: 15px;
+            color: #334155;
+            margin-bottom: 28px;
+        }
+
+        .salutation strong {
+            font-weight: 600;
+        }
+
+        /* ── Thank You Section ── */
+        .thankyou {
+            background: #fdfaf2;
+            border: 1px solid #ede3c3;
+            border-radius: 10px;
+            padding: 22px 26px;
+            margin-bottom: 36px;
+        }
+
+        .thankyou h3 {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: #6b5517;
+        }
+
+        .thankyou p {
+            margin: 0;
+            font-size: 14px;
+            color: #5c4a14;
+            line-height: 1.75;
+        }
+
+        .thankyou strong {
+            font-weight: 600;
+        }
+
+        /* ── Grade Sections ── */
+        .grade-section {
+            margin-bottom: 28px;
+        }
+
+        .grade-label {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .grade-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0e3a5c;
+        }
+
+        .grade-count {
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+
+        .student-grid {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .student-grid li {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #334155;
+            padding: 9px 14px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        /* ── Notice Boxes ── */
+        .notice {
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-top: 28px;
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        .notice h4 {
+            margin: 0 0 6px 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .notice p {
+            margin: 0;
+        }
+
+        .notice-blue {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+        .notice-blue h4 { color: #1e40af; }
+        .notice-blue p { color: #1e3a5f; }
+
+        .notice-green {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+        .notice-green h4 { color: #166534; }
+        .notice-green p { color: #14532d; }
+
+        .notice-amber {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+        .notice-amber h4 { color: #92400e; }
+        .notice-amber p { color: #78350f; }
+        .notice-amber strong { font-weight: 600; }
+
+        /* ── Closing ── */
+        .closing {
+            margin-top: 36px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.8;
+        }
+
+        .sig {
+            margin-top: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+
+        <div class="header">
+            <div class="header-label">Score Update</div>
+            <h1>The ELPAC Scores Are In</h1>
+            <p>Congratulations to our students who passed with an overall score of 4.</p>
+        </div>
+        <div class="accent-line"></div>
+
+        <div class="body">
+
+            <div class="salutation">
+                <strong>Dear Teachers and Administration,</strong>
+                <br><br>
+                I am thrilled to share the wonderful news about our students who have demonstrated exceptional growth and achievement on this year's ELPAC exam. Their success is a testament to their hard work, determination, and the incredible support system we have here at our school.
+            </div>
+
+            <div class="thankyou">
+                <h3>A Special Thank You</h3>
+                <p>
+                    This achievement would not have been possible without the dedication of our amazing teachers and administrative staff who supported the ELPAC facilitation process. A very special shout-out to <strong>Ms. Dani</strong>, <strong>Mr. Navarro</strong>, and <strong>Ms. Castaneda</strong> for going above and beyond in assisting with ELPAC facilitation. Your commitment made all the difference!
+                </p>
+            </div>
+
+            <!-- 5th Grade -->
+            <div class="grade-section">
+                <div class="grade-label">
+                    <span class="grade-name">5th Grade</span>
+                    <span class="grade-count">4 students</span>
+                </div>
+                <ul class="student-grid">
+                    <li>Alexander Reyes Luna</li>
+                    <li>Jaime A. Cano Silva</li>
+                    <li>Nicolle A. Mejia</li>
+                    <li>Diego J. Martinez</li>
+                </ul>
+            </div>
+
+            <!-- 6th Grade -->
+            <div class="grade-section">
+                <div class="grade-label">
+                    <span class="grade-name">6th Grade</span>
+                    <span class="grade-count">13 students</span>
+                </div>
+                <ul class="student-grid">
+                    <li>Leonardo Alvarez</li>
+                    <li>Mateo M. Carballo</li>
+                    <li>Pedro S. Cifuentes Miranda</li>
+                    <li>Nathalie N. Cruz</li>
+                    <li>Cristina De La Torre Garcia</li>
+                    <li>Sergio S. Gonzalez De La Cruz</li>
+                    <li>Shadani S. Sandoval Reyes</li>
+                    <li>Jeffrey O. Soc Duarte</li>
+                    <li>Martin Suarez Angulo</li>
+                    <li>Jason Zepeda</li>
+                    <li>Jacob Armas-Sanchez</li>
+                    <li>Isaac R. Arroyo</li>
+                    <li>Belen Barbosa</li>
+                </ul>
+            </div>
+
+            <!-- 7th Grade -->
+            <div class="grade-section">
+                <div class="grade-label">
+                    <span class="grade-name">7th Grade</span>
+                    <span class="grade-count">10 students</span>
+                </div>
+                <ul class="student-grid">
+                    <li>Steven E. Campos Vasquez</li>
+                    <li>Liliana Casiano Lopez</li>
+                    <li>Eric D. Clemente</li>
+                    <li>Cristy Gallegos Nieto</li>
+                    <li>Matthew A. Garcia</li>
+                    <li>Jesus D. Martinez Gomez</li>
+                    <li>Larissa M. Morales</li>
+                    <li>Andrea G. Padilla</li>
+                    <li>Mathew A. Rivera</li>
+                    <li>Kevin A. Zamora Machado</li>
+                </ul>
+            </div>
+
+            <!-- 8th Grade -->
+            <div class="grade-section">
+                <div class="grade-label">
+                    <span class="grade-name">8th Grade</span>
+                    <span class="grade-count">1 student</span>
+                </div>
+                <ul class="student-grid">
+                    <li>Ashley Gonzalez Arellano</li>
+                </ul>
+            </div>
+
+            <!-- Notices -->
+            <div class="notice notice-blue">
+                <h4>📜 Certificates of Achievement</h4>
+                <p>All students who passed the ELPAC will receive a Certificate of Achievement from me next week. Please take a moment to congratulate these students on their incredible accomplishment when you get a chance!</p>
+            </div>
+
+            <div class="notice notice-green">
+                <h4>⏰ Student Pull-Out</h4>
+                <p>I will be pulling these students at <strong>10:20</strong> today to inform them of their success. Thank you for your flexibility and support!</p>
+            </div>
+
+            <div class="notice notice-amber">
+                <h4>⚠️ Important Reminder</h4>
+                <p>
+                    Please be mindful when discussing ELPAC scores with students and parents. <strong>Passing the ELPAC test is not the same as being reclassified.</strong> Students must still meet <strong>all 4 requirements</strong> to be officially reclassified as RFEP (Reclassified Fluent English Proficient). Let's celebrate their achievement while keeping this distinction clear.
+                </p>
+            </div>
+
+            <!-- Closing -->
+            <div class="closing">
+                Once again, congratulations to our students and thank you to everyone who played a part in this success. Let's continue to support and inspire our English learners!
+                <div class="sig">Warm regards,</div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

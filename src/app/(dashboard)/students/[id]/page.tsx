@@ -25,6 +25,7 @@ import { getStudentById } from "@/lib/queries/students";
 import { defaultScaffolds } from "@/lib/seed-scaffolds";
 import type { Student } from "@/types";
 import { formatDate } from "@/lib/utils";
+import elpacScoresData from "@/data/elpac-scores.json";
 
 const categoryIcons: Record<string, React.ElementType> = {
   color_coding: Palette,
@@ -70,6 +71,8 @@ export default function StudentDetailPage() {
         s.el_level_target.includes(student.el_level)
       )
     : [];
+
+  const studentElpac = student?.ssid ? (elpacScoresData as any)[student.ssid] : null;
 
   if (isLoading) {
     return (
@@ -152,6 +155,37 @@ export default function StudentDetailPage() {
           </Link>
         </Button>
       </div>
+
+      {/* ELPAC Score Section */}
+      {studentElpac && (
+        <Card className="overflow-hidden border-eld-space-indigo/20 bg-gradient-to-br from-eld-space-indigo/5 to-transparent dark:from-eld-space-indigo/10 dark:border-eld-space-indigo/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Overall ELPAC Performance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Scale Score</span>
+                <span className="text-4xl font-bold text-foreground mt-1">{studentElpac.elpac_score}</span>
+              </div>
+              <div className="hidden sm:block h-12 w-px bg-border" />
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Overall Level</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-eld-space-indigo text-white font-bold text-lg dark:bg-eld-almond-silk dark:text-eld-space-indigo shadow-sm">
+                    {studentElpac.elpac_level}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {studentElpac.elpac_level === 4 ? "Well Developed" :
+                     studentElpac.elpac_level === 3 ? "Moderately Developed" :
+                     studentElpac.elpac_level === 2 ? "Somewhat Developed" : "Beginning to Develop"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recommended Scaffolds */}
       <div>
