@@ -160,10 +160,20 @@ export default function StudentDetailPage() {
       {studentElpac && (
         <Card className="overflow-hidden border-eld-space-indigo/20 bg-gradient-to-br from-eld-space-indigo/5 to-transparent dark:from-eld-space-indigo/10 dark:border-eld-space-indigo/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">2025/2026 Overall ELPAC Performance</CardTitle>
+            <div className="flex items-start justify-between flex-wrap gap-2">
+              <CardTitle className="text-lg font-semibold text-eld-space-indigo dark:text-eld-almond-silk">
+                2025/2026 ELPAC Performance
+              </CardTitle>
+              {studentElpac.test_date && (
+                <span className="text-xs text-muted-foreground bg-muted/50 rounded-full px-3 py-1">
+                  Tested {studentElpac.test_date}
+                </span>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-6">
+              {/* Score + Level row */}
               <div className="flex flex-wrap items-center gap-6">
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground">Scale Score</span>
@@ -185,13 +195,15 @@ export default function StudentDetailPage() {
                 </div>
               </div>
 
-              {/* Domains Section */}
+              {/* Domain scores */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/50">
                 {/* Oral Language */}
                 <div className="flex flex-col gap-3 p-4 rounded-lg bg-eld-dusty-grape/5 dark:bg-eld-dusty-grape/10 border border-eld-dusty-grape/10">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Oral Language Score</span>
-                    <span className="text-xl font-bold">{studentElpac.oral_score || "N/A"}</span>
+                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Oral Language</span>
+                    {studentElpac.oral_score && (
+                      <span className="text-xl font-bold">{studentElpac.oral_score}</span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col">
@@ -208,8 +220,10 @@ export default function StudentDetailPage() {
                 {/* Written Language */}
                 <div className="flex flex-col gap-3 p-4 rounded-lg bg-eld-almond-silk/30 dark:bg-eld-almond-silk/5 border border-eld-almond-silk/40 dark:border-eld-almond-silk/10">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Written Language Score</span>
-                    <span className="text-xl font-bold">{studentElpac.written_score || "N/A"}</span>
+                    <span className="font-semibold text-eld-space-indigo dark:text-eld-almond-silk">Written Language</span>
+                    {studentElpac.written_score && (
+                      <span className="text-xl font-bold">{studentElpac.written_score}</span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col">
@@ -223,6 +237,77 @@ export default function StudentDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Prior year history */}
+              {(studentElpac.prior_yr1_grade || studentElpac.prior_yr2_grade || studentElpac.prior_yr3_grade) && (
+                <div className="pt-4 border-t border-border/50">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                    Year-over-Year Progress
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {/* Current year — always shown */}
+                    <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-eld-space-indigo/10 dark:bg-eld-space-indigo/20 border border-eld-space-indigo/20 ring-1 ring-eld-space-indigo/30">
+                      <span className="text-xs font-medium text-muted-foreground">This Year</span>
+                      <span className="text-xl font-bold text-foreground">{studentElpac.elpac_score}</span>
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-eld-space-indigo text-white font-bold text-sm dark:bg-eld-almond-silk dark:text-eld-space-indigo shadow-sm">
+                        {studentElpac.elpac_level}
+                      </div>
+                      <span className="text-xs text-muted-foreground">Grade {studentElpac.grade}</span>
+                    </div>
+
+                    {/* Prior Year 1 */}
+                    {studentElpac.prior_yr1_grade && studentElpac.prior_yr1_score && (
+                      <>
+                        <div className="self-center text-muted-foreground/40">←</div>
+                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/40 border border-border/50">
+                          <span className="text-xs font-medium text-muted-foreground">Prior Year 1</span>
+                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr1_score}</span>
+                          {studentElpac.prior_yr1_level && (
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/20 font-bold text-sm text-foreground">
+                              {studentElpac.prior_yr1_level}
+                            </div>
+                          )}
+                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr1_grade}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Prior Year 2 */}
+                    {studentElpac.prior_yr2_grade && studentElpac.prior_yr2_score && (
+                      <>
+                        <div className="self-center text-muted-foreground/40">←</div>
+                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/30 border border-border/40">
+                          <span className="text-xs font-medium text-muted-foreground">Prior Year 2</span>
+                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr2_score}</span>
+                          {studentElpac.prior_yr2_level && (
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/15 font-bold text-sm text-foreground">
+                              {studentElpac.prior_yr2_level}
+                            </div>
+                          )}
+                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr2_grade}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Prior Year 3 */}
+                    {studentElpac.prior_yr3_grade && studentElpac.prior_yr3_score && (
+                      <>
+                        <div className="self-center text-muted-foreground/40">←</div>
+                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20 border border-border/30">
+                          <span className="text-xs font-medium text-muted-foreground">Prior Year 3</span>
+                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr3_score}</span>
+                          {studentElpac.prior_yr3_level && (
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/10 font-bold text-sm text-foreground">
+                              {studentElpac.prior_yr3_level}
+                            </div>
+                          )}
+                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr3_grade}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
