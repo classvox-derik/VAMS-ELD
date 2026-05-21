@@ -68,8 +68,8 @@ export default function StudentDetailPage() {
   // Get recommended scaffolds for this student's EL level
   const recommendedScaffolds = student
     ? defaultScaffolds.filter((s) =>
-        s.el_level_target.includes(student.el_level)
-      )
+      s.el_level_target.includes(student.el_level)
+    )
     : [];
 
   const studentElpac = student?.ssid ? (elpacScoresData as any)[student.ssid] : null;
@@ -188,8 +188,8 @@ export default function StudentDetailPage() {
                     </div>
                     <span className="text-sm font-medium text-foreground">
                       {studentElpac.elpac_level === 4 ? "Well Developed" :
-                       studentElpac.elpac_level === 3 ? "Moderately Developed" :
-                       studentElpac.elpac_level === 2 ? "Somewhat Developed" : "Beginning to Develop"}
+                        studentElpac.elpac_level === 3 ? "Moderately Developed" :
+                          studentElpac.elpac_level === 2 ? "Somewhat Developed" : "Beginning to Develop"}
                     </span>
                   </div>
                 </div>
@@ -238,14 +238,54 @@ export default function StudentDetailPage() {
                 </div>
               </div>
 
-              {/* Prior year history */}
+              {/* Prior year history — sorted by grade level */}
               {(studentElpac.prior_yr1_grade || studentElpac.prior_yr2_grade || studentElpac.prior_yr3_grade) && (
                 <div className="pt-4 border-t border-border/50">
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                     Year-over-Year Progress
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {/* Current year — always shown */}
+                    {/* Collect and sort prior years by grade level (ascending) */}
+                    {[
+                      studentElpac.prior_yr1_grade && studentElpac.prior_yr1_score
+                        ? { grade: studentElpac.prior_yr1_grade, score: studentElpac.prior_yr1_score, level: studentElpac.prior_yr1_level }
+                        : null,
+                      studentElpac.prior_yr2_grade && studentElpac.prior_yr2_score
+                        ? { grade: studentElpac.prior_yr2_grade, score: studentElpac.prior_yr2_score, level: studentElpac.prior_yr2_level }
+                        : null,
+                      studentElpac.prior_yr3_grade && studentElpac.prior_yr3_score
+                        ? { grade: studentElpac.prior_yr3_grade, score: studentElpac.prior_yr3_score, level: studentElpac.prior_yr3_level }
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .sort((a: any, b: any) => {
+                        const gradeA = parseInt(a.grade.replace(/\D/g, ''), 10);
+                        const gradeB = parseInt(b.grade.replace(/\D/g, ''), 10);
+                        return gradeA - gradeB;
+                      })
+                      .map((prior: any, idx: number) => (
+                        <>
+                          {idx > 0 && <div className="self-center text-muted-foreground/40">→</div>}
+                          <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/40 border border-border/50">
+                            <span className="text-xs font-medium text-muted-foreground">{prior.grade}</span>
+                            <span className="text-xl font-bold text-foreground">{prior.score}</span>
+                            {prior.level && (
+                              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/20 font-bold text-sm text-foreground">
+                                {prior.level}
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      ))}
+
+                    {/* Arrow to current year */}
+                    {[
+                      studentElpac.prior_yr1_grade, studentElpac.prior_yr2_grade, studentElpac.prior_yr3_grade
+                    ].filter(Boolean).length > 0 && (
+                        <div className="self-center text-muted-foreground/40">→</div>
+                      )}
+
+                    {/* Current year — always shown last */}
                     <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-eld-space-indigo/10 dark:bg-eld-space-indigo/20 border border-eld-space-indigo/20 ring-1 ring-eld-space-indigo/30">
                       <span className="text-xs font-medium text-muted-foreground">This Year</span>
                       <span className="text-xl font-bold text-foreground">{studentElpac.elpac_score}</span>
@@ -254,57 +294,6 @@ export default function StudentDetailPage() {
                       </div>
                       <span className="text-xs text-muted-foreground">Grade {studentElpac.grade}</span>
                     </div>
-
-                    {/* Prior Year 1 */}
-                    {studentElpac.prior_yr1_grade && studentElpac.prior_yr1_score && (
-                      <>
-                        <div className="self-center text-muted-foreground/40">←</div>
-                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/40 border border-border/50">
-                          <span className="text-xs font-medium text-muted-foreground">Prior Year 1</span>
-                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr1_score}</span>
-                          {studentElpac.prior_yr1_level && (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/20 font-bold text-sm text-foreground">
-                              {studentElpac.prior_yr1_level}
-                            </div>
-                          )}
-                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr1_grade}</span>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Prior Year 2 */}
-                    {studentElpac.prior_yr2_grade && studentElpac.prior_yr2_score && (
-                      <>
-                        <div className="self-center text-muted-foreground/40">←</div>
-                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/30 border border-border/40">
-                          <span className="text-xs font-medium text-muted-foreground">Prior Year 2</span>
-                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr2_score}</span>
-                          {studentElpac.prior_yr2_level && (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/15 font-bold text-sm text-foreground">
-                              {studentElpac.prior_yr2_level}
-                            </div>
-                          )}
-                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr2_grade}</span>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Prior Year 3 */}
-                    {studentElpac.prior_yr3_grade && studentElpac.prior_yr3_score && (
-                      <>
-                        <div className="self-center text-muted-foreground/40">←</div>
-                        <div className="flex-1 min-w-[120px] flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20 border border-border/30">
-                          <span className="text-xs font-medium text-muted-foreground">Prior Year 3</span>
-                          <span className="text-xl font-bold text-foreground">{studentElpac.prior_yr3_score}</span>
-                          {studentElpac.prior_yr3_level && (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted-foreground/10 font-bold text-sm text-foreground">
-                              {studentElpac.prior_yr3_level}
-                            </div>
-                          )}
-                          <span className="text-xs text-muted-foreground">{studentElpac.prior_yr3_grade}</span>
-                        </div>
-                      </>
-                    )}
                   </div>
                 </div>
               )}
