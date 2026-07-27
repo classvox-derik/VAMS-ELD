@@ -1,0 +1,216 @@
+// Database table types matching the Supabase schema
+
+export interface User {
+    id: string;
+    email: string;
+    name: string;
+    google_refresh_token?: string;
+    preferences: {
+        theme: "light" | "dark";
+        defaultView: "grid" | "list";
+    };
+    created_at: string;
+    last_login?: string;
+}
+
+export interface Student {
+    id: string;
+    ssid: string;
+    name: string;
+    grade: number;
+    homeroom: string;
+    el_level: ELLevel;
+    overall_level: number;
+    oral_language_level: number;
+    written_language_level: number;
+    elpac_score?: number;
+    elpac_level?: number;
+    primary_language: string;
+    custom_scaffolds: string[];
+    notes?: string;
+    created_by: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ScaffoldTemplate {
+    id: string;
+    name: string;
+    description: string;
+    category: ScaffoldCategory;
+    el_level_target: ELLevel[];
+    ai_prompt_template: string;
+    example_html?: string;
+    is_default: boolean;
+    created_by?: string;
+    created_at: string;
+}
+
+export interface Assignment {
+    id: string;
+    teacher_id: string;
+    title: string;
+    subject?: string;
+    grade_level?: number;
+    original_content: string;
+    source_type: "text" | "upload" | "google_doc" | "google_slides";
+    source_url?: string;
+    file_url?: string;
+    created_at: string;
+}
+
+export interface DifferentiatedAssignment {
+    id: string;
+    assignment_id: string;
+    teacher_id: string;
+    student_id?: string;
+    student_name?: string;
+    assignment_title: string;
+    el_level?: ELLevel;
+    scaffolds_applied: string[];
+    output_html: string;
+    original_content?: string;
+    word_bank?: { term: string; definition: string }[] | null;
+    teacher_instructions?: string | null;
+    is_demo: boolean;
+    google_doc_id?: string;
+    google_doc_url?: string;
+    pdf_url?: string;
+    teacher_notes?: string;
+    source_doc_id?: string;
+    scaffold_actions?: ScaffoldAction[] | null;
+    created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Scaffold Actions — structured modifications for clone-based Google Docs export
+// ---------------------------------------------------------------------------
+
+/** Flat shape compatible with Gemini structured output (all optional fields, action_type discriminator) */
+export interface ScaffoldAction {
+    action_type: "highlight_range" | "insert_after_paragraph" | "insert_divider_after_paragraph" | "append_section";
+    /** For highlight_range: exact text to highlight (must be verbatim from original) */
+    search_text?: string;
+    /** Hex color for highlights or section styling (e.g., "#FFF176") */
+    background_color?: string;
+    /** Category label for highlights (e.g., "topic_sentence", "evidence", "transition") */
+    category?: string;
+    /** For insert/divider actions: first 60+ chars of the target paragraph */
+    paragraph_prefix?: string;
+    /** For insert_after_paragraph: the text content to insert */
+    insert_content?: string;
+    /** For insert_divider_after_paragraph: optional divider label (e.g., "Section 2 of 4") */
+    label?: string;
+    /** For append_section: the section heading */
+    heading?: string;
+    /** For append_section: the section body text */
+    content?: string;
+    /** For append_section word banks: term-definition pairs */
+    items?: { term: string; definition: string }[];
+    /** For append_section: style hint */
+    section_style?: "word_bank" | "sentence_frames" | "translation";
+    /** Inline style overrides for inserted content */
+    style_italic?: boolean;
+    style_bold?: boolean;
+    style_font_size_pt?: number;
+    style_text_color?: string;
+}
+
+/** Structured output from Gemini scaffold generation */
+export interface ScaffoldGenerationResult {
+    html: string;
+    wordBank: { term: string; definition: string }[] | null;
+    scaffoldsUsed: string[];
+    teacherInstructions: string | null;
+    isDemo: boolean;
+    scaffoldActions?: ScaffoldAction[] | null;
+}
+
+export interface UsageAnalytic {
+    id: string;
+    teacher_id: string;
+    action_type: "scaffold_generated" | "student_viewed" | "assignment_created" | "google_doc_created";
+    metadata?: Record<string, unknown>;
+    created_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Document images extracted from Google Docs
+// ---------------------------------------------------------------------------
+
+export interface DocImage {
+    /** Placeholder ID, e.g. "img_0", "img_1" */
+    id: string;
+    /** Base64 data URI, e.g. "data:image/png;base64,..." */
+    base64: string;
+    /** Width in points */
+    width?: number;
+    /** Height in points */
+    height?: number;
+    mimeType: string;
+}
+
+// Enums and union types
+
+export type ELLevel = "Emerging" | "Expanding" | "Bridging";
+
+export const EL_LEVELS: ELLevel[] = ["Emerging", "Expanding", "Bridging"];
+
+export type ScaffoldCategory =
+    | "color_coding"
+    | "chunking"
+    | "sentence_frames"
+    | "word_banks"
+    | "visual_organizers";
+
+export const SCAFFOLD_CATEGORIES: ScaffoldCategory[] = [
+    "color_coding",
+    "chunking",
+    "sentence_frames",
+    "word_banks",
+    "visual_organizers",
+];
+
+export type ColorCodingMode = "parts_of_speech" | "easier_to_read";
+
+export interface ColorCodingWordTypes {
+    nouns: boolean;
+    verbs: boolean;
+    adjectives: boolean;
+    vocabulary: boolean;
+}
+
+export interface ColorCodingOptions {
+    mode: ColorCodingMode;
+    /** Which word types to highlight (only used when mode is "parts_of_speech") */
+    wordTypes: ColorCodingWordTypes;
+}
+
+export const DEFAULT_COLOR_CODING_OPTIONS: ColorCodingOptions = {
+    mode: "parts_of_speech",
+    wordTypes: { nouns: true, verbs: true, adjectives: true, vocabulary: true },
+};
+
+export const GRADES = [5, 6, 7, 8] as const;
+export type Grade = (typeof GRADES)[number];
+
+export const SUBJECTS = ["ELA", "ELD", "IST", "Math", "Science", "Social Studies", "Other"] as const;
+export type Subject = (typeof SUBJECTS)[number];
+
+// Navigation types
+
+export interface NavItem {
+    title: string;
+    href: string;
+    icon: string;
+    description?: string;
+}
+
+// Dashboard types
+
+export interface DashboardStats {
+    studentsByLevel: Record<ELLevel, number>;
+    todayAIUsage: number;
+    dailyAILimit: number;
+    recentAssignments: Assignment[];
+}
